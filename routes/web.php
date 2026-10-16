@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -17,9 +18,10 @@ Route::post('/login', [
     'login'
 ])->name('login.process');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
+Route::get('/dashboard', [
+    DashboardController::class,
+    'index'
+])->middleware('auth');
 
 Route::post('/logout', [
     AuthController::class,
