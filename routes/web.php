@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KategoriController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -18,12 +19,16 @@ Route::post('/login', [
     'login'
 ])->name('login.process');
 
-Route::get('/dashboard', [
-    DashboardController::class,
-    'index'
-])->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [
+        DashboardController::class,
+        'index'
+    ]);
 
-Route::post('/logout', [
-    AuthController::class,
-    'logout'
-])->name('logout');
+    Route::post('/logout', [
+        AuthController::class,
+        'logout'
+    ])->name('logout');
+    Route::resource('kategori', KategoriController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+});

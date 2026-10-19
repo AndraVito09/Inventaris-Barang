@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class auth_log extends Model
+class Auth_log extends Model
 {
     protected $table = 'auth_log';
     protected $primaryKey = 'id_auth_log';

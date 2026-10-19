@@ -87,7 +87,7 @@
                     <li class="nav-item"><a class="nav-link" href="#">Riwayat</a></li>
                 </ul>
 
-                <span class="text-secondary me-3 small">Halo, {{ auth()->user()->name }}</span>
+                <span class="text-secondary me-3 small">Halo, {{ auth()->user()->username }}</span>
 
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf
