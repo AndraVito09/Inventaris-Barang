@@ -11,10 +11,10 @@ class PeminjamController extends Controller
     {
         return view('peminjam', [
             'totalBarang'     => Barang::count(),
-            'barangTersedia'  => Barang::where('status', 'Tersedia')->count(),
-            'sedangDipinjam'  => Barang::where('status', 'Dipinjam')->count(),
-            'terlambat'       => Peminjaman::where('status', 'Dipinjam')
-                                    ->where('jatuh_tempo', '<', now())->count(),
+            'barangTersedia'  => Barang::where('status_barang', 'Tersedia')->count(),
+            'sedangDipinjam'  => Barang::where('status_barang', 'Dipinjam')->count(),
+            'terlambat'       => Peminjaman::where('status_peminjaman', 'Dipinjam')
+                                    ->where('tgl_jatuh_tempo', '<', now())->count(),
         ]);
     }
 }
