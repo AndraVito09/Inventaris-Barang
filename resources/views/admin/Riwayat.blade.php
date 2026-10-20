@@ -126,23 +126,6 @@
             background: #10251c;
         }
 
-        .btn-pdf {
-            display: inline-block;
-            padding: 10px 18px;
-            color: #07110c;
-            background: var(--green);
-            border: 1px solid var(--green);
-            border-radius: 25px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: .2s;
-        }
-
-        .btn-pdf:hover {
-            color: #07110c;
-            background: #39f5bd;
-        }
-
         .btn-back {
             display: inline-block;
             padding: 9px 16px;
@@ -157,10 +140,30 @@
             background: var(--green);
         }
 
+        .nav-btn-icon {
+            padding: 8px 14px;
+            color: var(--green);
+            background: transparent;
+            border: 1px solid var(--green);
+            border-radius: 25px;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .nav-btn-icon:hover {
+            background: #0b2b20;
+        }
+
         .empty-state {
             padding: 30px;
             color: var(--muted);
             text-align: center;
+        }
+
+        .print-only {
+            display: none;
         }
 
         @media (max-width: 768px) {
@@ -203,6 +206,85 @@
                 font-size: 21px;
             }
         }
+
+        /* ---------- Tampilan saat dicetak / disimpan sebagai PDF ---------- */
+        @page {
+            size: A4 portrait;
+            margin: 12mm;
+        }
+
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            body {
+                background: #fff !important;
+                color: #000 !important;
+            }
+
+            .sidebar,
+            .no-print,
+            .alert {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block;
+                margin: 0 0 12px;
+                color: #444;
+                font-size: 12px;
+            }
+
+            .main-content {
+                min-height: 0;
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+
+            .page-title,
+            .subtitle {
+                color: #000 !important;
+            }
+
+            .panel {
+                padding: 0;
+                background: #fff;
+                border: 0;
+            }
+
+            .table {
+                --bs-table-color: #000;
+            }
+
+            .table th,
+            .table td {
+                padding: 7px 8px !important;
+                color: #000 !important;
+                background: #fff !important;
+                border: 1px solid #999 !important;
+                font-size: 12px;
+            }
+
+            .table thead th {
+                background: #e8f3ee !important;
+            }
+
+            .badge {
+                color: #000 !important;
+                background: #fff !important;
+                border: 1px solid #666;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tr {
+                break-inside: avoid;
+            }
+        }
     </style>
 </head>
 
@@ -243,16 +325,17 @@
                 </p>
             </div>
 
-            <div class="d-flex gap-2 flex-wrap">
+            <div class="d-flex gap-2 flex-wrap no-print">
                 <a href="{{ route('dashboard') }}" class="btn-back">
                     Kembali
                 </a>
 
-                <a href="{{ route('admin.riwayat.pdf') }}" class="btn-pdf">
-                    Cetak PDF
-                </a>
+                <button type="button" class="nav-btn-icon" onclick="window.print()"
+                        title="Cetak / Simpan PDF" aria-label="Cetak">🖨️</button>
             </div>
         </div>
+
+        <p class="print-only">Dicetak pada {{ now()->format('d/m/Y H:i') }}</p>
 
         @if (session('error'))
             <div class="alert alert-danger">
