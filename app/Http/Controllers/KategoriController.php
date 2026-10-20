@@ -16,7 +16,7 @@ class KategoriController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('kategori.index', compact('kategori'));
+        return view('admin.kategori.index', compact('kategori'));
     }
 
     public function store(Request $request)

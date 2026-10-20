@@ -7,6 +7,7 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
+use App\Http\Controllers\BarangController;
 
 Route::get('/', [MenuController::class, 'index'])->name('menu');
 
@@ -30,5 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::resource('kategori', KategoriController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('barang', BarangController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 });
