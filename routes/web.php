@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PeminjamanController;
 
-Route::get('/', function () {
-    return redirect('/login');
-});
+// Halaman utama
+Route::get('/', [MenuController::class, 'index'])
+    ->name('menu');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
