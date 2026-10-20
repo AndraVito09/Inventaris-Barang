@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PeminjamController;
+use App\Http\Controllers\MenuController;
+
 
 // Halaman utama
 Route::get('/', [MenuController::class, 'index'])
