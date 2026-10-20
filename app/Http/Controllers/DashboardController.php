@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $sedangDipinjam = Peminjaman::where('status_peminjaman', 'Dipinjam')->count();
         $terlambat      = Peminjaman::where('status_peminjaman', 'Terlambat')->count();
 
-        return view('Dashboard', compact(
+        return view('admin/Dashboard', compact(
             'totalBarang',
             'barangTersedia',
             'sedangDipinjam',

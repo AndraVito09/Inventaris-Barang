@@ -24,7 +24,7 @@ Route::get('/peminjam/struk/{kode}', [PeminjamanController::class, 'struk']);
 
 // Halaman admin (wajib login)
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
