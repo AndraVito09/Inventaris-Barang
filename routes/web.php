@@ -4,34 +4,24 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MenuController;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\PeminjamController;
 
 // Halaman utama
 Route::get('/', [MenuController::class, 'index'])
     ->name('menu');
 
-// Halaman Menu
-Route::get('/Menu', [MenuController::class, 'index'])
-    ->name('menu.page');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 
-// Form login admin
-Route::get('/login', [AuthController::class, 'showLoginForm'])
-    ->name('login');
+// Halaman peminjam (publik, tanpa login)
+Route::get('/peminjam', [PeminjamController::class, 'index'])->name('peminjam.home');
 
-// Proses login admin
-Route::post('/login', [AuthController::class, 'login'])
-    ->name('login.process');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
-// Dashboard admin (harus login)
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
-    ->name('dashboard');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Halaman peminjaman
-Route::view('/peminjaman', 'peminjaman')
-    ->name('peminjaman.index');
-
-// Proses logout (harus login)
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->middleware('auth')
-    ->name('logout');
+    Route::resource('kategori', KategoriController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+});

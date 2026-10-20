@@ -287,14 +287,7 @@
         $namaUser = $user->name ?: ($user->username ?? 'Admin');
     @endphp
 
-    <!-- Topbar (hanya tampil di layar kecil) -->
-    <header class="topbar d-lg-none sticky-top d-flex align-items-center gap-3 px-3 py-2">
-        <button class="btn btn-gold btn-sm rounded-pill" type="button"
-                data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-            <i class="bi bi-list"></i>
-        </button>
-        <span class="fw-bold fs-5">Inventaris<span class="text-gradient">Barang</span></span>
-    </header>
+                <span class="text-secondary me-3 small">Halo, {{ auth()->user()->username }}</span>
 
     <div class="layout">
 
