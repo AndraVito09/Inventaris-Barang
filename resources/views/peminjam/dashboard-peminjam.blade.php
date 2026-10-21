@@ -1,193 +1,238 @@
 <!DOCTYPE html>
-<html lang="id" data-bs-theme="dark">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard Peminjam - Inventaris Barang</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
     <style>
-        html[data-bs-theme="dark"] {
-            --bs-body-bg: #060d0a;
-            --bs-body-color: #e8f5ef;
-            --bs-secondary-color: #5a8a70;
-            --bs-border-color: rgba(0, 212, 138, 0.15);
-            --teal: #00d48a;
-            --teal-2: #00ffaa;
-            --gold: #f5a623;
-            --rose: #f05a7e;
+        :root {
+            --bg: #0d2622;
+            --bg2: #12302b;
+            --garis: rgba(232, 239, 235, .14);
+            --teks: #e8efeb;
+            --redup: #9bb3aa;
+            --emas: #f1b53d;
+            --tosca: #4fd1ac;
+            --mawar: #f0708f;
         }
-
-        .text-gradient {
-            background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 55%, var(--rose) 100%);
-            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            min-height: 100vh; display: flex; flex-direction: column;
+            background: var(--bg); color: var(--teks);
+            font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            line-height: 1.6;
         }
+        a:focus-visible, button:focus-visible { outline: 3px solid var(--tosca); outline-offset: 3px; }
 
-        .navbar-glass {
-            background: rgba(6, 13, 10, 0.85);
-            backdrop-filter: blur(24px);
-            border-bottom: 1px solid var(--bs-border-color);
+        /* Navbar */
+        .nav { position: sticky; top: 0; z-index: 20; background: rgba(13, 38, 34, .92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--garis); }
+        .nav-isi { max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 32px; position: relative; }
+        .merek { display: flex; align-items: center; gap: 12px; color: var(--teks); text-decoration: none; font-weight: 800; font-size: 1.25rem; letter-spacing: -.01em; }
+        .menu { display: flex; align-items: center; gap: 28px; margin-left: auto; }
+        .tautan { color: var(--redup); text-decoration: none; font-weight: 500; padding: 4px 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+        .tautan:hover, .tautan.aktif { color: var(--teks); border-color: var(--emas); }
+        .toggle { display: none; margin-left: auto; background: none; border: 1.5px solid var(--garis); color: var(--teks); border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; }
+
+        main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+        /* Bagian atas */
+        .atas { display: grid; grid-template-columns: .9fr 1.1fr; gap: 56px; align-items: center; padding: 64px 0 48px; }
+        h1 { font-size: clamp(2.3rem, 4.6vw, 3.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.05; }
+        .lead { margin-top: 18px; max-width: 28rem; color: var(--redup); font-size: 1.1rem; }
+
+        /* Papan kondisi barang (gerakan satu-satunya: bar terisi dan angka naik sekali) */
+        .papan { background: var(--bg2); border: 1px solid var(--garis); border-radius: 16px; padding: 26px 28px 24px; }
+        .papan-judul { font-weight: 700; font-size: 1.05rem; margin-bottom: 16px; }
+        .bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: rgba(232, 239, 235, .08); }
+        .seg { display: block; flex: none; width: var(--w); height: 100%; animation: isi 1.3s cubic-bezier(.2, .7, .2, 1) .2s both; }
+        .s-ada { background: var(--tosca); }
+        .s-pinjam { background: var(--emas); }
+        .s-telat { background: var(--mawar); }
+        @keyframes isi { from { width: 0; } to { width: var(--w); } }
+
+        .angka { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); }
+        .angka div { padding: 0 18px; border-left: 1px solid var(--garis); }
+        .angka div:first-child { padding-left: 0; border-left: 0; }
+        .angka dt { color: var(--redup); font-size: .9rem; display: flex; align-items: center; gap: 8px; }
+        .angka dt::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--c, transparent); border: 1.5px solid var(--c, var(--redup)); }
+        .angka dd { font-size: 2.5rem; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+        .a-ada { --c: var(--tosca); }
+        .a-pinjam { --c: var(--emas); }
+        .a-telat { --c: var(--mawar); }
+        .ket { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--garis); color: var(--redup); font-size: .92rem; }
+        .ket.peringatan { color: var(--mawar); font-weight: 500; }
+
+        /* Layanan */
+        h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.015em; margin-bottom: 18px; }
+        .utama { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .utama a { display: block; padding: 30px 30px 32px; border-radius: 14px; text-decoration: none; transition: transform .2s, background .2s, border-color .2s; }
+        .utama h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.01em; }
+        .utama p { margin-top: 8px; max-width: 24rem; }
+        .u-pinjam { background: var(--emas); color: #1a1405; }
+        .u-pinjam:hover { background: #f7c55c; transform: translateY(-3px); }
+        .u-kembali { border: 1.5px solid rgba(232, 239, 235, .35); color: var(--teks); }
+        .u-kembali p { color: var(--redup); }
+        .u-kembali:hover { border-color: var(--teks); background: rgba(232, 239, 235, .05); transform: translateY(-3px); }
+
+        .lainnya { list-style: none; margin-top: 26px; }
+        .lainnya li { border-top: 1px solid var(--garis); }
+        .lainnya li:last-child { border-bottom: 1px solid var(--garis); }
+        .lainnya a { display: grid; grid-template-columns: 16rem 1fr; gap: 20px; padding: 18px 8px; color: var(--teks); text-decoration: none; transition: background .2s; }
+        .lainnya a:hover { background: rgba(232, 239, 235, .05); }
+        .lainnya strong { font-weight: 700; }
+        .lainnya span { color: var(--redup); }
+
+        .aturan { margin: 40px 0 72px; padding: 16px 20px; border: 1.5px solid rgba(241, 181, 61, .4); background: rgba(241, 181, 61, .08); border-radius: 10px; color: var(--redup); font-size: .95rem; }
+        .aturan strong { color: var(--emas); }
+
+        .footer { border-top: 1px solid var(--garis); padding: 22px 24px; color: var(--redup); font-size: .9rem; text-align: center; }
+
+        @media (max-width: 860px) {
+            .atas { grid-template-columns: 1fr; gap: 36px; padding-top: 40px; }
+            .utama { grid-template-columns: 1fr; }
+            .lainnya a { grid-template-columns: 1fr; gap: 2px; }
+            .angka { grid-template-columns: repeat(2, 1fr); row-gap: 20px; }
+            .angka div:nth-child(3) { padding-left: 0; border-left: 0; }
+            .toggle { display: block; }
+            .menu { display: none; position: absolute; top: 100%; left: 0; right: 0; margin: 0; padding: 18px 24px 24px; flex-direction: column; align-items: flex-start; gap: 16px; background: var(--bg); border-bottom: 1px solid var(--garis); }
+            .menu.buka { display: flex; }
         }
-
-        .badge-live {
-            background: rgba(0, 212, 138, 0.08);
-            border: 1.5px solid rgba(0, 212, 138, 0.25);
-            color: var(--teal);
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .seg { animation: none; }
+            .utama a, .tautan, .lainnya a { transition: none; }
+            .u-pinjam:hover, .u-kembali:hover { transform: none; }
         }
-
-        .card { background: rgba(255, 255, 255, 0.02); border-color: var(--bs-border-color); }
-
-        /* Kartu statistik: garis warna di sisi kiri */
-        .kartu-statistik { border-left: 4px solid var(--aksen, var(--teal)); }
-
-        /* Kartu menu: warna aksen diatur lewat --aksen */
-        .kartu-menu {
-            display: block;
-            color: inherit;
-            text-decoration: none;
-            border-top: 4px solid var(--aksen, var(--teal));
-            transition: transform .15s, background .15s;
-        }
-        .kartu-menu:hover, .kartu-menu:focus-visible {
-            color: inherit;
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-4px);
-        }
-        .kartu-menu .judul { color: var(--aksen, var(--teal)); }
-        .kartu-menu .nomor {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 2.25rem;
-            height: 2.25rem;
-            border: 1.5px solid var(--aksen, var(--teal));
-            border-radius: 50%;
-            color: var(--aksen, var(--teal));
-            font-weight: 700;
-        }
-
-        .catatan-terlambat {
-            border: 1.5px solid rgba(245, 166, 35, 0.4);
-            background: rgba(245, 166, 35, 0.08);
-        }
-
-        .footer-dark {
-            background: #040a07;
-            border-top: 2px solid;
-            border-image: linear-gradient(90deg, var(--teal), var(--gold), var(--rose)) 1;
-        }
-
-        @media (prefers-reduced-motion: reduce) { .kartu-menu { transition: none; } }
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 
-    <!-- Header / Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top navbar-glass">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="{{ url('/peminjam') }}">Inventaris<span class="text-gradient">Barang</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-label="Buka menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="menuNavbar">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="{{ url('/peminjam') }}">Beranda</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/riwayat') }}">Riwayat</a></li>
-                </ul>
+    @php
+        $total    = (int) ($totalBarang ?? 0);
+        $ada      = (int) ($barangTersedia ?? 0);
+        $telat    = (int) ($terlambat ?? 0);
+        $pinjam   = max((int) ($sedangDipinjam ?? 0) - $telat, 0);
+        $dasar    = max($total, 1);
+        $lebar    = fn ($n) => round(min($n / $dasar * 100, 100), 2);
+    @endphp
+
+    <nav class="nav" aria-label="Menu utama">
+        <div class="nav-isi">
+            <a class="merek" href="{{ url('/peminjam') }}">
+                <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+                    <rect width="34" height="34" rx="9" fill="#f1b53d"/>
+                    <path fill="#1a1405" d="M8 9h2v16H8zM12 9h1v16h-1zM15 9h3v16h-3zM20 9h1v16h-1zM23 9h3v16h-3z"/>
+                </svg>
+                <span>InventarisBarang</span>
+            </a>
+            <button class="toggle" id="toggle" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+            <div class="menu" id="menu">
+                <a class="tautan aktif" href="{{ url('/peminjam') }}" aria-current="page">Beranda</a>
+                <a class="tautan" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a>
+                <a class="tautan" href="{{ url('/peminjam/riwayat') }}">Riwayat</a>
+                <a class="tautan" href="{{ url('/') }}#tentang">Tentang</a>
             </div>
         </div>
     </nav>
 
-    <!-- Isi dashboard -->
-    <main class="container flex-grow-1 py-5">
-
-        <!-- Bagian atas: sambutan (kiri) dan statistik (kanan) -->
-        <section class="row align-items-center g-4 mb-5">
-            <div class="col-lg-6">
-                <span class="badge rounded-pill badge-live px-3 py-2 mb-4">Dashboard Peminjam &middot; 2026</span>
-                <h1 class="display-4 fw-bold mb-3 text-gradient">Selamat Datang</h1>
-                <p class="lead text-secondary mb-0">
-                    Pinjam dan kembalikan barang sekolah dalam satu tempat, tanpa perlu login.
-                </p>
+    <main>
+        <section class="atas">
+            <div>
+                <h1>Selamat datang di layanan peminjaman.</h1>
+                <p class="lead">Pinjam dan kembalikan barang sekolah di satu tempat, tanpa perlu login.</p>
             </div>
 
-            <div class="col-lg-6">
-                <div class="row g-3">
-                    <div class="col-6">
-                        <div class="card kartu-statistik p-3" style="--aksen: var(--teal-2);">
-                            <small class="text-secondary">Total Barang</small>
-                            <div class="fs-1 fw-bold">{{ $totalBarang ?? 0 }}</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card kartu-statistik p-3" style="--aksen: var(--teal);">
-                            <small class="text-secondary">Tersedia</small>
-                            <div class="fs-1 fw-bold" style="color: var(--teal);">{{ $barangTersedia ?? 0 }}</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card kartu-statistik p-3" style="--aksen: var(--gold);">
-                            <small class="text-secondary">Dipinjam</small>
-                            <div class="fs-1 fw-bold" style="color: var(--gold);">{{ $sedangDipinjam ?? 0 }}</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card kartu-statistik p-3" style="--aksen: var(--rose);">
-                            <small class="text-secondary">Terlambat</small>
-                            <div class="fs-1 fw-bold" style="color: var(--rose);">{{ $terlambat ?? 0 }}</div>
-                        </div>
-                    </div>
+            <div class="papan">
+                <div class="papan-judul">Kondisi barang saat ini</div>
+                <div class="bar" role="img" aria-label="Dari {{ $total }} barang: {{ $ada }} tersedia, {{ $pinjam }} dipinjam, {{ $telat }} terlambat">
+                    <span class="seg s-ada" style="--w: {{ $lebar($ada) }}%"></span>
+                    <span class="seg s-pinjam" style="--w: {{ $lebar($pinjam) }}%"></span>
+                    <span class="seg s-telat" style="--w: {{ $lebar($telat) }}%"></span>
                 </div>
+                <dl class="angka">
+                    <div><dt>Total barang</dt><dd data-hitung="{{ $total }}">{{ $total }}</dd></div>
+                    <div class="a-ada"><dt>Tersedia</dt><dd data-hitung="{{ $ada }}">{{ $ada }}</dd></div>
+                    <div class="a-pinjam"><dt>Dipinjam</dt><dd data-hitung="{{ $pinjam }}">{{ $pinjam }}</dd></div>
+                    <div class="a-telat"><dt>Terlambat</dt><dd data-hitung="{{ $telat }}">{{ $telat }}</dd></div>
+                </dl>
+                @if ($telat > 0)
+                    <p class="ket peringatan">{{ $telat }} barang melewati batas kembali dan belum dikembalikan.</p>
+                @else
+                    <p class="ket">Tidak ada barang yang terlambat.</p>
+                @endif
             </div>
         </section>
 
-        <!-- Menu utama -->
-        <h2 class="h5 text-secondary mb-3">Pilih layanan</h2>
-        <section class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
-            <div class="col">
-                <a href="{{ url('/peminjam/pinjam') }}" class="card kartu-menu h-100 p-4" style="--aksen: var(--teal);">
-                    <span class="nomor mb-3">1</span>
-                    <h3 class="judul h5 fw-bold">Peminjaman</h3>
-                    <p class="text-secondary small mb-0">Scan barcode barang, isi data, lalu dapatkan struk.</p>
+        <section aria-labelledby="judul-layanan">
+            <h2 id="judul-layanan">Pilih layanan</h2>
+
+            <div class="utama">
+                <a class="u-pinjam" href="{{ url('/peminjam/pinjam') }}">
+                    <h3>Peminjaman</h3>
+                    <p>Scan barcode barang, isi data, lalu dapatkan struk.</p>
+                </a>
+                <a class="u-kembali" href="{{ url('/peminjam/kembali') }}">
+                    <h3>Pengembalian</h3>
+                    <p>Scan QR pada struk untuk mengembalikan barang.</p>
                 </a>
             </div>
-            <div class="col">
-                <a href="{{ url('/peminjam/kembali') }}" class="card kartu-menu h-100 p-4" style="--aksen: var(--rose);">
-                    <span class="nomor mb-3">2</span>
-                    <h3 class="judul h5 fw-bold">Pengembalian</h3>
-                    <p class="text-secondary small mb-0">Scan QR pada struk untuk mengembalikan barang.</p>
-                </a>
-            </div>
-            <div class="col">
-                <a href="{{ url('/peminjam/katalog') }}" class="card kartu-menu h-100 p-4" style="--aksen: var(--teal-2);">
-                    <span class="nomor mb-3">3</span>
-                    <h3 class="judul h5 fw-bold">Lihat Daftar Barang</h3>
-                    <p class="text-secondary small mb-0">Cek barang yang tersedia dan yang sedang dipinjam.</p>
-                </a>
-            </div>
-            <div class="col">
-                <a href="{{ url('/peminjam/riwayat') }}" class="card kartu-menu h-100 p-4" style="--aksen: var(--gold);">
-                    <span class="nomor mb-3">4</span>
-                    <h3 class="judul h5 fw-bold">Lihat Riwayat Peminjaman dan Pengembalian</h3>
-                    <p class="text-secondary small mb-0">Pantau transaksi yang berjalan dan yang sudah selesai.</p>
-                </a>
-            </div>
+
+            <ul class="lainnya">
+                <li>
+                    <a href="{{ url('/peminjam/katalog') }}">
+                        <strong>Daftar barang</strong>
+                        <span>Cek barang yang tersedia dan yang sedang dipinjam.</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('/peminjam/riwayat') }}">
+                        <strong>Riwayat peminjaman dan pengembalian</strong>
+                        <span>Pantau transaksi yang berjalan dan yang sudah selesai.</span>
+                    </a>
+                </li>
+            </ul>
         </section>
 
-        <!-- Ketentuan keterlambatan -->
-        <div class="card catatan-terlambat p-3 mt-4">
-            <div class="fw-semibold mb-1" style="color: var(--gold);">Ketentuan keterlambatan</div>
-            <small class="text-secondary">
-                Batas pengembalian tertera di struk. Siswa yang terlambat mengembalikan barang wajib membersihkan lab.
-            </small>
+        <div class="aturan">
+            <strong>Ketentuan keterlambatan:</strong>
+            batas pengembalian tertera di struk. Siswa yang terlambat mengembalikan barang wajib membersihkan lab.
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer-dark text-center py-4 mt-auto">
-        <small class="text-secondary">&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
+    <footer class="footer">
+        &copy; 2026 Inventaris Barang. Semua hak dilindungi.
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Menu mobile
+        const toggle = document.getElementById('toggle');
+        const menu = document.getElementById('menu');
+        toggle.addEventListener('click', () => {
+            const buka = menu.classList.toggle('buka');
+            toggle.setAttribute('aria-expanded', buka);
+        });
+
+        // Angka naik dari 0 sekali, selaras dengan bar yang terisi
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.querySelectorAll('[data-hitung]').forEach(el => {
+                const akhir = Number(el.dataset.hitung);
+                if (!akhir) return;
+                el.textContent = 0;
+                setTimeout(() => {
+                    const mulai = performance.now();
+                    const langkah = t => {
+                        const p = Math.min((t - mulai) / 1200, 1);
+                        el.textContent = Math.round(akhir * (1 - Math.pow(1 - p, 3)));
+                        if (p < 1) requestAnimationFrame(langkah);
+                    };
+                    requestAnimationFrame(langkah);
+                }, 200);
+            });
+        }
+    </script>
 </body>
 </html>

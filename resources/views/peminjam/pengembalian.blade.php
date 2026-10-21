@@ -190,7 +190,7 @@
                     <div id="detail" class="d-none my-auto">
                         <div class="detail-baris"><span>Kode</span><strong id="dKode"></strong></div>
                         <div class="detail-baris"><span>Nama peminjam</span><strong id="dNama"></strong></div>
-                        <div class="detail-baris"><span>Kelas</span><strong id="dKelas"></strong></div>
+                        <div class="detail-baris" id="barisKelas"><span>Kelas</span><strong id="dKelas"></strong></div>
                         <div class="detail-baris"><span>Barang</span><strong id="dBarang" class="text-end"></strong></div>
                         <div class="detail-baris"><span>Batas pengembalian</span><strong id="dBatas"></strong></div>
                         <div class="detail-baris"><span>Status</span><strong id="dStatus"></strong></div>
@@ -223,7 +223,8 @@
                 <p class="mb-1">Barang dikembalikan melewati batas waktu.</p>
                 <p class="fs-5 fw-bold mb-4" id="lamaTerlambat"></p>
 
-                <div class="sanksi-box p-3 mb-4 text-start">
+                <!-- Sanksi hanya tampil untuk siswa -->
+                <div id="kotakSanksi" class="sanksi-box p-3 mb-4 text-start d-none">
                     <div class="fw-bold mb-1" style="color: var(--gold);">Sanksi</div>
                     <div>Wajib <strong>membersihkan lab</strong> sebelum meninggalkan ruangan. Lapor ke petugas setelah selesai.</div>
                 </div>
@@ -255,6 +256,17 @@
 
         let transaksi = null;
         let sedangMemproses = false;
+
+        /* ---------- Tipe peminjam ---------- */
+        // Alert terlambat berlaku untuk semua peminjam, tetapi sanksi hanya untuk siswa.
+        // Server harus mengirim field "tipe" (isi dari tipe_peminjam) di dalam data.
+        function apakahSiswa(d) {
+            if (d.tipe === undefined || d.tipe === null) {
+                console.warn('[Pengembalian] Field "tipe" tidak dikirim server, dianggap bukan siswa.');
+                return false;
+            }
+            return String(d.tipe).trim().toLowerCase().includes('siswa');
+        }
 
         /* ---------- Suara alarm (file audio) ---------- */
         const suara = $('suaraTerlambat');
@@ -412,8 +424,12 @@
             const tk = $('tombolKonfirmasi');
             tk.classList.remove('d-none'); tk.disabled = false; tk.textContent = 'Konfirmasi Pengembalian';
 
+            const siswa = apakahSiswa(d);
+
             $('dKode').textContent = d.kode;
             $('dNama').textContent = d.nama;
+            // Baris kelas hanya relevan untuk siswa
+            $('barisKelas').classList.toggle('d-none', !siswa);
             $('dKelas').textContent = d.kelas || '-';
             $('dBarang').textContent = Array.isArray(d.barang) ? d.barang.join(', ') : d.barang;
             $('dBatas').textContent = new Date(d.batas_kembali).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
@@ -428,12 +444,14 @@
                 dStatus.style.color = 'var(--teal)';
             }
 
-            // Alert & suara langsung muncul begitu struk terbaca dan ternyata terlambat
-            if (lama) bukaAlertTerlambat(lama);
+            // Alert & suara muncul untuk semua peminjam yang terlambat; sanksi hanya untuk siswa
+            if (lama) bukaAlertTerlambat(lama, siswa);
         }
 
-        function bukaAlertTerlambat(lama) {
+        function bukaAlertTerlambat(lama, siswa) {
             $('lamaTerlambat').textContent = 'Terlambat ' + lama;
+            // Kotak sanksi hanya tampil untuk siswa
+            $('kotakSanksi').classList.toggle('d-none', !siswa);
             $('tombolBisu').textContent = 'Matikan Suara';
             modalTerbuka = true;
             document.body.classList.add('layar-darurat');
@@ -480,11 +498,16 @@
                 if (!res.ok || !berhasil) throw new Error(json.pesan || json.message || 'Pengembalian gagal diproses.');
 
                 const lama = hitungTerlambat(transaksi.batas_kembali);
+                const siswa = apakahSiswa(transaksi);
                 const sukses = $('sukses');
                 sukses.classList.remove('d-none');
-                sukses.textContent = lama
-                    ? 'Barang berhasil dikembalikan. Jangan lupa laksanakan sanksi: membersihkan lab.'
-                    : 'Barang berhasil dikembalikan. Terima kasih!';
+                if (lama && siswa) {
+                    sukses.textContent = 'Barang berhasil dikembalikan. Jangan lupa laksanakan sanksi: membersihkan lab.';
+                } else if (lama) {
+                    sukses.textContent = 'Barang berhasil dikembalikan, tetapi melewati batas waktu.';
+                } else {
+                    sukses.textContent = 'Barang berhasil dikembalikan. Terima kasih!';
+                }
                 tombol.classList.add('d-none');
                 transaksi = null;
                 fokus();
