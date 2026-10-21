@@ -26,6 +26,11 @@ Route::get('/peminjam/kembali', [PengembalianController::class, 'index']);
 Route::post('/peminjam/kembali/cek', [PengembalianController::class, 'cek'])->middleware('throttle:60,1');
 Route::post('/peminjam/kembali/proses', [PengembalianController::class, 'proses'])->middleware('throttle:10,1');
 
+// Riwayat peminjaman untuk peminjam (nama peminjam disamarkan)
+Route::get('/peminjam/riwayat', [RiwayatController::class, 'peminjam'])
+    ->name('peminjaman.riwayat')
+    ->middleware('throttle:60,1');
+
 // Halaman admin (wajib login)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -34,6 +39,8 @@ Route::middleware('auth')->group(function () {
     // Data Kategori
     Route::resource('kategori', KategoriController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('barang/{barang}/cetak', [BarangController::class, 'cetak'])->name('barang.cetak');
 
     Route::resource('barang', BarangController::class)
         ->only(['index', 'store', 'update', 'destroy']);

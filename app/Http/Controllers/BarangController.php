@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Barang;
 use App\Models\Kategori;
+use App\Models\Activity_log;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class BarangController extends Controller
 {
@@ -41,7 +43,8 @@ class BarangController extends Controller
         });
 
         return redirect()->route('barang.index')
-            ->with('success', "Barang berhasil ditambahkan dengan kode {$barang->kode_barcode}.");
+            ->with('success', "Barang berhasil ditambahkan dengan kode {$barang->kode_barcode}.")
+            ->with('cetak_url', route('barang.cetak', $barang->id_barang));
     }
 
     public function update(Request $request, Barang $barang)
@@ -79,6 +82,21 @@ class BarangController extends Controller
         }
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus.');
+    }
+
+    public function cetak(Request $request, Barang $barang)
+    {
+        Activity_log::create([
+            'id_admin'   => Auth::id(),
+            'aktor'      => 'admin',
+            'aksi'       => 'cetak_barcode',
+            'nama_tabel' => 'barang',
+            'id_data'    => $barang->id_barang,
+            'deskripsi'  => "Cetak barcode {$barang->kode_barcode} ({$barang->nama_barang})",
+            'ip_address' => $request->ip(),
+        ]);
+
+        return view('admin.barang.cetak', compact('barang'));
     }
 
     private function rules(): array

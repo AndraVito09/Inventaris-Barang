@@ -59,6 +59,8 @@
                                 </span>
                             </td>
                             <td class="text-end">
+                                <a href="{{ route('barang.cetak', $item->id_barang) }}" target="_blank" 
+                                    class="btn btn-sm btn-outline-info">Cetak</a>
                                 <button class="btn btn-sm btn-warning btn-edit"
                                         data-url="{{ route('barang.update', $item->id_barang) }}"
                                         data-nama="{{ $item->nama_barang }}"
@@ -158,7 +160,17 @@
     const tema = { background: '#0d1a14', color: '#e8f5ef' };
 
     // ===== Popup hasil (dari session flash / error validasi) =====
-    @if (session('success'))
+    @if (session('cetak_url'))
+        Swal.fire({
+            ...tema,
+            icon: 'success',
+            title: 'Berhasil',
+            text: @json(session('success')),
+            showCancelButton: true,
+            confirmButtonText: 'Cetak barcode sekarang',
+            cancelButtonText: 'Nanti saja',
+        }).then(r => { if (r.isConfirmed) window.open(@json(session('cetak_url')), '_blank'); });
+    @elseif (session('success'))
         Swal.fire({ ...tema, icon: 'success', title: 'Berhasil', text: @json(session('success')) });
     @elseif (session('info'))
         Swal.fire({ ...tema, icon: 'info', title: 'Info', text: @json(session('info')) });
