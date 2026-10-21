@@ -207,7 +207,7 @@
     </main>
 
     <footer class="footer-dark text-center py-4 mt-auto">
-        <small class="text-secondary">&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
+        <small class="text-secondary">&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</small>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

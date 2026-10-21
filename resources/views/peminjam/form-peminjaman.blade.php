@@ -142,9 +142,9 @@
     <!-- Isi halaman -->
     <main class="container wadah flex-grow-1 py-4 py-md-5">
         <div class="mx-auto" style="max-width: 640px;">
-            <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/') }}">
+            <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/peminjam') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-                Kembali ke menu
+                Kembali ke dashboard
             </a>
 
             <h1 class="mb-2">Peminjaman Barang</h1>
@@ -271,7 +271,7 @@
     <!-- Footer -->
     <footer class="py-3">
         <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
-            <span>&copy; 2026 Inventaris Barang. Semua hak dilindungi.</span>
+            <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
             <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a> &nbsp;|&nbsp; <a href="{{ route('login') }}">Login admin</a></span>
         </div>
     </footer>
