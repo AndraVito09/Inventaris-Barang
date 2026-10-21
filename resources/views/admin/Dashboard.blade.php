@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
@@ -6,69 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard Inventaris</title>
 
+    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
+    <script>
+        (function () {
+            var tema = null;
+            try { tema = localStorage.getItem('tema'); } catch (e) {}
+            if (!tema) tema = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <style>
-        html[data-bs-theme="dark"] {
-            --bs-body-bg: #060d0a;
-            --bs-body-color: #e8f5ef;
-            --bs-secondary-color: #5a8a70;
-            --bs-border-color: rgba(0, 212, 138, 0.15);
-            --teal: #00d48a;
-            --teal-2: #00ffaa;
-            --gold: #f5a623;
-            --rose: #f05a7e;
+        /* Palet biru tua: terang */
+        [data-bs-theme="light"] {
+            --bs-body-bg: #eef3fb;
+            --bs-body-color: #0b2447;
+            --bs-secondary-color: #4a6087;
+            --bs-border-color: rgba(11, 36, 71, .16);
+            --kartu: #ffffff;
+            --nav-bg: rgba(238, 243, 251, .92);
+            --hover: rgba(11, 36, 71, .06);
+            --bayangan: rgba(11, 36, 71, .14);
+            /* Warna status */
+            --biru: #1d4fa8;
+            --hijau: #1b7f55;
+            --emas-teks: #9a6204;
+            --merah: #c2334d;
         }
-
-        body {
-            margin: 0;
-            background: var(--bs-body-bg);
-            color: var(--bs-body-color);
+        /* Palet biru tua: gelap */
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #0a1930;
+            --bs-body-color: #e7eefb;
+            --bs-secondary-color: #9fb2d3;
+            --bs-border-color: rgba(173, 198, 245, .16);
+            --kartu: #102445;
+            --nav-bg: rgba(10, 25, 48, .92);
+            --hover: rgba(173, 198, 245, .1);
+            --bayangan: rgba(0, 0, 0, .5);
+            /* Warna status */
+            --biru: #6ea8ff;
+            --hijau: #4cc38a;
+            --emas-teks: #f1b53d;
+            --merah: #ff7a8e;
         }
+        :root { --emas: #f1b53d; }
 
-        .text-gradient {
-            background: linear-gradient(135deg, var(--teal), var(--gold), var(--rose));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        .badge-live {
-            background: rgba(0, 212, 138, 0.08);
-            border: 1.5px solid rgba(0, 212, 138, 0.25);
-            color: var(--teal);
-        }
-
-        .btn-teal {
-            --bs-btn-color: #060d0a;
-            --bs-btn-bg: var(--teal);
-            --bs-btn-border-color: var(--teal);
-            --bs-btn-hover-color: #060d0a;
-            --bs-btn-hover-bg: var(--teal-2);
-            --bs-btn-hover-border-color: var(--teal-2);
+        /* Tombol */
+        .btn-emas {
+            --bs-btn-color: #1a1405;
+            --bs-btn-bg: var(--emas);
+            --bs-btn-border-color: var(--emas);
+            --bs-btn-hover-color: #1a1405;
+            --bs-btn-hover-bg: #f7c55c;
+            --bs-btn-hover-border-color: #f7c55c;
+            --bs-btn-active-color: #1a1405;
+            --bs-btn-active-bg: #f7c55c;
+            --bs-btn-active-border-color: #f7c55c;
             font-weight: 700;
-            box-shadow: 0 6px 28px rgba(0, 212, 138, 0.25);
+            padding: 14px 26px;
+            border-radius: 10px;
+            transition: transform .2s, background .2s;
+        }
+        .btn-emas:hover { transform: translateY(-2px); }
+
+        .btn-outline-secondary {
+            --bs-btn-color: var(--bs-body-color);
+            --bs-btn-border-color: var(--bs-border-color);
+            --bs-btn-hover-color: var(--bs-body-color);
+            --bs-btn-hover-bg: var(--hover);
+            --bs-btn-hover-border-color: var(--bs-secondary-color);
+            --bs-btn-active-color: var(--bs-body-color);
+            --bs-btn-active-bg: var(--hover);
+            --bs-btn-active-border-color: var(--bs-secondary-color);
         }
 
-        .btn-gold {
-            --bs-btn-color: var(--gold);
-            --bs-btn-bg: rgba(245, 166, 35, 0.1);
-            --bs-btn-border-color: rgba(245, 166, 35, 0.4);
-            --bs-btn-hover-color: var(--gold);
-            --bs-btn-hover-bg: rgba(245, 166, 35, 0.18);
-            --bs-btn-hover-border-color: var(--gold);
-            font-weight: 700;
-        }
+        .btn-tema { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
+        /* Layout: sidebar + konten */
+        .layout { display: flex; min-height: 100vh; }
 
-        .sidebar {
-            --bs-offcanvas-width: 280px;
-        }
+        .sidebar { --bs-offcanvas-width: 280px; }
 
         .sidebar-inner {
             width: 100%;
@@ -76,7 +103,7 @@
             display: flex;
             flex-direction: column;
             padding: 24px 16px;
-            background: rgba(6, 13, 10, 0.98);
+            background: var(--kartu);
         }
 
         @media (min-width: 992px) {
@@ -87,7 +114,6 @@
                 height: 100vh;
                 border-right: 1px solid var(--bs-border-color);
             }
-
             .sidebar-inner {
                 width: 270px;
                 height: 100vh;
@@ -103,13 +129,14 @@
             align-items: center;
             justify-content: center;
             font-size: 1.15rem;
-            color: #060d0a;
-            background: linear-gradient(135deg, var(--teal), var(--teal-2));
-            box-shadow: 0 0 20px rgba(0, 212, 138, 0.35);
+            color: #1a1405;
+            background: var(--emas);
+            flex-shrink: 0;
         }
+        .brand-teks { font-weight: 800; font-size: 1.25rem; letter-spacing: -.01em; }
 
         .side-label {
-            font-size: 0.7rem;
+            font-size: .7rem;
             font-weight: 700;
             letter-spacing: 1.5px;
             text-transform: uppercase;
@@ -124,36 +151,28 @@
             gap: 12px;
             padding: 11px 14px;
             border-radius: 12px;
-            color: rgba(232, 245, 239, 0.65);
+            color: var(--bs-secondary-color);
             text-decoration: none;
             font-weight: 500;
             border: 1px solid transparent;
-            transition: all 0.2s;
+            transition: all .2s;
         }
-
-        .side-link i {
-            font-size: 1.1rem;
-        }
-
-        .side-link:hover {
-            color: var(--bs-body-color);
-            background: rgba(0, 212, 138, 0.06);
-        }
-
+        .side-link i { font-size: 1.1rem; }
+        .side-link:hover { color: var(--bs-body-color); background: var(--hover); }
         .side-link.active {
-            color: var(--teal);
-            background: rgba(0, 212, 138, 0.1);
-            border-color: rgba(0, 212, 138, 0.25);
+            color: var(--bs-body-color);
+            background: var(--hover);
+            border-color: var(--bs-border-color);
+            box-shadow: inset 3px 0 0 var(--emas);
         }
 
         .user-box {
             margin-top: auto;
             padding: 14px;
             border-radius: 16px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--bs-body-bg);
             border: 1px solid var(--bs-border-color);
         }
-
         .avatar {
             width: 40px;
             height: 40px;
@@ -162,9 +181,18 @@
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            color: #060d0a;
-            background: linear-gradient(135deg, var(--teal), var(--gold));
+            color: #1a1405;
+            background: var(--emas);
             flex-shrink: 0;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--bs-border-color);
         }
 
         .content {
@@ -173,13 +201,20 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background:
-                radial-gradient(ellipse 600px 400px at 10% 0%, rgba(0, 212, 138, 0.07), transparent 70%),
-                radial-gradient(ellipse 500px 400px at 100% 100%, rgba(245, 166, 35, 0.04), transparent 70%);
+        }
+
+        /* Teks */
+        .judul { font-size: clamp(1.8rem, 4.5vw, 2.8rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+
+        .badge-live {
+            background: var(--hover);
+            border: 1px solid var(--bs-border-color);
+            color: var(--biru);
+            font-weight: 600;
         }
 
         .section-label {
-            font-size: 0.75rem;
+            font-size: .75rem;
             font-weight: 700;
             letter-spacing: 1.5px;
             text-transform: uppercase;
@@ -187,30 +222,26 @@
             margin-bottom: 16px;
         }
 
+        /* Kartu ringkasan */
         .stat-card {
             position: relative;
             overflow: hidden;
             height: 100%;
             padding: 20px;
             border-radius: 18px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--kartu);
             border: 1px solid var(--bs-border-color);
-            transition: transform 0.25s, box-shadow 0.25s;
+            transition: transform .25s, box-shadow .25s;
         }
-
         .stat-card::before {
             content: '';
             position: absolute;
             inset: 0 0 auto 0;
             height: 2px;
-            background: var(--line);
+            background: var(--accent);
             pointer-events: none;
         }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px var(--bayangan); }
 
         .stat-icon {
             width: 42px;
@@ -220,41 +251,17 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            background: var(--tint);
+            background: color-mix(in srgb, var(--accent) 14%, transparent);
             color: var(--accent);
         }
+        .stat-num { font-size: 2.2rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; color: var(--accent); }
 
-        .stat-num {
-            font-size: 2.2rem;
-            font-weight: 800;
-            line-height: 1;
-            color: var(--accent);
-        }
+        .s-biru  { --accent: var(--biru); }
+        .s-hijau { --accent: var(--hijau); }
+        .s-emas  { --accent: var(--emas-teks); }
+        .s-merah { --accent: var(--merah); }
 
-        .s-total {
-            --line: linear-gradient(90deg, var(--teal), var(--gold), var(--rose));
-            --tint: rgba(232, 245, 239, 0.08);
-            --accent: var(--bs-body-color);
-        }
-
-        .s-teal {
-            --line: linear-gradient(90deg, var(--teal), var(--teal-2));
-            --tint: rgba(0, 212, 138, 0.1);
-            --accent: var(--teal);
-        }
-
-        .s-gold {
-            --line: var(--gold);
-            --tint: rgba(245, 166, 35, 0.1);
-            --accent: var(--gold);
-        }
-
-        .s-rose {
-            --line: var(--rose);
-            --tint: rgba(240, 90, 126, 0.1);
-            --accent: var(--rose);
-        }
-
+        /* Kartu menu */
         .action-card {
             position: relative;
             overflow: hidden;
@@ -265,11 +272,10 @@
             gap: 14px;
             padding: 28px;
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--kartu);
             border: 1px solid var(--bs-border-color);
-            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+            transition: transform .25s, box-shadow .25s, border-color .25s;
         }
-
         /* Dekorasi tidak boleh menghalangi klik tombol */
         .action-card::after {
             content: '';
@@ -279,26 +285,20 @@
             width: 140px;
             height: 140px;
             border-radius: 50%;
-            opacity: 0.07;
-            background: var(--glow);
-            transition: transform 0.4s, opacity 0.4s;
+            opacity: .08;
+            background: var(--accent);
+            transition: transform .4s, opacity .4s;
             pointer-events: none;
         }
-
-        .action-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
+        .action-card > * { position: relative; z-index: 1; }
         .action-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 20px 50px var(--bayangan);
+            border-color: color-mix(in srgb, var(--accent) 45%, transparent);
         }
+        .action-card:hover::after { transform: scale(2.2); opacity: .12; }
 
-        .action-card:hover::after {
-            transform: scale(2.2);
-            opacity: 0.1;
-        }
+        .action-card .btn-outline-secondary { padding: 14px 26px; border-radius: 10px; font-weight: 700; }
 
         .action-icon {
             width: 52px;
@@ -308,50 +308,25 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            background: var(--tint);
+            background: color-mix(in srgb, var(--accent) 14%, transparent);
             color: var(--accent);
         }
+        .ac-biru { --accent: var(--biru); }
+        .ac-emas { --accent: var(--emas-teks); }
 
-        .ac-teal {
-            --glow: var(--teal);
-            --tint: rgba(0, 212, 138, 0.1);
-            --accent: var(--teal);
-        }
-
-        .ac-gold {
-            --glow: var(--gold);
-            --tint: rgba(245, 166, 35, 0.1);
-            --accent: var(--gold);
-        }
-
-        .ac-teal:hover {
-            border-color: rgba(0, 212, 138, 0.35);
-        }
-
-        .ac-gold:hover {
-            border-color: rgba(245, 166, 35, 0.4);
-        }
-
-        .footer-dark {
-            background: #040a07;
-            border-top: 2px solid;
-            border-image: linear-gradient(90deg, var(--teal), var(--gold), var(--rose)) 1;
-        }
-
-        .topbar {
-            background: rgba(6, 13, 10, 0.85);
-            border-bottom: 1px solid var(--bs-border-color);
-        }
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
 
         @media (max-width: 991.98px) {
-            .sidebar-inner {
-                min-height: 100vh;
-                padding: 24px 16px;
-            }
-
-            .content {
-                min-height: 100vh;
-            }
+            .sidebar-inner { min-height: 100vh; }
+        }
+        @media (max-width: 575.98px) {
+            .action-card .btn { width: 100%; text-align: center; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .stat-card, .action-card, .action-card::after, .btn-emas, .side-link { transition: none; }
+            .stat-card:hover, .action-card:hover, .btn-emas:hover { transform: none; }
+            .action-card:hover::after { transform: none; }
         }
     </style>
 </head>
@@ -365,16 +340,11 @@
     <div class="layout">
 
         <!-- Sidebar -->
-        <aside class="offcanvas-lg offcanvas-start sidebar"
-               tabindex="-1"
-               id="sidebarMenu">
+        <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebarMenu">
 
             <div class="offcanvas-header justify-content-end pb-0">
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="offcanvas"
-                        data-bs-target="#sidebarMenu"
-                        aria-label="Tutup"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                        data-bs-target="#sidebarMenu" aria-label="Tutup"></button>
             </div>
 
             <div class="offcanvas-body p-0">
@@ -382,63 +352,37 @@
 
                     <a href="{{ route('dashboard') }}"
                        class="d-flex align-items-center gap-3 text-decoration-none text-reset mb-2">
-
-                        <div class="brand-mark">
-                            <i class="bi bi-box-seam-fill"></i>
-                        </div>
-
-                        <span class="fw-bold fs-5">
-                            Inventaris<span class="text-gradient">Barang</span>
-                        </span>
+                        <div class="brand-mark"><i class="bi bi-box-seam-fill"></i></div>
+                        <span class="brand-teks">InventarisBarang</span>
                     </a>
 
                     <div class="side-label">Menu</div>
 
                     <nav class="nav flex-column gap-1">
-
-                        <a class="side-link active"
-                           href="{{ route('dashboard') }}">
-                            <i class="bi bi-grid-1x2-fill"></i>
-                            Beranda
+                        <a class="side-link active" href="{{ route('dashboard') }}" aria-current="page">
+                            <i class="bi bi-grid-1x2-fill"></i> Beranda
                         </a>
-
-                        <a class="side-link"
-                           href="{{ route('kategori.index') }}">
-                            <i class="bi bi-box-seam"></i>
-                            Data Kategori
+                        <a class="side-link" href="{{ route('kategori.index') }}">
+                            <i class="bi bi-box-seam"></i> Data Kategori
                         </a>
-
-                        <a class="side-link"
-                           href="{{ route('admin.riwayat') }}">
-                            <i class="bi bi-clock-history"></i>
-                            Riwayat
+                        <a class="side-link" href="{{ route('admin.riwayat') }}">
+                            <i class="bi bi-clock-history"></i> Riwayat
                         </a>
-
                     </nav>
 
                     <div class="user-box">
                         <div class="d-flex align-items-center gap-3 mb-3">
-
-                            <div class="avatar">
-                                {{ mb_strtoupper(mb_substr($namaUser, 0, 1)) }}
-                            </div>
-
+                            <div class="avatar">{{ mb_strtoupper(mb_substr($namaUser, 0, 1)) }}</div>
                             <div class="overflow-hidden">
-                                <div class="fw-semibold text-truncate">
-                                    {{ $namaUser }}
-                                </div>
-                                <small class="text-secondary">Admin</small>
+                                <div class="fw-semibold text-truncate">{{ $namaUser }}</div>
+                                <small class="text-body-secondary">Admin</small>
                             </div>
-
                         </div>
 
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-
-                            <button type="submit"
-                                    class="btn btn-gold btn-sm rounded-pill w-100">
-                                <i class="bi bi-box-arrow-right me-1"></i>
-                                Logout
+                            <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
                             </button>
                         </form>
                     </div>
@@ -452,23 +396,27 @@
 
             <header class="topbar px-3 px-md-5 py-3 d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">
-
-                    <button class="btn btn-outline-success d-lg-none"
-                            type="button"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#sidebarMenu"
-                            aria-controls="sidebarMenu">
+                    <button class="btn btn-outline-secondary d-lg-none" type="button"
+                            data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
+                            aria-controls="sidebarMenu" aria-label="Buka menu">
                         <i class="bi bi-list"></i>
                     </button>
 
                     <div>
                         <div class="fw-semibold">Panel Admin</div>
-                        <div class="small text-secondary">Manajemen inventaris barang</div>
+                        <div class="small text-body-secondary">Manajemen inventaris barang</div>
                     </div>
                 </div>
 
-                <div class="small text-secondary">
-                    {{ now()->format('d/m/Y') }}
+                <div class="d-flex align-items-center gap-3">
+                    <div class="small text-body-secondary d-none d-sm-block">{{ now()->format('d/m/Y') }}</div>
+
+                    <button type="button" id="btnTema" class="btn btn-outline-secondary btn-sm btn-tema"
+                            aria-label="Ganti mode terang atau gelap">
+                        <svg class="ikon-matahari" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                        <svg class="ikon-bulan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                        <span id="labelTema" class="d-none d-sm-inline">Mode</span>
+                    </button>
                 </div>
             </header>
 
@@ -481,11 +429,9 @@
                             Sistem Peminjaman &middot; 2026
                         </span>
 
-                        <h1 class="display-5 fw-bold text-gradient mb-2">
-                            Selamat Datang
-                        </h1>
+                        <h1 class="judul mb-2">Selamat Datang</h1>
 
-                        <p class="text-secondary mb-0" style="max-width: 520px;">
+                        <p class="text-body-secondary mb-0" style="max-width: 520px;">
                             Halo, {{ $namaUser }}. Kelola data barang, peminjaman,
                             dan pengembalian dalam satu tempat.
                         </p>
@@ -495,47 +441,37 @@
                     <h2 class="section-label">Ringkasan</h2>
 
                     <div class="row g-3 mb-5">
-
                         <div class="col-6 col-xl-3">
-                            <div class="stat-card s-total">
-                                <div class="stat-icon mb-3">
-                                    <i class="bi bi-boxes"></i>
-                                </div>
+                            <div class="stat-card s-biru">
+                                <div class="stat-icon mb-3"><i class="bi bi-boxes"></i></div>
                                 <div class="stat-num">{{ $totalBarang ?? 0 }}</div>
-                                <small class="text-secondary">Total Barang</small>
+                                <small class="text-body-secondary">Total Barang</small>
                             </div>
                         </div>
 
                         <div class="col-6 col-xl-3">
-                            <div class="stat-card s-teal">
-                                <div class="stat-icon mb-3">
-                                    <i class="bi bi-check2-circle"></i>
-                                </div>
+                            <div class="stat-card s-hijau">
+                                <div class="stat-icon mb-3"><i class="bi bi-check2-circle"></i></div>
                                 <div class="stat-num">{{ $barangTersedia ?? 0 }}</div>
-                                <small class="text-secondary">Tersedia</small>
+                                <small class="text-body-secondary">Tersedia</small>
                             </div>
                         </div>
 
                         <div class="col-6 col-xl-3">
-                            <div class="stat-card s-gold">
-                                <div class="stat-icon mb-3">
-                                    <i class="bi bi-arrow-left-right"></i>
-                                </div>
+                            <div class="stat-card s-emas">
+                                <div class="stat-icon mb-3"><i class="bi bi-arrow-left-right"></i></div>
                                 <div class="stat-num">{{ $sedangDipinjam ?? 0 }}</div>
-                                <small class="text-secondary">Dipinjam</small>
+                                <small class="text-body-secondary">Dipinjam</small>
                             </div>
                         </div>
 
                         <div class="col-6 col-xl-3">
-                            <div class="stat-card s-rose">
-                                <div class="stat-icon mb-3">
-                                    <i class="bi bi-alarm"></i>
-                                </div>
+                            <div class="stat-card s-merah">
+                                <div class="stat-icon mb-3"><i class="bi bi-alarm"></i></div>
                                 <div class="stat-num">{{ $terlambat ?? 0 }}</div>
-                                <small class="text-secondary">Terlambat</small>
+                                <small class="text-body-secondary">Terlambat</small>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- Menu utama -->
@@ -545,49 +481,39 @@
 
                         <!-- Kartu Data Barang -->
                         <div class="col-md-6">
-                            <div class="action-card ac-teal">
-
-                                <div class="action-icon">
-                                    <i class="bi bi-box-seam"></i>
-                                </div>
+                            <div class="action-card ac-biru">
+                                <div class="action-icon"><i class="bi bi-box-seam"></i></div>
 
                                 <div>
                                     <h3 class="h5 fw-bold mb-1">Data Barang</h3>
-                                    <p class="text-secondary small mb-0">
+                                    <p class="text-body-secondary small mb-0">
                                         Lihat daftar barang beserta kategori dan statusnya.
                                     </p>
                                 </div>
 
-                                <a href="{{ route('barang.index') }}"
-                                   class="btn btn-teal rounded-pill px-4 mt-auto">
+                                <a href="{{ route('kategori.index') }}" class="btn btn-emas mt-auto">
                                     <i class="bi bi-box-arrow-up-right me-1"></i>
                                     Melihat Data Barang
                                 </a>
-
                             </div>
                         </div>
 
                         <!-- Kartu Riwayat -->
                         <div class="col-md-6">
-                            <div class="action-card ac-gold">
-
-                                <div class="action-icon">
-                                    <i class="bi bi-clock-history"></i>
-                                </div>
+                            <div class="action-card ac-emas">
+                                <div class="action-icon"><i class="bi bi-clock-history"></i></div>
 
                                 <div>
                                     <h3 class="h5 fw-bold mb-1">Riwayat</h3>
-                                    <p class="text-secondary small mb-0">
+                                    <p class="text-body-secondary small mb-0">
                                         Catatan peminjaman dan pengembalian barang.
                                     </p>
                                 </div>
 
-                                <a href="{{ route('admin.riwayat') }}"
-                                   class="btn btn-gold rounded-pill px-4 mt-auto">
+                                <a href="{{ route('admin.riwayat') }}" class="btn btn-outline-secondary mt-auto">
                                     <i class="bi bi-clock-history me-1"></i>
                                     Lihat Riwayat Pengembalian dan Peminjaman
                                 </a>
-
                             </div>
                         </div>
 
@@ -596,15 +522,30 @@
             </main>
 
             <!-- Footer -->
-            <footer class="footer-dark text-center py-4 mt-auto">
-                <small class="text-secondary">
-                    &copy; 2026 Inventaris Barang. Semua hak dilindungi.
-                </small>
+            <footer class="text-center py-4 mt-auto">
+                <small>&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
             </footer>
 
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ganti tema terang/gelap (pilihan tersimpan di browser)
+        (function () {
+            const html = document.documentElement;
+            const label = document.getElementById('labelTema');
+            const tampilkanLabel = () => {
+                label.textContent = html.getAttribute('data-bs-theme') === 'dark' ? 'Mode terang' : 'Mode gelap';
+            };
+            tampilkanLabel();
+            document.getElementById('btnTema').addEventListener('click', () => {
+                const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-bs-theme', baru);
+                try { localStorage.setItem('tema', baru); } catch (e) {}
+                tampilkanLabel();
+            });
+        })();
+    </script>
 </body>
 </html>
