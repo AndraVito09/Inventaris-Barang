@@ -3,88 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Riwayat Peminjaman dan Pengembalian</title>
+    <title>Riwayat - Inventaris Barang</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
+
+    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
+    <script>
+        (function () {
+            var tema = null;
+            try { tema = localStorage.getItem('tema'); } catch (e) {}
+            if (!tema) tema = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
     <style>
-        html[data-bs-theme="dark"] {
-            --bs-body-bg: #060d0a;
-            --bs-body-color: #e8f5ef;
-            --bs-secondary-color: #5a8a70;
-            --bs-border-color: rgba(0, 212, 138, 0.15);
-            --teal: #00d48a;
-            --teal-2: #00ffaa;
-            --gold: #f5a623;
-            --rose: #f05a7e;
+        /* Palet biru tua: terang */
+        [data-bs-theme="light"] {
+            --bs-body-bg: #eef3fb;
+            --bs-body-color: #0b2447;
+            --bs-secondary-color: #4a6087;
+            --bs-border-color: rgba(11, 36, 71, .16);
+            --kartu: #ffffff;
+            --input: #f5f8fd;
+            --nav-bg: rgba(238, 243, 251, .92);
+            --hover: rgba(11, 36, 71, .06);
+            --aksen: #1d4fa8;
+            --emas-teks: #a56d00;
+            --bahaya: #c62a47;
+            --sukses: #0f7a4d;
         }
-
-        .text-gradient {
-            background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 55%, var(--rose) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* Palet biru tua: gelap */
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #0a1930;
+            --bs-body-color: #e7eefb;
+            --bs-secondary-color: #9fb2d3;
+            --bs-border-color: rgba(173, 198, 245, .16);
+            --kartu: #102445;
+            --input: rgba(255, 255, 255, .04);
+            --nav-bg: rgba(10, 25, 48, .92);
+            --hover: rgba(173, 198, 245, .1);
+            --aksen: #7fb0ff;
+            --emas-teks: #f1b53d;
+            --bahaya: #ff7b93;
+            --sukses: #4fd69c;
         }
+        :root { --emas: #f1b53d; }
 
-        .badge-live {
-            background: rgba(0, 212, 138, 0.08);
-            border: 1.5px solid rgba(0, 212, 138, 0.25);
-            color: var(--teal);
+        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
+        .wadah { max-width: 1120px; }
+
+        /* Navbar */
+        .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
+        .navbar .nav-link:hover { color: var(--bs-body-color); border-color: var(--emas); }
+        .navbar .nav-link.aktif { color: var(--bs-body-color); border-color: var(--emas); }
+        .btn-outline-secondary {
+            --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
+            --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
+            --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
         }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        .footer-dark {
-            background: #040a07;
-            border-top: 2px solid;
-            border-image: linear-gradient(90deg, var(--teal), var(--gold), var(--rose)) 1;
-        }
+        h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
 
-        .table-card {
-            border-radius: 20px;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--bs-border-color);
-        }
-
+        /* Tabel */
+        .table-card { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
         .table {
             --bs-table-bg: transparent;
             --bs-table-color: var(--bs-body-color);
             --bs-table-border-color: var(--bs-border-color);
-            --bs-table-hover-bg: rgba(0, 212, 138, 0.05);
+            --bs-table-hover-bg: var(--hover);
             --bs-table-hover-color: var(--bs-body-color);
         }
-
         .table thead th {
-            color: var(--teal);
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            color: var(--bs-secondary-color);
+            font-size: .85rem;
+            font-weight: 700;
             padding: 16px;
-            border-bottom: 1px solid rgba(0, 212, 138, 0.25);
+            border-bottom: 2px solid var(--bs-border-color);
             white-space: nowrap;
         }
-
         .table tbody td { padding: 14px 16px; }
 
-        .badge-status { font-weight: 600; border: 1px solid; }
-        .badge-teal { background: rgba(0, 212, 138, 0.1); border-color: rgba(0, 212, 138, 0.35); color: var(--teal); }
-        .badge-gold { background: rgba(245, 166, 35, 0.1); border-color: rgba(245, 166, 35, 0.4); color: var(--gold); }
-        .badge-rose { background: rgba(240, 90, 126, 0.1); border-color: rgba(240, 90, 126, 0.4); color: var(--rose); }
+        /* Lencana status */
+        .badge-status { font-weight: 700; border: 1px solid; }
+        .badge-selesai { background: rgba(79, 214, 156, .12); border-color: rgba(79, 214, 156, .4); color: var(--sukses); }
+        .badge-pinjam { background: rgba(241, 181, 61, .12); border-color: rgba(241, 181, 61, .45); color: var(--emas-teks); }
+        .badge-telat { background: rgba(214, 51, 79, .1); border-color: rgba(214, 51, 79, .4); color: var(--bahaya); }
+
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
+        footer a { color: var(--bs-secondary-color); }
+        footer a:hover { color: var(--bs-body-color); }
+
+        /* Responsif */
+        @media (max-width: 767.98px) {
+            .navbar-brand { font-size: 1.2rem; }
+            .logo { width: 46px; height: 46px; }
+            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar-nav .btn { width: 100%; }
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <main class="flex-grow-1 container py-5">
+    <!-- Header / Navbar -->
+    <nav class="navbar navbar-expand-md sticky-top" aria-label="Menu utama">
+        <div class="container wadah">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/peminjam') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="" width="56" height="56" class="logo">
+                <span>InventarisBarang</span>
+            </a>
 
-        <a href="{{ route('peminjaman.index') }}" class="text-secondary text-decoration-none small">
-            <i class="bi bi-arrow-left"></i> Kembali
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-controls="menuNavbar" aria-expanded="false" aria-label="Buka menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menuNavbar">
+                <ul class="navbar-nav ms-auto align-items-md-center gap-md-4 py-3 py-md-0">
+                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam') }}">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a></li>
+                    <li class="nav-item"><a class="nav-link aktif" href="{{ url('/peminjam/riwayat') }}" aria-current="page">Riwayat</a></li>
+                    <li class="nav-item mt-2 mt-md-0">
+                        <button type="button" id="btnTema" class="btn btn-outline-secondary btn-sm btn-tema" aria-label="Ganti mode terang atau gelap">
+                            <svg class="ikon-matahari" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                            <svg class="ikon-bulan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                            <span id="labelTema">Mode</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Isi halaman -->
+    <main class="container wadah flex-grow-1 py-4 py-md-5">
+
+        <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/peminjam') }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            Kembali ke dashboard
         </a>
 
-        <div class="mt-3 mb-4">
-            <span class="badge rounded-pill badge-live px-3 py-2 mb-3">Riwayat &middot; 2026</span><br>
-            <h1 class="display-6 fw-bold text-gradient d-inline-block mb-2">Riwayat Peminjaman dan Pengembalian</h1>
-            <p class="text-secondary mb-0" style="max-width: 560px;">
-                Pantau transaksi yang berjalan dan yang sudah selesai. Nama peminjam disamarkan untuk menjaga privasi.
-            </p>
-        </div>
+        <h1 class="mb-2">Riwayat Peminjaman dan Pengembalian</h1>
+        <p class="text-secondary mb-4" style="max-width: 560px;">
+            Pantau transaksi yang berjalan dan yang sudah selesai. Nama peminjam disamarkan untuk menjaga privasi.
+        </p>
 
         <div class="table-card">
             <div class="table-responsive">
@@ -104,13 +175,13 @@
                             @php
                                 if ($row->tgl_kembali) {
                                     $status = 'Selesai';
-                                    $kelas  = 'badge-teal';
+                                    $kelas  = 'badge-selesai';
                                 } elseif ($row->tgl_jatuh_tempo && $row->tgl_jatuh_tempo->isPast()) {
                                     $status = 'Terlambat';
-                                    $kelas  = 'badge-rose';
+                                    $kelas  = 'badge-telat';
                                 } else {
                                     $status = 'Dipinjam';
-                                    $kelas  = 'badge-gold';
+                                    $kelas  = 'badge-pinjam';
                                 }
                             @endphp
                             <tr>
@@ -143,9 +214,29 @@
 
     </main>
 
-    <footer class="footer-dark text-center py-4 mt-auto">
-        <small class="text-secondary">&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
+    <!-- Footer -->
+    <footer class="py-3">
+        <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
+            <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
+            <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a> &nbsp;|&nbsp; <a href="{{ route('login') }}">Login admin</a></span>
+        </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ganti tema terang/gelap
+        const html = document.documentElement;
+        const labelTema = document.getElementById('labelTema');
+        const tampilkanLabel = () => {
+            labelTema.textContent = html.getAttribute('data-bs-theme') === 'dark' ? 'Mode terang' : 'Mode gelap';
+        };
+        tampilkanLabel();
+        document.getElementById('btnTema').addEventListener('click', () => {
+            const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', baru);
+            try { localStorage.setItem('tema', baru); } catch (e) {}
+            tampilkanLabel();
+        });
+    </script>
 </body>
 </html>

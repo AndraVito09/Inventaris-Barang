@@ -1,115 +1,131 @@
-<!DOCTYPE html>
-<html lang="id">
+]<!DOCTYPE html>
+<html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard Peminjam - Inventaris Barang</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
+
+    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
+    <script>
+        (function () {
+            var tema = null;
+            try { tema = localStorage.getItem('tema'); } catch (e) {}
+            if (!tema) tema = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', tema);
+        })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        :root {
-            --bg: #0d2622;
-            --bg2: #12302b;
-            --garis: rgba(232, 239, 235, .14);
-            --teks: #e8efeb;
-            --redup: #9bb3aa;
-            --emas: #f1b53d;
-            --tosca: #4fd1ac;
-            --mawar: #f0708f;
+        /* Palet biru tua: terang */
+        [data-bs-theme="light"] {
+            --bs-body-bg: #eef3fb;
+            --bs-body-color: #0b2447;
+            --bs-secondary-color: #4a6087;
+            --bs-border-color: rgba(11, 36, 71, .16);
+            --kartu: #ffffff;
+            --nav-bg: rgba(238, 243, 251, .92);
+            --hover: rgba(11, 36, 71, .06);
+            --ada: #0f9d7a;
+            --pinjam: #d99a14;
+            --telat: #d6336c;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body {
-            min-height: 100vh; display: flex; flex-direction: column;
-            background: var(--bg); color: var(--teks);
-            font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
-            line-height: 1.6;
+        /* Palet biru tua: gelap */
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #0a1930;
+            --bs-body-color: #e7eefb;
+            --bs-secondary-color: #9fb2d3;
+            --bs-border-color: rgba(173, 198, 245, .16);
+            --kartu: #102445;
+            --nav-bg: rgba(10, 25, 48, .92);
+            --hover: rgba(173, 198, 245, .1);
+            --ada: #4fd1ac;
+            --pinjam: #f1b53d;
+            --telat: #f0708f;
         }
-        a:focus-visible, button:focus-visible { outline: 3px solid var(--tosca); outline-offset: 3px; }
+        :root { --emas: #f1b53d; }
+
+        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
+        .wadah { max-width: 1120px; }
 
         /* Navbar */
-        .nav { position: sticky; top: 0; z-index: 20; background: rgba(13, 38, 34, .92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--garis); }
-        .nav-isi { max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 32px; position: relative; }
-        .merek { display: flex; align-items: center; gap: 12px; color: var(--teks); text-decoration: none; font-weight: 800; font-size: 1.25rem; letter-spacing: -.01em; }
-        .menu { display: flex; align-items: center; gap: 28px; margin-left: auto; }
-        .tautan { color: var(--redup); text-decoration: none; font-weight: 500; padding: 4px 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
-        .tautan:hover, .tautan.aktif { color: var(--teks); border-color: var(--emas); }
-        .toggle { display: none; margin-left: auto; background: none; border: 1.5px solid var(--garis); color: var(--teks); border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; }
+        .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
+        .navbar .nav-link:hover, .navbar .nav-link.active { color: var(--bs-body-color); border-color: var(--emas); }
+        .btn-outline-secondary {
+            --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
+            --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
+            --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
+        }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+        /* Judul */
+        h1 { font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.06; }
+        h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.015em; }
+        .lead { max-width: 28rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
 
-        /* Bagian atas */
-        .atas { display: grid; grid-template-columns: .9fr 1.1fr; gap: 56px; align-items: center; padding: 64px 0 48px; }
-        h1 { font-size: clamp(2.3rem, 4.6vw, 3.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.05; }
-        .lead { margin-top: 18px; max-width: 28rem; color: var(--redup); font-size: 1.1rem; }
-
-        /* Papan kondisi barang (gerakan satu-satunya: bar terisi dan angka naik sekali) */
-        .papan { background: var(--bg2); border: 1px solid var(--garis); border-radius: 16px; padding: 26px 28px 24px; }
-        .papan-judul { font-weight: 700; font-size: 1.05rem; margin-bottom: 16px; }
-        .bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: rgba(232, 239, 235, .08); }
-        .seg { display: block; flex: none; width: var(--w); height: 100%; animation: isi 1.3s cubic-bezier(.2, .7, .2, 1) .2s both; }
-        .s-ada { background: var(--tosca); }
-        .s-pinjam { background: var(--emas); }
-        .s-telat { background: var(--mawar); }
-        @keyframes isi { from { width: 0; } to { width: var(--w); } }
-
-        .angka { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); }
-        .angka div { padding: 0 18px; border-left: 1px solid var(--garis); }
-        .angka div:first-child { padding-left: 0; border-left: 0; }
-        .angka dt { color: var(--redup); font-size: .9rem; display: flex; align-items: center; gap: 8px; }
-        .angka dt::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--c, transparent); border: 1.5px solid var(--c, var(--redup)); }
-        .angka dd { font-size: 2.5rem; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-        .a-ada { --c: var(--tosca); }
-        .a-pinjam { --c: var(--emas); }
-        .a-telat { --c: var(--mawar); }
-        .ket { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--garis); color: var(--redup); font-size: .92rem; }
-        .ket.peringatan { color: var(--mawar); font-weight: 500; }
+        /* Kondisi barang: daftar polos, satu baris per status */
+        .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
+        .papan-kepala { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+        .kondisi { list-style: none; margin: 0; padding: 0; }
+        .kondisi li { display: grid; grid-template-columns: 6.5rem 1fr 2.5rem; align-items: center; gap: 14px; padding: .7rem 0; border-bottom: 1px solid var(--bs-border-color); }
+        .kondisi li:last-child { border-bottom: 0; }
+        .kondisi .nama { font-weight: 500; }
+        .kondisi .jumlah { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .jalur { height: 6px; border-radius: 3px; background: var(--bs-border-color); overflow: hidden; }
+        .jalur > span { display: block; height: 100%; border-radius: 3px; background: var(--c); }
+        .k-ada { --c: var(--ada); }
+        .k-pinjam { --c: var(--pinjam); }
+        .k-telat { --c: var(--telat); }
+        .peringatan { color: var(--telat); font-weight: 500; }
 
         /* Layanan */
-        h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.015em; margin-bottom: 18px; }
-        .utama { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-        .utama a { display: block; padding: 30px 30px 32px; border-radius: 14px; text-decoration: none; transition: transform .2s, background .2s, border-color .2s; }
-        .utama h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.01em; }
-        .utama p { margin-top: 8px; max-width: 24rem; }
-        .u-pinjam { background: var(--emas); color: #1a1405; }
-        .u-pinjam:hover { background: #f7c55c; transform: translateY(-3px); }
-        .u-kembali { border: 1.5px solid rgba(232, 239, 235, .35); color: var(--teks); }
-        .u-kembali p { color: var(--redup); }
-        .u-kembali:hover { border-color: var(--teks); background: rgba(232, 239, 235, .05); transform: translateY(-3px); }
+        .layanan { display: block; padding: 2rem; border-radius: 14px; background: var(--emas); color: #1a1405; text-decoration: none; transition: transform .2s, background .2s; }
+        .layanan:hover { background: #f7c55c; color: #1a1405; transform: translateY(-3px); }
+        .layanan h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.01em; }
+        .layanan-kembali { background: transparent; border: 1.5px solid var(--bs-secondary-color); color: var(--bs-body-color); }
+        .layanan-kembali p { color: var(--bs-secondary-color); }
+        .layanan-kembali:hover { background: var(--hover); border-color: var(--bs-body-color); color: var(--bs-body-color); }
 
-        .lainnya { list-style: none; margin-top: 26px; }
-        .lainnya li { border-top: 1px solid var(--garis); }
-        .lainnya li:last-child { border-bottom: 1px solid var(--garis); }
-        .lainnya a { display: grid; grid-template-columns: 16rem 1fr; gap: 20px; padding: 18px 8px; color: var(--teks); text-decoration: none; transition: background .2s; }
-        .lainnya a:hover { background: rgba(232, 239, 235, .05); }
-        .lainnya strong { font-weight: 700; }
-        .lainnya span { color: var(--redup); }
+        .daftar .list-group-item { background: transparent; color: var(--bs-body-color); display: grid; grid-template-columns: 16rem 1fr; gap: 20px; padding: 1.1rem .5rem; }
+        .daftar .list-group-item:hover { background: var(--hover); }
+        .daftar span { color: var(--bs-secondary-color); }
 
-        .aturan { margin: 40px 0 72px; padding: 16px 20px; border: 1.5px solid rgba(241, 181, 61, .4); background: rgba(241, 181, 61, .08); border-radius: 10px; color: var(--redup); font-size: .95rem; }
-        .aturan strong { color: var(--emas); }
+        .aturan { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); color: var(--bs-secondary-color); border-radius: 10px; }
+        .aturan strong { color: #b97d00; }
+        [data-bs-theme="dark"] .aturan strong { color: var(--emas); }
 
-        .footer { border-top: 1px solid var(--garis); padding: 22px 24px; color: var(--redup); font-size: .9rem; text-align: center; }
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
+        footer a { color: var(--bs-secondary-color); }
+        footer a:hover { color: var(--bs-body-color); }
 
-        @media (max-width: 860px) {
-            .atas { grid-template-columns: 1fr; gap: 36px; padding-top: 40px; }
-            .utama { grid-template-columns: 1fr; }
-            .lainnya a { grid-template-columns: 1fr; gap: 2px; }
-            .angka { grid-template-columns: repeat(2, 1fr); row-gap: 20px; }
-            .angka div:nth-child(3) { padding-left: 0; border-left: 0; }
-            .toggle { display: block; }
-            .menu { display: none; position: absolute; top: 100%; left: 0; right: 0; margin: 0; padding: 18px 24px 24px; flex-direction: column; align-items: flex-start; gap: 16px; background: var(--bg); border-bottom: 1px solid var(--garis); }
-            .menu.buka { display: flex; }
+        /* Responsif */
+        @media (max-width: 767.98px) {
+            .navbar-brand { font-size: 1.2rem; }
+            .logo { width: 46px; height: 46px; }
+            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar-nav .btn { width: 100%; }
+            .layanan { padding: 1.5rem; }
+            .daftar .list-group-item { grid-template-columns: 1fr; gap: 2px; }
+            .kondisi li { grid-template-columns: 5.5rem 1fr 2rem; gap: 10px; }
         }
+
         @media (prefers-reduced-motion: reduce) {
-            html { scroll-behavior: auto; }
-            .seg { animation: none; }
-            .utama a, .tautan, .lainnya a { transition: none; }
-            .u-pinjam:hover, .u-kembali:hover { transform: none; }
+            .layanan { transition: none; }
+            .layanan:hover { transform: none; }
         }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     @php
         $total    = (int) ($totalBarang ?? 0);
@@ -120,119 +136,142 @@
         $lebar    = fn ($n) => round(min($n / $dasar * 100, 100), 2);
     @endphp
 
-    <nav class="nav" aria-label="Menu utama">
-        <div class="nav-isi">
-            <a class="merek" href="{{ url('/peminjam') }}">
-                <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
-                    <rect width="34" height="34" rx="9" fill="#f1b53d"/>
-                    <path fill="#1a1405" d="M8 9h2v16H8zM12 9h1v16h-1zM15 9h3v16h-3zM20 9h1v16h-1zM23 9h3v16h-3z"/>
-                </svg>
+    <nav class="navbar navbar-expand-md sticky-top" aria-label="Menu utama">
+        <div class="container wadah">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/peminjam') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="" width="56" height="56" class="logo">
                 <span>InventarisBarang</span>
             </a>
-            <button class="toggle" id="toggle" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
-            <div class="menu" id="menu">
-                <a class="tautan aktif" href="{{ url('/peminjam') }}" aria-current="page">Beranda</a>
-                <a class="tautan" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a>
-                <a class="tautan" href="{{ url('/peminjam/riwayat') }}">Riwayat</a>
-                <a class="tautan" href="{{ url('/') }}#tentang">Tentang</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Buka menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav ms-auto align-items-md-center gap-md-4 py-3 py-md-0">
+                    <li class="nav-item"><a class="nav-link active" href="{{ url('/peminjam') }}" aria-current="page">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/riwayat') }}">Riwayat</a></li>
+                    <li class="nav-item mt-2 mt-md-0">
+                        <button type="button" id="btnTema" class="btn btn-outline-secondary btn-sm btn-tema" aria-label="Ganti mode terang atau gelap">
+                            <svg class="ikon-matahari" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                            <svg class="ikon-bulan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                            <span id="labelTema">Mode</span>
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <main>
-        <section class="atas">
-            <div>
+    <main class="container wadah flex-grow-1">
+        <div class="pt-4">
+            <a class="btn btn-outline-secondary btn-sm btn-kembali" href="{{ url('/') }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                Kembali ke menu
+            </a>
+        </div>
+
+        <section class="row g-4 g-lg-5 align-items-center py-4 py-md-5">
+            <div class="col-lg-5">
                 <h1>Selamat datang di layanan peminjaman.</h1>
-                <p class="lead">Pinjam dan kembalikan barang sekolah di satu tempat, tanpa perlu login.</p>
+                <p class="lead mt-3">Pinjam dan kembalikan barang sekolah di satu tempat, tanpa perlu login.</p>
             </div>
 
-            <div class="papan">
-                <div class="papan-judul">Kondisi barang saat ini</div>
-                <div class="bar" role="img" aria-label="Dari {{ $total }} barang: {{ $ada }} tersedia, {{ $pinjam }} dipinjam, {{ $telat }} terlambat">
-                    <span class="seg s-ada" style="--w: {{ $lebar($ada) }}%"></span>
-                    <span class="seg s-pinjam" style="--w: {{ $lebar($pinjam) }}%"></span>
-                    <span class="seg s-telat" style="--w: {{ $lebar($telat) }}%"></span>
+            <div class="col-lg-7">
+                <div class="papan p-3 p-md-4">
+                    <div class="papan-kepala mb-2">
+                        <h2 class="h5 fw-bold mb-0">Kondisi barang saat ini</h2>
+                        <span class="small text-secondary">{{ $total }} barang terdaftar</span>
+                    </div>
+
+                    <ul class="kondisi">
+                        <li class="k-ada">
+                            <span class="nama">Tersedia</span>
+                            <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($ada) }}%"></span></span>
+                            <span class="jumlah">{{ $ada }}</span>
+                        </li>
+                        <li class="k-pinjam">
+                            <span class="nama">Dipinjam</span>
+                            <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($pinjam) }}%"></span></span>
+                            <span class="jumlah">{{ $pinjam }}</span>
+                        </li>
+                        <li class="k-telat">
+                            <span class="nama">Terlambat</span>
+                            <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($telat) }}%"></span></span>
+                            <span class="jumlah">{{ $telat }}</span>
+                        </li>
+                    </ul>
+
+                    <div class="border-top mt-2 pt-3 small">
+                        @if ($telat > 0)
+                            <p class="peringatan mb-0">{{ $telat }} barang melewati batas kembali dan belum dikembalikan.</p>
+                        @else
+                            <p class="text-secondary mb-0">Tidak ada barang yang terlambat.</p>
+                        @endif
+                    </div>
                 </div>
-                <dl class="angka">
-                    <div><dt>Total barang</dt><dd data-hitung="{{ $total }}">{{ $total }}</dd></div>
-                    <div class="a-ada"><dt>Tersedia</dt><dd data-hitung="{{ $ada }}">{{ $ada }}</dd></div>
-                    <div class="a-pinjam"><dt>Dipinjam</dt><dd data-hitung="{{ $pinjam }}">{{ $pinjam }}</dd></div>
-                    <div class="a-telat"><dt>Terlambat</dt><dd data-hitung="{{ $telat }}">{{ $telat }}</dd></div>
-                </dl>
-                @if ($telat > 0)
-                    <p class="ket peringatan">{{ $telat }} barang melewati batas kembali dan belum dikembalikan.</p>
-                @else
-                    <p class="ket">Tidak ada barang yang terlambat.</p>
-                @endif
             </div>
         </section>
 
         <section aria-labelledby="judul-layanan">
-            <h2 id="judul-layanan">Pilih layanan</h2>
+            <h2 id="judul-layanan" class="mb-3">Layanan</h2>
 
-            <div class="utama">
-                <a class="u-pinjam" href="{{ url('/peminjam/pinjam') }}">
-                    <h3>Peminjaman</h3>
-                    <p>Scan barcode barang, isi data, lalu dapatkan struk.</p>
-                </a>
-                <a class="u-kembali" href="{{ url('/peminjam/kembali') }}">
-                    <h3>Pengembalian</h3>
-                    <p>Scan QR pada struk untuk mengembalikan barang.</p>
-                </a>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a class="layanan h-100" href="{{ url('/peminjam/pinjam') }}">
+                        <h3 class="mb-2">Peminjaman</h3>
+                        <p class="mb-0">Scan barcode barang, isi data, lalu dapatkan struk.</p>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="layanan layanan-kembali h-100" href="{{ url('/peminjam/kembali') }}">
+                        <h3 class="mb-2">Pengembalian</h3>
+                        <p class="mb-0">Scan QR pada struk untuk mengembalikan barang.</p>
+                    </a>
+                </div>
             </div>
 
-            <ul class="lainnya">
-                <li>
-                    <a href="{{ url('/peminjam/katalog') }}">
-                        <strong>Daftar barang</strong>
-                        <span>Cek barang yang tersedia dan yang sedang dipinjam.</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url('/peminjam/riwayat') }}">
-                        <strong>Riwayat peminjaman dan pengembalian</strong>
-                        <span>Pantau transaksi yang berjalan dan yang sudah selesai.</span>
-                    </a>
-                </li>
-            </ul>
+            <div class="list-group list-group-flush daftar mt-4 border-top border-bottom">
+                <a href="{{ url('/peminjam/katalog') }}" class="list-group-item list-group-item-action">
+                    <strong>Daftar barang</strong>
+                    <span>Cek barang yang tersedia dan yang sedang dipinjam.</span>
+                </a>
+                <a href="{{ url('/peminjam/riwayat') }}" class="list-group-item list-group-item-action">
+                    <strong>Riwayat peminjaman dan pengembalian</strong>
+                    <span>Pantau transaksi yang berjalan dan yang sudah selesai.</span>
+                </a>
+            </div>
         </section>
 
-        <div class="aturan">
+        <div class="aturan px-4 py-3 mt-5 mb-5 small">
             <strong>Ketentuan keterlambatan:</strong>
             batas pengembalian tertera di struk. Siswa yang terlambat mengembalikan barang wajib membersihkan lab.
         </div>
     </main>
 
-    <footer class="footer">
-        &copy; 2026 Inventaris Barang. Semua hak dilindungi.
+    <footer class="py-3">
+        <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
+            <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
+            <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a> &nbsp;|&nbsp; <a href="{{ route('login') }}">Login admin</a></span>
+        </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Menu mobile
-        const toggle = document.getElementById('toggle');
-        const menu = document.getElementById('menu');
-        toggle.addEventListener('click', () => {
-            const buka = menu.classList.toggle('buka');
-            toggle.setAttribute('aria-expanded', buka);
+        // Ganti tema terang/gelap
+        const html = document.documentElement;
+        const label = document.getElementById('labelTema');
+        const tampilkanLabel = () => {
+            label.textContent = html.getAttribute('data-bs-theme') === 'dark' ? 'Mode terang' : 'Mode gelap';
+        };
+        tampilkanLabel();
+        document.getElementById('btnTema').addEventListener('click', () => {
+            const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', baru);
+            try { localStorage.setItem('tema', baru); } catch (e) {}
+            tampilkanLabel();
         });
-
-        // Angka naik dari 0 sekali, selaras dengan bar yang terisi
-        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            document.querySelectorAll('[data-hitung]').forEach(el => {
-                const akhir = Number(el.dataset.hitung);
-                if (!akhir) return;
-                el.textContent = 0;
-                setTimeout(() => {
-                    const mulai = performance.now();
-                    const langkah = t => {
-                        const p = Math.min((t - mulai) / 1200, 1);
-                        el.textContent = Math.round(akhir * (1 - Math.pow(1 - p, 3)));
-                        if (p < 1) requestAnimationFrame(langkah);
-                    };
-                    requestAnimationFrame(langkah);
-                }, 200);
-            });
-        }
     </script>
 </body>
 </html>
