@@ -5,39 +5,70 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
 class RiwayatController extends Controller
 {
     /**
-     * Menampilkan halaman riwayat peminjaman.
+     * ADMIN: halaman riwayat peminjaman (dijaga middleware auth di route).
      */
     public function index(): View
     {
-        $riwayat = Peminjaman::with(['barang', 'peminjam'])
-            ->orderByDesc('tgl_pinjam')
-            ->get();
-
         return view('admin.riwayat', [
-            'riwayat' => $riwayat,
+            'riwayat' => $this->ambilRiwayat(),
         ]);
     }
 
     /**
-     * Mencetak laporan riwayat peminjaman ke PDF.
+     * ADMIN: cetak laporan riwayat peminjaman ke PDF.
      */
     public function cetakPdf(): Response
     {
-        $riwayat = Peminjaman::with(['barang', 'peminjam'])
-            ->orderByDesc('tgl_pinjam')
-            ->get();
-
         $pdf = Pdf::loadView('admin.riwayat_pdf', [
-            'riwayat' => $riwayat,
+            'riwayat' => $this->ambilRiwayat(),
         ]);
 
         $pdf->setPaper('a4', 'portrait');
 
         return $pdf->stream('laporan-riwayat-peminjaman.pdf');
+    }
+
+    /**
+     * PEMINJAM (publik, tanpa login): nama peminjam disamarkan.
+     */
+    public function peminjam(): View
+    {
+        $riwayat = $this->ambilRiwayat();
+
+        $riwayat->each(function (Peminjaman $row) {
+            $nama = $row->peminjam->nama_peminjam ?? '-';
+
+            $row->setAttribute('nama_tampil', $this->samarkanNama($nama));
+        });
+
+        return view('peminjam.riwayat-peminjaman', [
+            'riwayat' => $riwayat,
+        ]);
+    }
+
+    /**
+     * Query riwayat yang dipakai bersama admin dan peminjam.
+     */
+    private function ambilRiwayat(): Collection
+    {
+        return Peminjaman::with(['barang', 'peminjam'])
+            ->orderByDesc('tgl_pinjam')
+            ->get();
+    }
+
+    /**
+     * Contoh: "Irlan M*****A"
+     */
+    private function samarkanNama(string $nama): string
+    {
+        return collect(explode(' ', $nama))
+            ->map(fn (string $kata) => mb_substr($kata, 0, 1) . str_repeat('*', max(mb_strlen($kata) - 1, 0)))
+            ->implode(' ');
     }
 }
