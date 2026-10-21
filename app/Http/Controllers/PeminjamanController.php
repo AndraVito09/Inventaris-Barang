@@ -15,6 +15,9 @@ class PeminjamanController extends Controller
     // Pilihan pada dropdown form peminjaman
     private const TIPE_PEMINJAM = ['Siswa', 'Guru', 'Staff', 'Orang Tua/Lainnya'];
 
+    // Lama peminjaman tetap: 24 jam. Lewat dari ini dianggap terlambat.
+    private const LAMA_PINJAM_JAM = 24;
+
     // Dashboard peminjam
     public function index()
     {
@@ -54,11 +57,11 @@ class PeminjamanController extends Controller
     {
         $tipe = $request->input('tipe_peminjam');
 
+        // Tidak ada lama_pinjam: durasi ditentukan server (24 jam), bukan dari form.
         $request->validate([
             'tipe_peminjam' => ['required', Rule::in(self::TIPE_PEMINJAM)],
             'kode_barcode'  => ['required', 'string', 'max:50'],
             'nama_peminjam' => ['required', 'string', 'max:100'],
-            'lama_pinjam'   => ['required', 'integer', 'between:1,14'],
             'nis'           => [Rule::requiredIf($tipe === 'Siswa'), 'nullable', 'string', 'max:30'],
             'kelas'         => [Rule::requiredIf($tipe === 'Siswa'), 'nullable', 'string', 'max:30'],
             'nip'           => ['nullable', 'string', 'max:30'],
@@ -106,11 +109,13 @@ class PeminjamanController extends Controller
 
             $barang->update(['status_barang' => 'Dipinjam']);
 
+            $sekarang = now();
+
             return Peminjaman::create([
                 'id_barang'         => $barang->id_barang,
                 'id_peminjam'       => $peminjam->id_peminjam,
-                'tgl_pinjam'        => now(),
-                'tgl_jatuh_tempo'   => now()->addDays((int) $request->lama_pinjam),
+                'tgl_pinjam'        => $sekarang,
+                'tgl_jatuh_tempo'   => $sekarang->copy()->addHours(self::LAMA_PINJAM_JAM),
                 'status_peminjaman' => 'Dipinjam',
             ]);
         });
