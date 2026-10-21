@@ -111,7 +111,19 @@
             border-image: linear-gradient(90deg, var(--teal), var(--gold), var(--rose)) 1;
         }
 
-        @media (prefers-reduced-motion: reduce) { .modal-terlambat .modal-content { animation: none; } }
+        /* Layar berkedip merah saat terlambat (di atas backdrop modal, di bawah kotak modal) */
+        body.layar-darurat::after {
+            content: ""; position: fixed; inset: 0; z-index: 1052;
+            background: rgba(240, 40, 80, 0.45);
+            pointer-events: none;
+            animation: kedip-merah 1s ease-in-out infinite;
+        }
+        @keyframes kedip-merah { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        @media (prefers-reduced-motion: reduce) {
+            .modal-terlambat .modal-content { animation: none; }
+            body.layar-darurat::after { animation: none; opacity: .5; }
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -157,7 +169,7 @@
 
                     <label for="inputKode" class="visually-hidden">Kode struk</label>
                     <div class="input-group">
-                        <input id="inputKode" type="text" class="form-control" placeholder="Kode struk, mis. PJM-20260115-0001" autocomplete="off" autofocus>
+                        <input id="inputKode" type="text" class="form-control" placeholder="Kode struk, mis. TRX-20261021-00002-FB842" autocomplete="off" autofocus>
                         <button id="tombolCari" class="btn btn-outline-light px-4">Cari</button>
                     </div>
                     <div class="text-secondary mt-2">Scanner belum terbaca? Ketik kode di struk lalu tekan Enter.</div>
@@ -224,8 +236,8 @@
         </div>
     </div>
 
-    <!-- Suara alarm: taruh file di public/audio/alarm.mp3 -->
-    <audio id="suaraTerlambat" src="{{ asset('audio/alarm.mp3') }}" preload="auto" loop></audio>
+    <!-- Suara sirine: taruh file di public/audio/sirine.mp3 -->
+    <audio id="suaraTerlambat" src="{{ asset('audio/sirine.mp3') }}" preload="auto" loop></audio>
 
     <footer class="footer-dark text-center py-3 mt-auto">
         <small class="text-secondary">&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
@@ -249,7 +261,7 @@
         let timerSuara = null;
 
         // Browser memblokir suara sebelum ada klik pengguna.
-        // Saat tombol Mulai Scan / Cari ditekan, audio "dibuka kuncinya" dengan memutarnya dalam keadaan bisu.
+        // Audio "dibuka kuncinya" dengan memutarnya dalam keadaan bisu saat interaksi pertama.
         function siapkanAudio() {
             if (suara.dataset.siap) return;
             suara.muted = true;
@@ -294,26 +306,82 @@
             status.textContent = siap ? 'Scanner siap, silakan scan struk' : 'Klik di sini untuk mengaktifkan scanner';
         }
 
+        /* ---------- Ambil kode dari hasil scan ---------- */
+        // Isi QR bisa berupa kode murni, URL, atau JSON. Fungsi ini mengambil kodenya saja.
+        function ekstrakKode(teks) {
+            teks = (teks || '').trim();
+
+            // 1) Cari pola kode struk di mana pun posisinya (URL, JSON, teks lain)
+            const m = teks.match(/TRX-\d{8}-\d+-[A-Z0-9]+/i);
+            if (m) return m[0].toUpperCase();
+
+            // 2) Kalau JSON, coba ambil field kode
+            try {
+                const obj = JSON.parse(teks);
+                if (obj && obj.kode) return String(obj.kode).trim();
+            } catch (_) { /* bukan JSON */ }
+
+            // 3) Kalau URL, ambil segmen terakhir dari path
+            if (/^https?:\/\//i.test(teks)) {
+                try {
+                    const u = new URL(teks);
+                    const seg = u.pathname.split('/').filter(Boolean).pop();
+                    if (seg) return decodeURIComponent(seg).trim();
+                } catch (_) { /* URL tidak valid */ }
+            }
+
+            return teks;
+        }
+
         /* ---------- Ambil data transaksi ---------- */
-        async function cariTransaksi(kode) {
-            if (!kode || sedangMemproses) return;
+        async function cariTransaksi(mentah) {
+            if (!mentah || sedangMemproses) return;
             sedangMemproses = true;
             siapkanAudio();
             sembunyikanPesan();
             input.value = '';
 
+            const kode = ekstrakKode(mentah);
+            console.log('[Pengembalian] Terbaca dari scanner:', mentah, '→ dikirim:', kode);
+
             try {
                 const res = await fetch(URL_CEK, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': CSRF,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ kode })
                 });
-                const json = await res.json();
-                if (!res.ok || !json.ok) throw new Error(json.pesan || 'Struk tidak ditemukan.');
+
+                const teks = await res.text();
+                let json;
+                try {
+                    json = JSON.parse(teks);
+                } catch (_) {
+                    console.error('[Pengembalian] Respons bukan JSON. Status', res.status, teks.slice(0, 300));
+                    if (res.status === 419) throw new Error('Sesi habis (419). Muat ulang halaman lalu coba lagi.');
+                    if (res.status === 404) throw new Error('Route /peminjam/kembali/cek tidak ditemukan (404).');
+                    if (res.status === 405) throw new Error('Route harus menerima method POST (405).');
+                    if (res.redirected || res.status === 302) throw new Error('Anda belum login atau sesi berakhir.');
+                    throw new Error('Server error (' + res.status + '). Cek storage/logs/laravel.log');
+                }
+
+                console.log('[Pengembalian] Respons server:', res.status, json);
+
+                const berhasil = json.ok ?? json.success;
+                if (!res.ok || !berhasil) {
+                    throw new Error(json.pesan || json.message || 'Struk tidak ditemukan.');
+                }
+                if (!json.data) throw new Error('Respons server tidak berisi data peminjaman.');
 
                 transaksi = json.data;
                 tampilkanDetail(transaksi);
             } catch (e) {
+                console.error('[Pengembalian] Galat:', e);
                 tampilkanGalat(e.message || 'Terjadi kesalahan. Coba lagi.');
             } finally {
                 // jeda singkat agar QR yang sama tidak terbaca berulang
@@ -325,7 +393,7 @@
         /* ---------- Tampilan detail ---------- */
         function hitungTerlambat(batasISO) {
             const selisihMs = Date.now() - new Date(batasISO).getTime();
-            if (selisihMs <= 0) return null;
+            if (isNaN(selisihMs) || selisihMs <= 0) return null;
             const menit = Math.floor(selisihMs / 60000);
             const hari = Math.floor(menit / 1440);
             const jam = Math.floor((menit % 1440) / 60);
@@ -351,13 +419,13 @@
             $('dBatas').textContent = new Date(d.batas_kembali).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 
             const lama = hitungTerlambat(d.batas_kembali);
-            const status = $('dStatus');
+            const dStatus = $('dStatus');
             if (lama) {
-                status.textContent = 'Terlambat ' + lama;
-                status.style.color = 'var(--rose)';
+                dStatus.textContent = 'Terlambat ' + lama;
+                dStatus.style.color = 'var(--rose)';
             } else {
-                status.textContent = 'Tepat waktu';
-                status.style.color = 'var(--teal)';
+                dStatus.textContent = 'Tepat waktu';
+                dStatus.style.color = 'var(--teal)';
             }
 
             // Alert & suara langsung muncul begitu struk terbaca dan ternyata terlambat
@@ -368,6 +436,7 @@
             $('lamaTerlambat').textContent = 'Terlambat ' + lama;
             $('tombolBisu').textContent = 'Matikan Suara';
             modalTerbuka = true;
+            document.body.classList.add('layar-darurat');
             modalTerlambat.show();
             mulaiSirene();
         }
@@ -387,11 +456,28 @@
             try {
                 const res = await fetch(URL_PROSES, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': CSRF,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ kode: transaksi.kode })
                 });
-                const json = await res.json();
-                if (!res.ok || !json.ok) throw new Error(json.pesan || 'Pengembalian gagal diproses.');
+
+                const teks = await res.text();
+                let json;
+                try {
+                    json = JSON.parse(teks);
+                } catch (_) {
+                    console.error('[Pengembalian] Respons proses bukan JSON. Status', res.status, teks.slice(0, 300));
+                    throw new Error('Server error (' + res.status + '). Cek storage/logs/laravel.log');
+                }
+                console.log('[Pengembalian] Respons proses:', res.status, json);
+
+                const berhasil = json.ok ?? json.success;
+                if (!res.ok || !berhasil) throw new Error(json.pesan || json.message || 'Pengembalian gagal diproses.');
 
                 const lama = hitungTerlambat(transaksi.batas_kembali);
                 const sukses = $('sukses');
@@ -448,7 +534,7 @@
         $('tombolMengerti').addEventListener('click', tutupAlertTerlambat);
         $('tombolBisu').addEventListener('click', () => { hentikanSirene(); $('tombolBisu').textContent = 'Suara dimatikan'; });
         $('modalTerlambat').addEventListener('shown.bs.modal', () => { modalTerbuka = true; });
-        $('modalTerlambat').addEventListener('hidden.bs.modal', () => { modalTerbuka = false; hentikanSirene(); fokus(); });
+        $('modalTerlambat').addEventListener('hidden.bs.modal', () => { modalTerbuka = false; document.body.classList.remove('layar-darurat'); hentikanSirene(); fokus(); });
 
         fokus();
         perbaruiStatus();

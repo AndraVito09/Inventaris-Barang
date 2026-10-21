@@ -15,73 +15,85 @@ class PengembalianController extends Controller
         return view('peminjam.pengembalian'); // sesuaikan dengan lokasi file blade kamu
     }
 
+    private function cariPeminjaman(string $kode, bool $kunci = false): ?Peminjaman
+    {
+        $kode = strtoupper(trim($kode));
+
+        $q = Peminjaman::with(['barang', 'peminjam']);
+        if ($kunci) {
+            $q->lockForUpdate();
+        }
+
+        if (preg_match('/^TRX-(\d{8})-(\d+)-/', $kode, $m)) {
+            return $q->where('id_peminjaman', (int) $m[2])->first();
+        }
+
+        return $q->whereHas('barang', fn ($b) => $b->where('kode_barcode', $kode))
+            ->whereNull('tgl_kembali')
+            ->latest('id_peminjaman')
+            ->first();
+    }
+
     // POST /peminjam/kembali/cek -> baca kode dari QR, kirim detail transaksi
     public function cek(Request $request): JsonResponse
     {
-        $request->validate(['kode' => 'required|string|max:50']);
+        $request->validate(['kode' => 'required|string|max:100']);
 
-        $pinjam = Peminjaman::with('barang')
-            ->where('kode', $request->kode)
-            ->first();
+        $pinjam = $this->cariPeminjaman($request->kode);
 
         if (!$pinjam) {
             return response()->json(['ok' => false, 'pesan' => 'Struk tidak ditemukan.'], 404);
         }
 
-        if ($pinjam->status === 'dikembalikan') {
+        if ($pinjam->tgl_kembali !== null) {
             return response()->json(['ok' => false, 'pesan' => 'Barang pada struk ini sudah dikembalikan.'], 422);
         }
 
         return response()->json([
             'ok'   => true,
             'data' => [
-                'kode'          => $pinjam->kode,
-                'nama'          => $pinjam->nama_peminjam,
-                'kelas'         => $pinjam->kelas,
-                'barang'        => $pinjam->barang->pluck('nama')->all(),
-                'batas_kembali' => $pinjam->batas_kembali->toIso8601String(),
+                'kode'          => $request->kode,
+                'nama'          => $pinjam->peminjam->nama_peminjam ?? '-',
+                'kelas'         => $pinjam->peminjam->keterangan ?? ($pinjam->peminjam->tipe_peminjam ?? '-'),
+                'barang'        => [$pinjam->barang->nama_barang ?? '-'],
+                'batas_kembali' => $pinjam->tgl_jatuh_tempo->toIso8601String(),
             ],
         ]);
     }
 
-    // POST /peminjam/kembali/proses -> tandai dikembalikan, catat keterlambatan di server
+    // POST /peminjam/kembali/proses -> tandai dikembalikan
     public function proses(Request $request): JsonResponse
     {
-        $request->validate(['kode' => 'required|string|max:50']);
+        $request->validate(['kode' => 'required|string|max:100']);
 
         return DB::transaction(function () use ($request) {
-            $pinjam = Peminjaman::with('barang')
-                ->where('kode', $request->kode)
-                ->lockForUpdate()
-                ->first();
+            $pinjam = $this->cariPeminjaman($request->kode, true);
 
             if (!$pinjam) {
                 return response()->json(['ok' => false, 'pesan' => 'Struk tidak ditemukan.'], 404);
             }
 
-            if ($pinjam->status === 'dikembalikan') {
+            if ($pinjam->tgl_kembali !== null) {
                 return response()->json(['ok' => false, 'pesan' => 'Barang sudah dikembalikan sebelumnya.'], 422);
             }
 
-            $sekarang = now();
-            $terlambat = $sekarang->greaterThan($pinjam->batas_kembali);
+            $sekarang  = now();
+            $batas     = $pinjam->tgl_jatuh_tempo;
+            $terlambat = $sekarang->greaterThan($batas);
 
             $pinjam->update([
-                'status'           => 'dikembalikan',
-                'dikembalikan_pada' => $sekarang,
-                'terlambat'        => $terlambat,
-                'menit_terlambat'  => $terlambat ? $pinjam->batas_kembali->diffInMinutes($sekarang) : 0,
+                'tgl_kembali'       => $sekarang,
+                'status_peminjaman' => $terlambat ? 'Terlambat' : 'Selesai',
             ]);
 
-            // Barang kembali tersedia (sesuaikan nama kolom/status di tabel barang kamu)
-            foreach ($pinjam->barang as $barang) {
-                $barang->update(['status' => 'tersedia']);
-            }
+            // Barang kembali tersedia
+            $pinjam->barang?->update(['status_barang' => 'Tersedia']);
 
             return response()->json([
-                'ok'        => true,
-                'terlambat' => $terlambat,
-                'sanksi'    => $terlambat ? 'Membersihkan lab' : null,
+                'ok'              => true,
+                'terlambat'       => $terlambat,
+                'menit_terlambat' => $terlambat ? (int) $batas->diffInMinutes($sekarang, true) : 0,
+                'sanksi'          => $terlambat ? 'Membersihkan lab' : null,
             ]);
         });
     }

@@ -52,6 +52,11 @@
 
         .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--teal); }
 
+        .info-24jam {
+            border: 1.5px solid rgba(245, 166, 35, 0.4);
+            background: rgba(245, 166, 35, 0.08);
+        }
+
         .footer-dark {
             background: #040a07;
             border-top: 2px solid;
@@ -86,6 +91,11 @@
 
             <form method="POST" action="{{ url('/peminjam/pinjam') }}" class="card p-4" id="form-pinjam">
                 @csrf
+
+                {{-- Tampilkan error validasi supaya tidak gagal diam-diam --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
+                @endif
 
                 {{-- 1. Tipe peminjam --}}
                 <div class="mb-3">
@@ -162,14 +172,13 @@
                         </div>
                     </div>
 
+                    {{-- Lama peminjaman tetap 24 jam. Jatuh tempo dihitung di server, bukan dari form. --}}
                     <div class="mb-4">
-                        <label for="lama_pinjam" class="form-label">Lama peminjaman</label>
-                        <select id="lama_pinjam" name="lama_pinjam" class="form-select @error('lama_pinjam') is-invalid @enderror">
-                            @foreach ([1, 2, 3, 5, 7, 14] as $hari)
-                                <option value="{{ $hari }}" @selected((int) old('lama_pinjam', 3) === $hari)>{{ $hari }} hari</option>
-                            @endforeach
-                        </select>
-                        @error('lama_pinjam') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="form-label">Lama peminjaman</div>
+                        <div class="info-24jam p-3 rounded-3">
+                            <strong style="color: var(--gold);">24 jam (1 hari)</strong>
+                            <div class="small text-secondary mt-1">Barang wajib dikembalikan dalam 24 jam. Jika lebih dari itu dianggap terlambat dan wajib membersihkan lab.</div>
+                        </div>
                     </div>
 
                     <button type="submit" id="tombol-simpan" class="btn btn-teal btn-lg rounded-pill w-100" disabled>Pinjam dan buat struk</button>
@@ -286,8 +295,10 @@
                 tambahBaris(label, input.value.trim());
             });
 
-            const lama = document.getElementById('lama_pinjam');
-            tambahBaris('Lama pinjam', lama.options[lama.selectedIndex].text);
+            // Lama pinjam selalu 24 jam; batas di sini hanya perkiraan, nilai pastinya dihitung server
+            const batas = new Date(Date.now() + 24 * 60 * 60 * 1000);
+            tambahBaris('Lama pinjam', '24 jam (1 hari)');
+            tambahBaris('Batas pengembalian', batas.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }));
 
             modalKonfirmasi.show();
         });
