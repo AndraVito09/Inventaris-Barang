@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\Kategori;
 use App\Models\Peminjam;
 use App\Models\Peminjaman;
 use Illuminate\Http\Request;
@@ -135,5 +136,26 @@ class PeminjamanController extends Controller
         $peminjaman->load(['barang', 'peminjam']);
 
         return view('peminjam.struk', compact('peminjaman'));
+    }
+
+    public function katalog(Request $request)
+    {
+        $request->validate([
+            'cari'     => ['nullable', 'string', 'max:100'],
+            'kategori' => ['nullable', 'integer'],
+        ]);
+
+        $barang = Barang::with('kategori')
+            ->when($request->filled('cari'), fn ($q) => $q->where('nama_barang', 'like', '%' . $request->cari . '%'))
+            ->when($request->filled('kategori'), fn ($q) => $q->where('id_kategori', $request->kategori))
+            ->orderBy('nama_barang')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('peminjam.daftar-barang', [
+            'barang'   => $barang,
+            'kategori' => Kategori::orderBy('nama_kategori')->get(),
+        ]);
+            
     }
 }
