@@ -4,92 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Peminjaman Barang - Inventaris Barang</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
+
+    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
+    <script>
+        (function () {
+            var tema = null;
+            try { tema = localStorage.getItem('tema'); } catch (e) {}
+            if (!tema) tema = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        html[data-bs-theme="dark"] {
-            --bs-body-bg: #060d0a;
-            --bs-body-color: #e8f5ef;
-            --bs-secondary-color: #5a8a70;
-            --bs-border-color: rgba(0, 212, 138, 0.15);
-            --teal: #00d48a;
-            --teal-2: #00ffaa;
-            --gold: #f5a623;
-            --rose: #f05a7e;
+        /* Palet biru tua: terang */
+        [data-bs-theme="light"] {
+            --bs-body-bg: #eef3fb;
+            --bs-body-color: #0b2447;
+            --bs-secondary-color: #4a6087;
+            --bs-border-color: rgba(11, 36, 71, .16);
+            --kartu: #ffffff;
+            --input: #f5f8fd;
+            --nav-bg: rgba(238, 243, 251, .92);
+            --hover: rgba(11, 36, 71, .06);
+            --aksen: #1d4fa8;
+            --emas-teks: #a56d00;
         }
-
-        .text-gradient {
-            background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 55%, var(--rose) 100%);
-            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        /* Palet biru tua: gelap */
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #0a1930;
+            --bs-body-color: #e7eefb;
+            --bs-secondary-color: #9fb2d3;
+            --bs-border-color: rgba(173, 198, 245, .16);
+            --kartu: #102445;
+            --input: rgba(255, 255, 255, .04);
+            --nav-bg: rgba(10, 25, 48, .92);
+            --hover: rgba(173, 198, 245, .1);
+            --aksen: #7fb0ff;
+            --emas-teks: #f1b53d;
         }
+        :root { --emas: #f1b53d; }
 
-        .navbar-glass {
-            background: rgba(6, 13, 10, 0.85);
-            backdrop-filter: blur(24px);
-            border-bottom: 1px solid var(--bs-border-color);
+        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
+        .wadah { max-width: 1120px; }
+
+        /* Navbar */
+        .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
+        .navbar .nav-link:hover { color: var(--bs-body-color); border-color: var(--emas); }
+        .btn-outline-secondary {
+            --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
+            --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
+            --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
         }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        .btn-teal {
-            --bs-btn-color: #060d0a; --bs-btn-bg: var(--teal); --bs-btn-border-color: var(--teal);
-            --bs-btn-hover-color: #060d0a; --bs-btn-hover-bg: var(--teal-2); --bs-btn-hover-border-color: var(--teal-2);
-            --bs-btn-active-color: #060d0a; --bs-btn-active-bg: var(--teal-2); --bs-btn-active-border-color: var(--teal-2);
-            --bs-btn-disabled-color: #060d0a; --bs-btn-disabled-bg: var(--teal); --bs-btn-disabled-border-color: var(--teal);
+        /* Tombol utama */
+        .btn-emas {
+            --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
+            --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
+            --bs-btn-active-color: #1a1405; --bs-btn-active-bg: #f7c55c; --bs-btn-active-border-color: #f7c55c;
+            --bs-btn-disabled-color: #1a1405; --bs-btn-disabled-bg: var(--emas); --bs-btn-disabled-border-color: var(--emas);
             font-weight: 700;
         }
 
-        .btn-gold {
-            --bs-btn-color: var(--gold); --bs-btn-bg: rgba(245, 166, 35, 0.1); --bs-btn-border-color: rgba(245, 166, 35, 0.4);
-            --bs-btn-hover-color: var(--gold); --bs-btn-hover-bg: rgba(245, 166, 35, 0.18); --bs-btn-hover-border-color: var(--gold);
-            font-weight: 700;
+        h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+
+        /* Formulir */
+        .card { background: var(--kartu); border-color: var(--bs-border-color); border-radius: 16px; }
+        .form-control, .form-select { background-color: var(--input); border-color: var(--bs-border-color); }
+        .form-control:focus, .form-select:focus { border-color: var(--aksen); box-shadow: 0 0 0 .2rem rgba(110, 168, 255, .25); }
+        .form-select option { background-color: var(--kartu); color: var(--bs-body-color); }
+        .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--aksen); }
+
+        .info-24jam { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); }
+        .info-24jam strong { color: var(--emas-teks); }
+
+        .modal-content { background: var(--kartu); border-color: var(--bs-border-color); }
+
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
+        footer a { color: var(--bs-secondary-color); }
+        footer a:hover { color: var(--bs-body-color); }
+
+        /* Responsif */
+        @media (max-width: 767.98px) {
+            .navbar-brand { font-size: 1.2rem; }
+            .logo { width: 46px; height: 46px; }
+            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar-nav .btn { width: 100%; }
         }
-
-        .card { background: rgba(255, 255, 255, 0.02); border-color: var(--bs-border-color); }
-        .form-control, .form-select { background-color: rgba(255, 255, 255, 0.03); border-color: var(--bs-border-color); }
-        .form-control:focus, .form-select:focus { border-color: var(--teal); box-shadow: 0 0 0 .2rem rgba(0, 212, 138, 0.2); }
-
-        /* Daftar pilihan dropdown: latar gelap, teks terang (sebelumnya putih dan tidak terbaca) */
-        .form-select { color-scheme: dark; }
-        .form-select option { background-color: #0d1a14; color: #e8f5ef; }
-
-        .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--teal); }
-
-        .info-24jam {
-            border: 1.5px solid rgba(245, 166, 35, 0.4);
-            background: rgba(245, 166, 35, 0.08);
-        }
-
-        .footer-dark {
-            background: #040a07;
-            border-top: 2px solid;
-            border-image: linear-gradient(90deg, var(--teal), var(--gold), var(--rose)) 1;
+        @media (max-width: 575.98px) {
+            .modal-footer .btn { flex: 1 1 100%; }
+            #ringkasan dt, #ringkasan dd { margin-bottom: .35rem; }
         }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
     <!-- Header / Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top navbar-glass">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="{{ url('/peminjam') }}">Inventaris<span class="text-gradient">Barang</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-label="Buka menu">
+    <nav class="navbar navbar-expand-md sticky-top" aria-label="Menu utama">
+        <div class="container wadah">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/peminjam') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="" width="56" height="56" class="logo">
+                <span>InventarisBarang</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-controls="menuNavbar" aria-expanded="false" aria-label="Buka menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="menuNavbar">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-md-center gap-md-4 py-3 py-md-0">
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam') }}">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/riwayat') }}">Riwayat</a></li>
+                    <li class="nav-item mt-2 mt-md-0">
+                        <button type="button" id="btnTema" class="btn btn-outline-secondary btn-sm btn-tema" aria-label="Ganti mode terang atau gelap">
+                            <svg class="ikon-matahari" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                            <svg class="ikon-bulan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                            <span id="labelTema">Mode</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <!-- Isi halaman -->
-    <main class="container flex-grow-1 py-5">
+    <main class="container wadah flex-grow-1 py-4 py-md-5">
         <div class="mx-auto" style="max-width: 640px;">
-            <h1 class="fw-bold mb-2">Peminjaman Barang</h1>
+            <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/') }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                Kembali ke menu
+            </a>
+
+            <h1 class="mb-2">Peminjaman Barang</h1>
             <p class="text-secondary mb-4">Pilih tipe peminjam, scan barcode barang, lalu isi data peminjam.</p>
 
-            <form method="POST" action="{{ url('/peminjam/pinjam') }}" class="card p-4" id="form-pinjam">
+            <form method="POST" action="{{ url('/peminjam/pinjam') }}" class="card p-3 p-md-4" id="form-pinjam">
                 @csrf
 
                 {{-- Tampilkan error validasi supaya tidak gagal diam-diam --}}
@@ -176,12 +237,12 @@
                     <div class="mb-4">
                         <div class="form-label">Lama peminjaman</div>
                         <div class="info-24jam p-3 rounded-3">
-                            <strong style="color: var(--gold);">24 jam (1 hari)</strong>
+                            <strong>24 jam (1 hari)</strong>
                             <div class="small text-secondary mt-1">Barang wajib dikembalikan dalam 24 jam. Jika lebih dari itu dianggap terlambat dan wajib membersihkan lab.</div>
                         </div>
                     </div>
 
-                    <button type="submit" id="tombol-simpan" class="btn btn-teal btn-lg rounded-pill w-100" disabled>Pinjam dan buat struk</button>
+                    <button type="submit" id="tombol-simpan" class="btn btn-emas btn-lg rounded-pill w-100" disabled>Pinjam dan buat struk</button>
                 </div>
             </form>
         </div>
@@ -190,7 +251,7 @@
     <!-- Pop up konfirmasi sebelum data disimpan -->
     <div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="judulKonfirmasi" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-color: var(--bs-border-color);">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title h5" id="judulKonfirmasi">Yakin data sudah benar?</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
@@ -200,20 +261,37 @@
                     <dl class="row mb-0" id="ringkasan"></dl>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-gold" data-bs-dismiss="modal">Periksa lagi</button>
-                    <button type="button" class="btn btn-teal" id="tombol-yakin">Ya, simpan</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Periksa lagi</button>
+                    <button type="button" class="btn btn-emas" id="tombol-yakin">Ya, simpan</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="footer-dark text-center py-4 mt-auto">
-        <small class="text-secondary">&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
+    <footer class="py-3">
+        <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
+            <span>&copy; 2026 Inventaris Barang. Semua hak dilindungi.</span>
+            <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a> &nbsp;|&nbsp; <a href="{{ route('login') }}">Login admin</a></span>
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Ganti tema terang/gelap
+        const html = document.documentElement;
+        const labelTema = document.getElementById('labelTema');
+        const tampilkanLabel = () => {
+            labelTema.textContent = html.getAttribute('data-bs-theme') === 'dark' ? 'Mode terang' : 'Mode gelap';
+        };
+        tampilkanLabel();
+        document.getElementById('btnTema').addEventListener('click', () => {
+            const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', baru);
+            try { localStorage.setItem('tema', baru); } catch (e) {}
+            tampilkanLabel();
+        });
+
         const formPinjam      = document.getElementById('form-pinjam');
         const pilihTipe       = document.getElementById('tipe_peminjam');
         const bagianForm      = document.getElementById('bagian-form');

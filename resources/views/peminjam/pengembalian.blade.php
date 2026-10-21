@@ -5,40 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pengembalian - Inventaris Barang</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
+
+    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
+    <script>
+        (function () {
+            var tema = null;
+            try { tema = localStorage.getItem('tema'); } catch (e) {}
+            if (!tema) tema = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        html { font-size: clamp(15px, 0.85vw, 18px); }
+        /* Palet biru tua: terang */
+        [data-bs-theme="light"] {
+            --bs-body-bg: #eef3fb;
+            --bs-body-color: #0b2447;
+            --bs-secondary-color: #4a6087;
+            --bs-border-color: rgba(11, 36, 71, .16);
+            --kartu: #ffffff;
+            --input: #f5f8fd;
+            --nav-bg: rgba(238, 243, 251, .92);
+            --hover: rgba(11, 36, 71, .06);
+            --aksen: #1d4fa8;
+            --emas-teks: #a56d00;
+            --bahaya: #c62a47;
+            --sukses: #0f7a4d;
+        }
+        /* Palet biru tua: gelap */
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #0a1930;
+            --bs-body-color: #e7eefb;
+            --bs-secondary-color: #9fb2d3;
+            --bs-border-color: rgba(173, 198, 245, .16);
+            --kartu: #102445;
+            --input: rgba(255, 255, 255, .04);
+            --nav-bg: rgba(10, 25, 48, .92);
+            --hover: rgba(173, 198, 245, .1);
+            --aksen: #7fb0ff;
+            --emas-teks: #f1b53d;
+            --bahaya: #ff7b93;
+            --sukses: #4fd69c;
+        }
+        :root { --emas: #f1b53d; }
 
-        html[data-bs-theme="dark"] {
-            --bs-body-bg: #060d0a;
-            --bs-body-color: #e8f5ef;
-            --bs-secondary-color: #5a8a70;
-            --bs-border-color: rgba(0, 212, 138, 0.15);
-            --teal: #00d48a;
-            --teal-2: #00ffaa;
-            --gold: #f5a623;
-            --rose: #f05a7e;
+        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
+        .wadah { max-width: 1120px; }
+
+        /* Navbar */
+        .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
+        .navbar .nav-link:hover { color: var(--bs-body-color); border-color: var(--emas); }
+        .btn-outline-secondary {
+            --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
+            --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
+            --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
+        }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
+
+        /* Tombol utama */
+        .btn-emas {
+            --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
+            --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
+            --bs-btn-active-color: #1a1405; --bs-btn-active-bg: #f7c55c; --bs-btn-active-border-color: #f7c55c;
+            --bs-btn-disabled-color: #1a1405; --bs-btn-disabled-bg: var(--emas); --bs-btn-disabled-border-color: var(--emas);
+            font-weight: 700;
+        }
+        .btn-bahaya {
+            --bs-btn-color: #fff; --bs-btn-bg: #d6334f; --bs-btn-border-color: #d6334f;
+            --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #b92a43; --bs-btn-hover-border-color: #b92a43;
+            --bs-btn-active-color: #fff; --bs-btn-active-bg: #b92a43; --bs-btn-active-border-color: #b92a43;
+            font-weight: 700;
         }
 
-        .text-gradient {
-            background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 55%, var(--rose) 100%);
-            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
 
-        .navbar-glass {
-            background: rgba(6, 13, 10, 0.85);
-            backdrop-filter: blur(24px);
-            border-bottom: 1px solid var(--bs-border-color);
-        }
-
-        .badge-live {
-            background: rgba(240, 90, 126, 0.08);
-            border: 1.5px solid rgba(240, 90, 126, 0.3);
-            color: var(--rose);
-        }
-
-        .card { background: rgba(255, 255, 255, 0.02); border-color: var(--bs-border-color); }
-        .card-aksen { border-top: 4px solid var(--aksen, var(--rose)); }
+        /* Kartu & formulir */
+        .card { background: var(--kartu); border-color: var(--bs-border-color); border-radius: 16px; }
+        .form-control { background-color: var(--input); border-color: var(--bs-border-color); }
+        .form-control:focus { border-color: var(--aksen); box-shadow: 0 0 0 .2rem rgba(110, 168, 255, .25); }
+        .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--aksen); }
 
         /* Area siaga scanner */
         #areaScan {
@@ -51,64 +107,50 @@
             align-items: center;
             justify-content: center;
             padding: 1.5rem 1rem;
-            border: 2px dashed rgba(240, 90, 126, 0.45);
-            border-radius: 1rem;
+            border: 2px dashed var(--bs-border-color);
+            border-radius: 12px;
             overflow: hidden;
-            background: rgba(0, 0, 0, 0.35);
+            background: var(--input);
             text-align: center;
             cursor: text;
         }
-        #areaScan.siap { border-style: solid; border-color: var(--rose); }
+        #areaScan.siap { border-style: solid; border-color: var(--aksen); }
         #areaScan .garis-scan {
             position: absolute; left: 8%; right: 8%; top: 0; height: 2px;
-            background: var(--rose); box-shadow: 0 0 12px var(--rose);
+            background: var(--emas); box-shadow: 0 0 12px var(--emas);
             opacity: 0; animation: sapu 2.4s ease-in-out infinite;
         }
         #areaScan.siap .garis-scan { opacity: 1; }
         @keyframes sapu { 0%, 100% { top: 12%; } 50% { top: 88%; } }
         #statusScanner { font-weight: 600; }
-        #kosong { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-        #statusScanner.siap { color: var(--teal); }
-        #statusScanner.mati { color: var(--gold); }
+        #statusScanner.siap { color: var(--sukses); }
+        #statusScanner.mati { color: var(--emas-teks); }
+        #kosong { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 11rem; }
 
-        .detail-baris { font-size: 1.05rem; display: flex; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--bs-border-color); }
-        .detail-baris:last-child { border-bottom: 0; }
+        .detail-baris { display: flex; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--bs-border-color); }
+        .detail-baris:last-of-type { border-bottom: 0; }
         .detail-baris span:first-child { color: var(--bs-secondary-color); }
 
-        .catatan-terlambat {
-            border: 1.5px solid rgba(245, 166, 35, 0.4);
-            background: rgba(245, 166, 35, 0.08);
-        }
+        /* Info ketentuan, gaya sama dengan kotak 24 jam di form peminjaman */
+        .info-24jam { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); }
+        .info-24jam strong { color: var(--emas-teks); }
 
-        /* Modal alert terlambat */
-        .modal-terlambat .modal-content {
-            background: #14080c;
-            border: 2px solid var(--rose);
-            box-shadow: 0 0 0 0 rgba(240, 90, 126, 0.6);
-            animation: denyut 1s ease-in-out infinite;
-        }
+        /* Modal terlambat */
+        .modal-content { background: var(--kartu); border-color: var(--bs-border-color); }
+        .modal-terlambat .modal-content { border: 2px solid var(--bahaya); animation: denyut 1s ease-in-out infinite; }
         .modal-terlambat .ikon-alert {
             width: 4.5rem; height: 4.5rem; border-radius: 50%;
-            background: rgba(240, 90, 126, 0.15);
-            border: 2px solid var(--rose);
-            color: var(--rose);
+            background: rgba(214, 51, 79, .14);
+            border: 2px solid var(--bahaya);
+            color: var(--bahaya);
             display: inline-flex; align-items: center; justify-content: center;
             font-size: 2.4rem; font-weight: 800;
         }
-        .sanksi-box {
-            border: 1.5px solid rgba(245, 166, 35, 0.5);
-            background: rgba(245, 166, 35, 0.1);
-            border-radius: .75rem;
-        }
+        .sanksi-box { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); border-radius: .75rem; }
+        .sanksi-box .judul-sanksi { color: var(--emas-teks); }
         @keyframes denyut {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(240, 90, 126, 0.55); }
-            50%      { box-shadow: 0 0 0 14px rgba(240, 90, 126, 0); }
-        }
-
-        .footer-dark {
-            background: #040a07;
-            border-top: 2px solid;
-            border-image: linear-gradient(90deg, var(--teal), var(--gold), var(--rose)) 1;
+            0%, 100% { box-shadow: 0 0 0 0 rgba(214, 51, 79, .55); }
+            50%      { box-shadow: 0 0 0 14px rgba(214, 51, 79, 0); }
         }
 
         /* Layar berkedip merah saat terlambat (di atas backdrop modal, di bawah kotak modal) */
@@ -120,66 +162,94 @@
         }
         @keyframes kedip-merah { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
+        footer a { color: var(--bs-secondary-color); }
+        footer a:hover { color: var(--bs-body-color); }
+
         @media (prefers-reduced-motion: reduce) {
             .modal-terlambat .modal-content { animation: none; }
             body.layar-darurat::after { animation: none; opacity: .5; }
+            #areaScan .garis-scan { animation: none; }
+        }
+
+        /* Responsif */
+        @media (max-width: 767.98px) {
+            .navbar-brand { font-size: 1.2rem; }
+            .logo { width: 46px; height: 46px; }
+            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar-nav .btn { width: 100%; }
         }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
     <!-- Header / Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top navbar-glass">
-        <div class="container-fluid px-4 px-xl-5">
-            <a class="navbar-brand fw-bold fs-4" href="{{ url('/peminjam') }}">Inventaris<span class="text-gradient">Barang</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-label="Buka menu">
+    <nav class="navbar navbar-expand-md sticky-top" aria-label="Menu utama">
+        <div class="container wadah">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/peminjam') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="" width="56" height="56" class="logo">
+                <span>InventarisBarang</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-controls="menuNavbar" aria-expanded="false" aria-label="Buka menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="menuNavbar">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-md-center gap-md-4 py-3 py-md-0">
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam') }}">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/riwayat') }}">Riwayat</a></li>
+                    <li class="nav-item mt-2 mt-md-0">
+                        <button type="button" id="btnTema" class="btn btn-outline-secondary btn-sm btn-tema" aria-label="Ganti mode terang atau gelap">
+                            <svg class="ikon-matahari" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                            <svg class="ikon-bulan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                            <span id="labelTema">Mode</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <main class="container-fluid px-4 px-xl-5 flex-grow-1 py-4 d-flex flex-column">
+    <!-- Isi halaman -->
+    <main class="container wadah flex-grow-1 py-4 py-md-5 d-flex flex-column">
+        <div>
+            <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/peminjam') }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                Kembali ke dashboard
+            </a>
 
-        <!-- Judul ringkas dalam satu baris -->
-        <section class="d-flex flex-wrap align-items-center gap-2 gap-md-3 mb-4">
-            <span class="badge rounded-pill badge-live px-3 py-2">Pengembalian Barang</span>
-            <h1 class="h2 fw-bold mb-0 text-gradient">Kembalikan Barang</h1>
-            <span class="text-secondary">Silakan scan QR dari struk saat peminjaman.</span>
-        </section>
+            <h1 class="mb-2">Pengembalian Barang</h1>
+            <p class="text-secondary mb-4">Scan QR dari struk saat peminjaman, lalu konfirmasi pengembalian.</p>
+        </div>
 
         <div class="row g-4 flex-grow-1">
 
             <!-- Kolom kiri: scanner -->
             <div class="col-lg-6 d-flex">
-                <div class="card card-aksen p-4 w-100 d-flex flex-column" style="--aksen: var(--rose);">
-                    <h2 class="h5 fw-bold mb-3">Scan Struk</h2>
+                <div class="card p-3 p-md-4 w-100 d-flex flex-column">
+                    <h2 class="h5 fw-bold mb-3">Scan struk</h2>
 
                     <div id="areaScan" class="mb-3">
                         <div class="garis-scan" aria-hidden="true"></div>
-                        <div class="fw-bold fs-4 mb-1">Arahkan scanner ke QR pada struk</div>
+                        <div class="fw-bold fs-5 mb-1">Arahkan scanner ke QR pada struk</div>
                         <div id="statusScanner" class="small mati" role="status" aria-live="polite">Klik di sini untuk mengaktifkan scanner</div>
                     </div>
 
-                    <label for="inputKode" class="visually-hidden">Kode struk</label>
+                    <label for="inputKode" class="form-label">Kode struk</label>
                     <div class="input-group">
-                        <input id="inputKode" type="text" class="form-control" placeholder="Kode struk, mis. TRX-20261021-00002-FB842" autocomplete="off" autofocus>
-                        <button id="tombolCari" class="btn btn-outline-light px-4">Cari</button>
+                        <input id="inputKode" type="text" class="form-control form-control-lg kode-struk" placeholder="TRX-20261021-00002-FB842" autocomplete="off" autofocus>
+                        <button id="tombolCari" class="btn btn-emas px-4">Cari</button>
                     </div>
-                    <div class="text-secondary mt-2">Scanner belum terbaca? Ketik kode di struk lalu tekan Enter.</div>
+                    <div class="small text-secondary mt-2">Scanner belum terbaca? Ketik kode di struk lalu tekan Enter.</div>
                 </div>
             </div>
 
             <!-- Kolom kanan: detail transaksi -->
             <div class="col-lg-6 d-flex">
-                <div class="card card-aksen p-4 w-100 d-flex flex-column" style="--aksen: var(--teal);">
-                    <h2 class="h5 fw-bold mb-3">Detail Peminjaman</h2>
+                <div class="card p-3 p-md-4 w-100 d-flex flex-column">
+                    <h2 class="h5 fw-bold mb-3">Detail peminjaman</h2>
 
                     <div id="kosong" class="text-secondary text-center">
                         Belum ada struk yang discan.
@@ -188,15 +258,15 @@
                     <div id="galat" class="alert alert-danger py-2 d-none" role="alert"></div>
 
                     <div id="detail" class="d-none my-auto">
-                        <div class="detail-baris"><span>Kode</span><strong id="dKode"></strong></div>
+                        <div class="detail-baris"><span>Kode</span><strong id="dKode" class="kode-struk"></strong></div>
                         <div class="detail-baris"><span>Nama peminjam</span><strong id="dNama"></strong></div>
                         <div class="detail-baris" id="barisKelas"><span>Kelas</span><strong id="dKelas"></strong></div>
                         <div class="detail-baris"><span>Barang</span><strong id="dBarang" class="text-end"></strong></div>
                         <div class="detail-baris"><span>Batas pengembalian</span><strong id="dBatas"></strong></div>
                         <div class="detail-baris"><span>Status</span><strong id="dStatus"></strong></div>
 
-                        <button id="tombolKonfirmasi" class="btn w-100 mt-3 fw-bold" style="background: var(--teal); color: #04120b;">
-                            Konfirmasi Pengembalian
+                        <button id="tombolKonfirmasi" class="btn btn-emas btn-lg rounded-pill w-100 mt-3">
+                            Konfirmasi pengembalian
                         </button>
                     </div>
 
@@ -205,12 +275,10 @@
             </div>
         </div>
 
-        <!-- Ketentuan keterlambatan (satu baris) -->
-        <div class="card catatan-terlambat px-4 py-3 mt-4">
-            <div class="text-secondary small">
-                <strong style="color: var(--gold);">Ketentuan keterlambatan:</strong>
-                batas pengembalian tertera di struk. Siswa yang terlambat mengembalikan barang wajib membersihkan lab.
-            </div>
+        <!-- Ketentuan keterlambatan -->
+        <div class="info-24jam p-3 rounded-3 mt-4">
+            <strong>Ketentuan keterlambatan</strong>
+            <div class="small text-secondary mt-1">Batas pengembalian tertera di struk. Siswa yang terlambat mengembalikan barang wajib membersihkan lab.</div>
         </div>
     </main>
 
@@ -219,19 +287,19 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center p-4">
                 <div class="mb-3"><span class="ikon-alert" aria-hidden="true">!</span></div>
-                <h2 id="judulTerlambat" class="h3 fw-bold mb-2" style="color: var(--rose);">Anda Terlambat!</h2>
+                <h2 id="judulTerlambat" class="h3 fw-bold mb-2" style="color: var(--bahaya);">Anda terlambat!</h2>
                 <p class="mb-1">Barang dikembalikan melewati batas waktu.</p>
                 <p class="fs-5 fw-bold mb-4" id="lamaTerlambat"></p>
 
                 <!-- Sanksi hanya tampil untuk siswa -->
                 <div id="kotakSanksi" class="sanksi-box p-3 mb-4 text-start d-none">
-                    <div class="fw-bold mb-1" style="color: var(--gold);">Sanksi</div>
+                    <div class="fw-bold mb-1 judul-sanksi">Sanksi</div>
                     <div>Wajib <strong>membersihkan lab</strong> sebelum meninggalkan ruangan. Lapor ke petugas setelah selesai.</div>
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button id="tombolMengerti" class="btn btn-lg fw-semibold" style="background: var(--rose); color: #fff;">Saya Mengerti</button>
-                    <button id="tombolBisu" class="btn btn-sm btn-outline-secondary">Matikan Suara</button>
+                    <button id="tombolMengerti" class="btn btn-bahaya btn-lg rounded-pill">Saya mengerti</button>
+                    <button id="tombolBisu" class="btn btn-sm btn-outline-secondary">Matikan suara</button>
                 </div>
             </div>
         </div>
@@ -240,8 +308,12 @@
     <!-- Suara sirine: taruh file di public/audio/sirine.mp3 -->
     <audio id="suaraTerlambat" src="{{ asset('audio/sirine.mp3') }}" preload="auto" loop></audio>
 
-    <footer class="footer-dark text-center py-3 mt-auto">
-        <small class="text-secondary">&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
+    <!-- Footer -->
+    <footer class="py-3">
+        <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
+            <span>&copy; 2026 Inventaris Barang. Semua hak dilindungi.</span>
+            <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a> &nbsp;|&nbsp; <a href="{{ route('login') }}">Login admin</a></span>
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -253,6 +325,20 @@
 
         const $ = (id) => document.getElementById(id);
         const modalTerlambat = new bootstrap.Modal($('modalTerlambat'));
+
+        /* ---------- Ganti tema terang/gelap ---------- */
+        const html = document.documentElement;
+        const labelTema = $('labelTema');
+        const tampilkanLabel = () => {
+            labelTema.textContent = html.getAttribute('data-bs-theme') === 'dark' ? 'Mode terang' : 'Mode gelap';
+        };
+        tampilkanLabel();
+        $('btnTema').addEventListener('click', () => {
+            const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', baru);
+            try { localStorage.setItem('tema', baru); } catch (e) {}
+            tampilkanLabel();
+        });
 
         let transaksi = null;
         let sedangMemproses = false;
@@ -422,7 +508,7 @@
             $('galat').classList.add('d-none');
             $('detail').classList.remove('d-none');
             const tk = $('tombolKonfirmasi');
-            tk.classList.remove('d-none'); tk.disabled = false; tk.textContent = 'Konfirmasi Pengembalian';
+            tk.classList.remove('d-none'); tk.disabled = false; tk.textContent = 'Konfirmasi pengembalian';
 
             const siswa = apakahSiswa(d);
 
@@ -438,10 +524,10 @@
             const dStatus = $('dStatus');
             if (lama) {
                 dStatus.textContent = 'Terlambat ' + lama;
-                dStatus.style.color = 'var(--rose)';
+                dStatus.style.color = 'var(--bahaya)';
             } else {
                 dStatus.textContent = 'Tepat waktu';
-                dStatus.style.color = 'var(--teal)';
+                dStatus.style.color = 'var(--sukses)';
             }
 
             // Alert & suara muncul untuk semua peminjam yang terlambat; sanksi hanya untuk siswa
@@ -452,7 +538,7 @@
             $('lamaTerlambat').textContent = 'Terlambat ' + lama;
             // Kotak sanksi hanya tampil untuk siswa
             $('kotakSanksi').classList.toggle('d-none', !siswa);
-            $('tombolBisu').textContent = 'Matikan Suara';
+            $('tombolBisu').textContent = 'Matikan suara';
             modalTerbuka = true;
             document.body.classList.add('layar-darurat');
             modalTerlambat.show();
@@ -513,7 +599,7 @@
                 fokus();
             } catch (e) {
                 tombol.disabled = false;
-                tombol.textContent = 'Konfirmasi Pengembalian';
+                tombol.textContent = 'Konfirmasi pengembalian';
                 tampilkanGalat(e.message);
             }
         }
