@@ -558,7 +558,7 @@
                                     </p>
                                 </div>
 
-                                <a href="{{ route('kategori.index') }}"
+                                <a href="{{ route('barang.index') }}"
                                    class="btn btn-teal rounded-pill px-4 mt-auto">
                                     <i class="bi bi-box-arrow-up-right me-1"></i>
                                     Melihat Data Barang

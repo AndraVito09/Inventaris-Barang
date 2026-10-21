@@ -25,6 +25,8 @@ Route::get('/peminjam/struk/{kode}', [PeminjamanController::class, 'struk']);
 Route::get('/peminjam/kembali', [PengembalianController::class, 'index']);
 Route::post('/peminjam/kembali/cek', [PengembalianController::class, 'cek'])->middleware('throttle:60,1');
 Route::post('/peminjam/kembali/proses', [PengembalianController::class, 'proses'])->middleware('throttle:10,1');
+Route::get('/peminjam/daftar-barang',  [PeminjamanController::class, 'katalog'])
+    ->name('peminjam.daftar-barang');
 
 // Riwayat peminjaman untuk peminjam (nama peminjam disamarkan)
 Route::get('/peminjam/riwayat', [RiwayatController::class, 'peminjam'])

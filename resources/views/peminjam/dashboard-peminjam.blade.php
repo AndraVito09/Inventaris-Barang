@@ -91,7 +91,7 @@
             <div class="collapse navbar-collapse" id="menuNavbar">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link active" href="{{ url('/peminjam') }}">Beranda</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/daftar-barang') }}">Daftar Barang</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/riwayat') }}">Riwayat</a></li>
                 </ul>
             </div>
@@ -159,7 +159,7 @@
                 </a>
             </div>
             <div class="col">
-                <a href="{{ url('/peminjam/katalog') }}" class="card kartu-menu h-100 p-4" style="--aksen: var(--teal-2);">
+                <a href="{{ url('/peminjam/daftar-barang') }}" class="card kartu-menu h-100 p-4" style="--aksen: var(--teal-2);">
                     <span class="nomor mb-3">3</span>
                     <h3 class="judul h5 fw-bold">Lihat Daftar Barang</h3>
                     <p class="text-secondary small mb-0">Cek barang yang tersedia dan yang sedang dipinjam.</p>

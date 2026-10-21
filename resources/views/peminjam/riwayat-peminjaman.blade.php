@@ -74,8 +74,8 @@
 
     <main class="flex-grow-1 container py-5">
 
-        <a href="{{ route('menu') }}" class="text-secondary text-decoration-none small">
-            <i class="bi bi-arrow-left"></i> Kembali ke Menu
+        <a href="{{ route('peminjaman.index') }}" class="text-secondary text-decoration-none small">
+            <i class="bi bi-arrow-left"></i> Kembali
         </a>
 
         <div class="mt-3 mb-4">
