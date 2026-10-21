@@ -34,6 +34,12 @@ class PengembalianController extends Controller
             ->first();
     }
 
+    // Sanksi (membersihkan lab) hanya untuk siswa
+    private function apakahSiswa(Peminjaman $pinjam): bool
+    {
+        return strtolower(trim($pinjam->peminjam->tipe_peminjam ?? '')) === 'siswa';
+    }
+
     // POST /peminjam/kembali/cek -> baca kode dari QR, kirim detail transaksi
     public function cek(Request $request): JsonResponse
     {
@@ -54,7 +60,8 @@ class PengembalianController extends Controller
             'data' => [
                 'kode'          => $request->kode,
                 'nama'          => $pinjam->peminjam->nama_peminjam ?? '-',
-                'kelas'         => $pinjam->peminjam->keterangan ?? ($pinjam->peminjam->tipe_peminjam ?? '-'),
+                'tipe'          => $pinjam->peminjam->tipe_peminjam ?? '',   // dipakai halaman untuk menentukan sanksi
+                'kelas'         => $pinjam->peminjam->keterangan ?? '-',
                 'barang'        => [$pinjam->barang->nama_barang ?? '-'],
                 'batas_kembali' => $pinjam->tgl_jatuh_tempo->toIso8601String(),
             ],
@@ -93,7 +100,7 @@ class PengembalianController extends Controller
                 'ok'              => true,
                 'terlambat'       => $terlambat,
                 'menit_terlambat' => $terlambat ? (int) $batas->diffInMinutes($sekarang, true) : 0,
-                'sanksi'          => $terlambat ? 'Membersihkan lab' : null,
+                'sanksi'          => ($terlambat && $this->apakahSiswa($pinjam)) ? 'Membersihkan lab' : null,
             ]);
         });
     }
