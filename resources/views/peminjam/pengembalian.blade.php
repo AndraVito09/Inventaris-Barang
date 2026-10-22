@@ -2,7 +2,7 @@
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pengembalian - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
@@ -55,14 +55,26 @@
         }
         :root { --emas: #f1b53d; }
 
-        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+        }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
-        .wadah { max-width: 1120px; }
+
+        /* Wadah utama: hormati area aman (notch) di HP */
+        .wadah {
+            max-width: 1120px;
+            padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
+            padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
+        }
 
         /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
-        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
+        .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; flex-shrink: 0; }
+        .navbar-toggler { min-width: 44px; min-height: 44px; border-color: var(--bs-border-color); }
         .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
         .navbar .nav-link:hover { color: var(--bs-body-color); border-color: var(--emas); }
         .btn-outline-secondary {
@@ -70,7 +82,7 @@
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
             --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
         }
-        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
         /* Tombol utama */
@@ -88,13 +100,14 @@
             font-weight: 700;
         }
 
-        h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+        h1 { font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: break-word; }
 
         /* Kartu & formulir */
         .card { background: var(--kartu); border-color: var(--bs-border-color); border-radius: 16px; }
-        .form-control { background-color: var(--input); border-color: var(--bs-border-color); }
+        .form-control { background-color: var(--input); border-color: var(--bs-border-color); min-height: 44px; }
         .form-control:focus { border-color: var(--aksen); box-shadow: 0 0 0 .2rem rgba(110, 168, 255, .25); }
         .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--aksen); }
+        .kode-struk::placeholder { letter-spacing: 0; }
 
         /* Area siaga scanner */
         #areaScan {
@@ -127,9 +140,11 @@
         #statusScanner.mati { color: var(--emas-teks); }
         #kosong { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 11rem; }
 
+        /* Baris detail: nilai panjang boleh turun baris dan tidak melebar keluar kartu */
         .detail-baris { display: flex; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--bs-border-color); }
         .detail-baris:last-of-type { border-bottom: 0; }
-        .detail-baris span:first-child { color: var(--bs-secondary-color); }
+        .detail-baris span:first-child { color: var(--bs-secondary-color); flex-shrink: 0; }
+        .detail-baris strong { min-width: 0; text-align: right; overflow-wrap: anywhere; }
 
         /* Info ketentuan, gaya sama dengan kotak 24 jam di form peminjaman */
         .info-24jam { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); }
@@ -137,7 +152,10 @@
 
         /* Modal terlambat */
         .modal-content { background: var(--kartu); border-color: var(--bs-border-color); }
-        .modal-terlambat .modal-content { border: 2px solid var(--bahaya); animation: denyut 1s ease-in-out infinite; }
+        .modal-terlambat .modal-content {
+            border: 2px solid var(--bahaya); animation: denyut 1s ease-in-out infinite;
+            max-height: calc(100vh - 1.5rem); max-height: calc(100dvh - 1.5rem); overflow-y: auto; /* bisa di-scroll di layar pendek */
+        }
         .modal-terlambat .ikon-alert {
             width: 4.5rem; height: 4.5rem; border-radius: 50%;
             background: rgba(214, 51, 79, .14);
@@ -162,8 +180,8 @@
         }
         @keyframes kedip-merah { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
-        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
-        footer a { color: var(--bs-secondary-color); }
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+        footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
         @media (prefers-reduced-motion: reduce) {
@@ -172,12 +190,59 @@
             #areaScan .garis-scan { animation: none; }
         }
 
-        /* Responsif */
+        /* ====== Responsif ====== */
+
+        /* Tablet portrait & HP (di bawah 768px) */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
-            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; border-bottom-width: 0; border-left: 3px solid transparent; padding-left: .75rem; }
+            .navbar .nav-link:hover { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
+            .btn-kembali { width: 100%; }
+
+            /* Font input minimal 16px agar iOS tidak otomatis zoom saat difokuskan */
+            .form-control { font-size: 1rem; }
+
+            #areaScan { min-height: 8.5rem; padding: 1.1rem .75rem; }
+            #kosong { min-height: 7rem; }
+        }
+
+        /* HP (di bawah 576px) */
+        @media (max-width: 575.98px) {
+            .card { border-radius: 12px; }
+            .kode-struk { letter-spacing: .03em; }
+            .input-group .btn { padding-left: 1rem; padding-right: 1rem; }
+
+            /* Detail: label di atas, nilai di bawah supaya teks panjang tidak sempit */
+            .detail-baris { flex-direction: column; gap: .1rem; padding: .6rem 0; }
+            .detail-baris strong { text-align: left; }
+
+            #tombolKonfirmasi { min-height: 52px; }
+
+            /* Modal terlambat lebih ringkas */
+            .modal-dialog { margin: .75rem; }
+            .modal-terlambat .modal-content { padding: 1.25rem !important; }
+            .modal-terlambat .ikon-alert { width: 3.5rem; height: 3.5rem; font-size: 1.9rem; }
+            .modal-terlambat h2 { font-size: 1.5rem; }
+            .modal-terlambat .btn { min-height: 48px; }
+        }
+
+        /* HP kecil (di bawah 400px) */
+        @media (max-width: 399.98px) {
+            .navbar-brand { font-size: 1.05rem; gap: .5rem !important; }
+            .logo { width: 38px; height: 38px; }
+            .card { padding: 1rem !important; }
+            .input-group .form-control-lg { font-size: .95rem; }
+            footer { font-size: .8rem; }
+        }
+
+        /* Layar pendek (HP landscape): kurangi jarak vertikal */
+        @media (max-height: 480px) and (orientation: landscape) {
+            .navbar { padding-top: .35rem; padding-bottom: .35rem; }
+            .logo { width: 38px; height: 38px; }
+            main { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+            .modal-terlambat .ikon-alert { display: none; }
         }
     </style>
 </head>
@@ -227,7 +292,7 @@
         <div class="row g-4 flex-grow-1">
 
             <!-- Kolom kiri: scanner -->
-            <div class="col-lg-6 d-flex">
+            <div class="col-12 col-lg-6 d-flex">
                 <div class="card p-3 p-md-4 w-100 d-flex flex-column">
                     <h2 class="h5 fw-bold mb-3">Scan struk</h2>
 
@@ -247,7 +312,7 @@
             </div>
 
             <!-- Kolom kanan: detail transaksi -->
-            <div class="col-lg-6 d-flex">
+            <div class="col-12 col-lg-6 d-flex">
                 <div class="card p-3 p-md-4 w-100 d-flex flex-column">
                     <h2 class="h5 fw-bold mb-3">Detail peminjaman</h2>
 

@@ -2,7 +2,7 @@
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Riwayat - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
@@ -54,14 +54,26 @@
         }
         :root { --emas: #f1b53d; }
 
-        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+        }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
-        .wadah { max-width: 1120px; }
+
+        /* Wadah utama: hormati area aman (notch) di HP */
+        .wadah {
+            max-width: 1120px;
+            padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
+            padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
+        }
 
         /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
-        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
+        .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; flex-shrink: 0; }
+        .navbar-toggler { min-width: 44px; min-height: 44px; border-color: var(--bs-border-color); }
         .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
         .navbar .nav-link:hover { color: var(--bs-body-color); border-color: var(--emas); }
         .navbar .nav-link.aktif { color: var(--bs-body-color); border-color: var(--emas); }
@@ -70,10 +82,10 @@
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
             --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
         }
-        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+        h1 { font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: break-word; }
 
         /* Tabel */
         .table-card { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
@@ -100,16 +112,62 @@
         .badge-pinjam { background: rgba(241, 181, 61, .12); border-color: rgba(241, 181, 61, .45); color: var(--emas-teks); }
         .badge-telat { background: rgba(214, 51, 79, .1); border-color: rgba(214, 51, 79, .4); color: var(--bahaya); }
 
-        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
-        footer a { color: var(--bs-secondary-color); }
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+        footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* Responsif */
+        /* ====== Responsif ====== */
+
+        /* Tablet (di bawah 992px): padding sel dirapatkan supaya tabel muat tanpa scroll */
+        @media (max-width: 991.98px) {
+            .table thead th { padding: 12px; }
+            .table tbody td { padding: 12px; font-size: .95rem; }
+        }
+
+        /* Tablet portrait & HP (di bawah 768px): tabel berubah jadi kartu per transaksi */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
-            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; border-bottom-width: 0; border-left: 3px solid transparent; padding-left: .75rem; }
+            .navbar .nav-link:hover, .navbar .nav-link.aktif { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
+            .btn-kembali { width: 100%; }
+
+            .table-card { border-radius: 12px; }
+            .tabel-riwayat, .tabel-riwayat tbody, .tabel-riwayat tr, .tabel-riwayat td { display: block; width: 100%; }
+            .tabel-riwayat thead { display: none; }   /* judul kolom diganti label di tiap baris */
+            .tabel-riwayat tr { padding: .9rem 1rem; border-bottom: 1px solid var(--bs-border-color); }
+            .tabel-riwayat tr:last-child { border-bottom: 0; }
+            .tabel-riwayat td {
+                display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+                padding: .3rem 0; border: 0; text-align: right; box-shadow: none;
+                font-size: 1rem;
+            }
+            .tabel-riwayat td::before {
+                content: attr(data-label);
+                flex-shrink: 0; text-align: left;
+                color: var(--bs-secondary-color); font-weight: 500; font-size: .9rem;
+            }
+            .tabel-riwayat td[data-label="No"] { display: none; }
+            .tabel-riwayat td[data-label="Nama Barang"] { font-weight: 700; }
+            .tabel-riwayat td.kosong { display: block; text-align: center; }
+            .tabel-riwayat td.kosong::before { content: none; }
+        }
+
+        /* HP kecil (di bawah 400px) */
+        @media (max-width: 399.98px) {
+            .navbar-brand { font-size: 1.05rem; gap: .5rem !important; }
+            .logo { width: 38px; height: 38px; }
+            .tabel-riwayat tr { padding: .8rem; }
+            .tabel-riwayat td { font-size: .95rem; }
+            footer { font-size: .8rem; }
+        }
+
+        /* Layar pendek (HP landscape): kurangi jarak vertikal */
+        @media (max-height: 480px) and (orientation: landscape) {
+            .navbar { padding-top: .35rem; padding-bottom: .35rem; }
+            .logo { width: 38px; height: 38px; }
+            main { padding-top: 1rem !important; padding-bottom: 1rem !important; }
         }
     </style>
 </head>
@@ -159,7 +217,7 @@
 
         <div class="table-card">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 tabel-riwayat">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -185,22 +243,23 @@
                                 }
                             @endphp
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $row->barang->nama_barang ?? '-' }}</td>
-                                <td>{{ $row->nama_tampil }}</td>
-                                <td>{{ $row->tgl_pinjam?->format('d/m/Y H:i') }}</td>
-                                <td>
+                                {{-- data-label dipakai CSS untuk menampilkan nama kolom di tampilan HP --}}
+                                <td data-label="No">{{ $loop->iteration }}</td>
+                                <td data-label="Nama Barang">{{ $row->barang->nama_barang ?? '-' }}</td>
+                                <td data-label="Peminjam">{{ $row->nama_tampil }}</td>
+                                <td data-label="Tanggal Pinjam">{{ $row->tgl_pinjam?->format('d/m/Y H:i') }}</td>
+                                <td data-label="Tanggal Kembali">
                                     @if ($row->tgl_kembali)
                                         {{ $row->tgl_kembali->format('d/m/Y H:i') }}
                                     @else
                                         <span class="text-secondary">-</span>
                                     @endif
                                 </td>
-                                <td><span class="badge rounded-pill badge-status {{ $kelas }}">{{ $status }}</span></td>
+                                <td data-label="Status"><span class="badge rounded-pill badge-status {{ $kelas }}">{{ $status }}</span></td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-secondary py-5">
+                                <td colspan="6" class="kosong text-center text-secondary py-5">
                                     Belum ada transaksi peminjaman.
                                 </td>
                             </tr>

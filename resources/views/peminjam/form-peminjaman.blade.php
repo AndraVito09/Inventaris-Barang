@@ -2,7 +2,7 @@
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Peminjaman Barang - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
@@ -50,14 +50,27 @@
         }
         :root { --emas: #f1b53d; }
 
-        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+        }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
-        .wadah { max-width: 1120px; }
+
+        /* Wadah utama: hormati area aman (notch) di HP */
+        .wadah {
+            max-width: 1120px;
+            padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
+            padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
+        }
+        .halaman-form { max-width: 640px; }
 
         /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
-        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
+        .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; flex-shrink: 0; }
+        .navbar-toggler { min-width: 44px; min-height: 44px; border-color: var(--bs-border-color); }
         .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
         .navbar .nav-link:hover { color: var(--bs-body-color); border-color: var(--emas); }
         .btn-outline-secondary {
@@ -65,7 +78,7 @@
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
             --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
         }
-        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
         /* Tombol utama */
@@ -77,34 +90,68 @@
             font-weight: 700;
         }
 
-        h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+        h1 { font-size: clamp(1.7rem, 6vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: break-word; }
 
         /* Formulir */
         .card { background: var(--kartu); border-color: var(--bs-border-color); border-radius: 16px; }
-        .form-control, .form-select { background-color: var(--input); border-color: var(--bs-border-color); }
+        .form-control, .form-select { background-color: var(--input); border-color: var(--bs-border-color); min-height: 44px; }
         .form-control:focus, .form-select:focus { border-color: var(--aksen); box-shadow: 0 0 0 .2rem rgba(110, 168, 255, .25); }
         .form-select option { background-color: var(--kartu); color: var(--bs-body-color); }
         .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--aksen); }
+        .kode-struk::placeholder { letter-spacing: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; }
 
         .info-24jam { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); }
         .info-24jam strong { color: var(--emas-teks); }
 
         .modal-content { background: var(--kartu); border-color: var(--bs-border-color); }
+        #ringkasan dd { overflow-wrap: anywhere; } /* nilai panjang (nama, kode) tidak melebar keluar */
 
-        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
-        footer a { color: var(--bs-secondary-color); }
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+        footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* Responsif */
+        /* ====== Responsif ====== */
+
+        /* Tablet portrait & HP (di bawah 768px) */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
-            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; border-bottom-width: 0; border-left: 3px solid transparent; padding-left: .75rem; }
+            .navbar .nav-link:hover { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
+            .btn-kembali { width: 100%; }     /* tombol kembali selebar layar agar mudah ditekan */
+
+            /* Ukuran font input minimal 16px agar iOS tidak otomatis zoom saat input difokuskan */
+            .form-control, .form-select { font-size: 1rem; }
         }
+
+        /* HP (di bawah 576px) */
         @media (max-width: 575.98px) {
-            .modal-footer .btn { flex: 1 1 100%; }
-            #ringkasan dt, #ringkasan dd { margin-bottom: .35rem; }
+            .card { border-radius: 12px; }
+            .kode-struk { letter-spacing: .04em; }
+            .info-24jam { padding: .85rem !important; }
+
+            /* Modal konfirmasi: tombol menumpuk, tombol utama di atas */
+            .modal-dialog { margin: .75rem; }
+            .modal-footer { flex-direction: column-reverse; }
+            .modal-footer .btn { width: 100%; margin: 0; }
+            #ringkasan dt { margin-bottom: 0; }
+            #ringkasan dd { margin-bottom: .6rem; font-weight: 500; }
+        }
+
+        /* HP kecil (di bawah 400px) */
+        @media (max-width: 399.98px) {
+            .navbar-brand { font-size: 1.05rem; gap: .5rem !important; }
+            .logo { width: 38px; height: 38px; }
+            .card { padding: 1rem !important; }
+            footer { font-size: .8rem; }
+        }
+
+        /* Layar pendek (HP landscape): kurangi jarak vertikal */
+        @media (max-height: 480px) and (orientation: landscape) {
+            .navbar { padding-top: .35rem; padding-bottom: .35rem; }
+            .logo { width: 38px; height: 38px; }
+            main { padding-top: 1rem !important; padding-bottom: 1rem !important; }
         }
     </style>
 </head>
@@ -141,7 +188,7 @@
 
     <!-- Isi halaman -->
     <main class="container wadah flex-grow-1 py-4 py-md-5">
-        <div class="mx-auto" style="max-width: 640px;">
+        <div class="mx-auto halaman-form">
             <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/peminjam') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
                 Kembali ke dashboard
@@ -186,28 +233,31 @@
                     <div class="mb-3">
                         <label for="nama_peminjam" class="form-label">Nama lengkap</label>
                         <input type="text" id="nama_peminjam" name="nama_peminjam" value="{{ old('nama_peminjam') }}"
-                               class="form-control @error('nama_peminjam') is-invalid @enderror" maxlength="100" required>
+                               class="form-control @error('nama_peminjam') is-invalid @enderror" maxlength="100" autocomplete="name" required>
                         @error('nama_peminjam') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     {{-- Kolom khusus tiap tipe. Yang tidak dipilih disembunyikan dan di-disable, jadi tidak ikut terkirim. --}}
                     <div data-tipe="Siswa" class="d-none">
-                        <div class="mb-3">
-                            <label for="nis" class="form-label">NIS</label>
-                            <input type="text" id="nis" name="nis" value="{{ old('nis') }}" class="form-control @error('nis') is-invalid @enderror" maxlength="30" required>
-                            @error('nis') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label for="kelas" class="form-label">Kelas</label>
-                            <input type="text" id="kelas" name="kelas" value="{{ old('kelas') }}" class="form-control @error('kelas') is-invalid @enderror" maxlength="30" placeholder="Contoh: XI RPL 2" required>
-                            @error('kelas') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        {{-- NIS dan kelas: berdampingan di layar sedang ke atas, menumpuk di HP --}}
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-sm-6">
+                                <label for="nis" class="form-label">NIS</label>
+                                <input type="text" id="nis" name="nis" value="{{ old('nis') }}" inputmode="numeric" class="form-control @error('nis') is-invalid @enderror" maxlength="30" required>
+                                @error('nis') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label for="kelas" class="form-label">Kelas</label>
+                                <input type="text" id="kelas" name="kelas" value="{{ old('kelas') }}" class="form-control @error('kelas') is-invalid @enderror" maxlength="30" placeholder="Contoh: XI RPL 2" required>
+                                @error('kelas') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
                     </div>
 
                     <div data-tipe="Guru" class="d-none">
                         <div class="mb-3">
                             <label for="nip" class="form-label">NIP <span class="text-secondary">(opsional)</span></label>
-                            <input type="text" id="nip" name="nip" value="{{ old('nip') }}" class="form-control @error('nip') is-invalid @enderror" maxlength="30">
+                            <input type="text" id="nip" name="nip" value="{{ old('nip') }}" inputmode="numeric" class="form-control @error('nip') is-invalid @enderror" maxlength="30">
                             @error('nip') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -223,7 +273,7 @@
                     <div data-tipe="Orang Tua/Lainnya" class="d-none">
                         <div class="mb-3">
                             <label for="no_hp" class="form-label">Nomor HP</label>
-                            <input type="tel" id="no_hp" name="no_hp" value="{{ old('no_hp') }}" class="form-control @error('no_hp') is-invalid @enderror" maxlength="20" required>
+                            <input type="tel" id="no_hp" name="no_hp" value="{{ old('no_hp') }}" autocomplete="tel" class="form-control @error('no_hp') is-invalid @enderror" maxlength="20" required>
                             @error('no_hp') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
@@ -250,7 +300,7 @@
 
     <!-- Pop up konfirmasi sebelum data disimpan -->
     <div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="judulKonfirmasi" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title h5" id="judulKonfirmasi">Yakin data sudah benar?</h2>
@@ -347,14 +397,15 @@
             }
         }
 
-        // Tambah satu baris ke ringkasan (dilewati jika nilainya kosong)
+        // Tambah satu baris ke ringkasan (dilewati jika nilainya kosong).
+        // Di HP label dan nilai menumpuk (col-12), di layar lebih besar berdampingan.
         function tambahBaris(label, nilai) {
             if (!nilai) return;
             const dt = document.createElement('dt');
-            dt.className = 'col-5 text-secondary fw-normal';
+            dt.className = 'col-12 col-sm-5 text-secondary fw-normal';
             dt.textContent = label;
             const dd = document.createElement('dd');
-            dd.className = 'col-7';
+            dd.className = 'col-12 col-sm-7';
             dd.textContent = nilai;
             ringkasan.append(dt, dd);
         }

@@ -2,7 +2,7 @@
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Struk Peminjaman - Inventaris Barang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -17,6 +17,16 @@
             --rose: #f05a7e;
         }
 
+        html { -webkit-text-size-adjust: 100%; }
+        body { overflow-x: hidden; /* cegah scroll ke samping di layar kecil */ }
+
+        /* Hormati area aman (notch) di HP */
+        .container {
+            padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
+            padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
+        }
+        a:focus-visible, button:focus-visible { outline: 3px solid var(--teal-2); outline-offset: 3px; }
+
         .text-gradient {
             background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 55%, var(--rose) 100%);
             -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
@@ -27,6 +37,8 @@
             backdrop-filter: blur(24px);
             border-bottom: 1px solid var(--bs-border-color);
         }
+        .navbar-brand { min-width: 0; }
+        .navbar-toggler { min-width: 44px; min-height: 44px; border-color: var(--bs-border-color); }
 
         .btn-teal {
             --bs-btn-color: #060d0a; --bs-btn-bg: var(--teal); --bs-btn-border-color: var(--teal);
@@ -45,10 +57,57 @@
 
         .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--teal); }
 
+        /* Kode transaksi panjang: ukuran menyesuaikan layar dan boleh turun baris */
+        .kode-besar { font-size: clamp(1rem, 4.6vw, 1.75rem); font-weight: 700; overflow-wrap: anywhere; }
+
+        /* QR ikut mengecil kalau layar sempit, tetap persegi */
+        .kotak-qr { max-width: 100%; }
+        #qr { display: flex; justify-content: center; }
+        #qr canvas, #qr img { max-width: 100%; height: auto !important; }
+
+        /* Nilai panjang di detail tidak melebar keluar kartu */
+        dl dd { overflow-wrap: anywhere; }
+
         .footer-dark {
             background: #040a07;
             border-top: 2px solid;
             border-image: linear-gradient(90deg, var(--teal), var(--gold), var(--rose)) 1;
+            padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+        }
+
+        /* ====== Responsif ====== */
+
+        /* Tablet portrait & HP (di bawah 768px) */
+        @media (max-width: 991.98px) {
+            .navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; }
+        }
+
+        /* HP (di bawah 576px) */
+        @media (max-width: 575.98px) {
+            main { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+            .card { padding: 1.25rem !important; border-radius: 12px; }
+
+            /* Detail: label di atas, nilai di bawah, supaya teks panjang tidak sempit */
+            dl.row dt { margin-bottom: 0; }
+            dl.row dd { margin-bottom: .75rem; font-weight: 500; }
+
+            /* Tombol cetak dan kembali selebar layar, mudah ditekan */
+            .tanpa-cetak .btn { width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; }
+
+            .modal-dialog { margin: .75rem; }
+        }
+
+        /* HP kecil (di bawah 400px) */
+        @media (max-width: 399.98px) {
+            .navbar-brand { font-size: 1.1rem !important; }
+            .card { padding: 1rem !important; }
+            .kotak-qr { padding: .5rem !important; }
+            .kode-struk { letter-spacing: .03em; }
+        }
+
+        /* Layar pendek (HP landscape): kurangi jarak vertikal */
+        @media (max-height: 480px) and (orientation: landscape) {
+            main { padding-top: 1rem !important; padding-bottom: 1rem !important; }
         }
 
         /* Saat dicetak: hanya struk yang tampil, warna hitam putih */
@@ -57,6 +116,9 @@
             body { background: #fff !important; color: #000 !important; }
             .card { border: 1px solid #000 !important; background: #fff !important; }
             .kode-struk, .text-secondary { color: #000 !important; }
+            /* Pastikan tata letak detail tetap dua kolom saat cetak */
+            dl.row dt { width: 41.66667%; margin-bottom: .5rem; }
+            dl.row dd { width: 58.33333%; margin-bottom: .5rem; }
         }
     </style>
 </head>
@@ -66,7 +128,7 @@
     <nav class="navbar navbar-expand-lg sticky-top navbar-glass">
         <div class="container">
             <a class="navbar-brand fw-bold fs-4" href="{{ url('/peminjam') }}">Inventaris<span class="text-gradient">Barang</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-label="Buka menu">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar" aria-controls="menuNavbar" aria-expanded="false" aria-label="Buka menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="menuNavbar">
@@ -86,37 +148,37 @@
                 <h1 class="h4 fw-bold mb-1">Bukti Peminjaman</h1>
                 <p class="text-secondary small mb-4">Simpan struk ini. Scan QR atau ketik kodenya saat mengembalikan barang.</p>
 
-                <div class="kode-struk fs-3 fw-bold mb-3">{{ $peminjaman->kode_transaksi }}</div>
+                <div class="kode-struk kode-besar mb-3">{{ $peminjaman->kode_transaksi }}</div>
 
-                <div class="d-inline-block bg-white p-3 rounded mx-auto mb-4">
+                <div class="d-inline-block bg-white p-3 rounded mx-auto mb-4 kotak-qr">
                     <div id="qr"></div>
                 </div>
 
                 <dl class="row text-start mb-0">
-                    <dt class="col-5 text-secondary fw-normal">Barang</dt>
-                    <dd class="col-7">{{ $peminjaman->barang->nama_barang }}</dd>
+                    <dt class="col-12 col-sm-5 text-secondary fw-normal">Barang</dt>
+                    <dd class="col-12 col-sm-7">{{ $peminjaman->barang->nama_barang }}</dd>
 
-                    <dt class="col-5 text-secondary fw-normal">Peminjam</dt>
-                    <dd class="col-7">{{ $peminjaman->peminjam->nama_peminjam }} ({{ $peminjaman->peminjam->tipe_peminjam }})</dd>
+                    <dt class="col-12 col-sm-5 text-secondary fw-normal">Peminjam</dt>
+                    <dd class="col-12 col-sm-7">{{ $peminjaman->peminjam->nama_peminjam }} ({{ $peminjaman->peminjam->tipe_peminjam }})</dd>
 
                     @if ($peminjaman->peminjam->keterangan)
-                        <dt class="col-5 text-secondary fw-normal">Keterangan</dt>
-                        <dd class="col-7">{{ $peminjaman->peminjam->keterangan }}</dd>
+                        <dt class="col-12 col-sm-5 text-secondary fw-normal">Keterangan</dt>
+                        <dd class="col-12 col-sm-7">{{ $peminjaman->peminjam->keterangan }}</dd>
                     @endif
 
                     @if ($peminjaman->peminjam->no_hp)
-                        <dt class="col-5 text-secondary fw-normal">No. HP</dt>
-                        <dd class="col-7">{{ $peminjaman->peminjam->no_hp }}</dd>
+                        <dt class="col-12 col-sm-5 text-secondary fw-normal">No. HP</dt>
+                        <dd class="col-12 col-sm-7">{{ $peminjaman->peminjam->no_hp }}</dd>
                     @endif
 
-                    <dt class="col-5 text-secondary fw-normal">Tanggal pinjam</dt>
-                    <dd class="col-7">{{ $peminjaman->tgl_pinjam->format('d/m/Y H:i') }}</dd>
+                    <dt class="col-12 col-sm-5 text-secondary fw-normal">Tanggal pinjam</dt>
+                    <dd class="col-12 col-sm-7">{{ $peminjaman->tgl_pinjam->format('d/m/Y H:i') }}</dd>
 
-                    <dt class="col-5 text-secondary fw-normal">Batas kembali</dt>
-                    <dd class="col-7">{{ $peminjaman->tgl_jatuh_tempo->format('d/m/Y H:i') }}</dd>
+                    <dt class="col-12 col-sm-5 text-secondary fw-normal">Batas kembali</dt>
+                    <dd class="col-12 col-sm-7">{{ $peminjaman->tgl_jatuh_tempo->format('d/m/Y H:i') }}</dd>
 
-                    <dt class="col-5 text-secondary fw-normal">Status</dt>
-                    <dd class="col-7">{{ $peminjaman->status_peminjaman }}</dd>
+                    <dt class="col-12 col-sm-5 text-secondary fw-normal">Status</dt>
+                    <dd class="col-12 col-sm-7 mb-0">{{ $peminjaman->status_peminjaman }}</dd>
                 </dl>
 
                 {{-- Pengingat sanksi, hanya untuk siswa --}}
@@ -143,10 +205,10 @@
                     <h2 class="h4 fw-bold mb-2" id="judulBerhasil" style="color: var(--teal);">Peminjaman berhasil</h2>
                     <p class="mb-1">{{ session('berhasil') }}</p>
                     <p class="text-secondary small mb-4">
-                        Kode transaksi: <span class="kode-struk">{{ $peminjaman->kode_transaksi }}</span><br>
+                        Kode transaksi: <span class="kode-struk" style="overflow-wrap: anywhere;">{{ $peminjaman->kode_transaksi }}</span><br>
                         Cetak atau simpan struk untuk mengembalikan barang.
                     </p>
-                    <button type="button" class="btn btn-teal rounded-pill px-4" data-bs-dismiss="modal">Lihat struk</button>
+                    <button type="button" class="btn btn-teal rounded-pill px-4 w-100 w-sm-auto" data-bs-dismiss="modal">Lihat struk</button>
                 </div>
             </div>
         </div>

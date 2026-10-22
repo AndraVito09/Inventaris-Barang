@@ -25,8 +25,13 @@ Route::get('/peminjam/struk/{kode}', [PeminjamanController::class, 'struk']);
 Route::get('/peminjam/kembali', [PengembalianController::class, 'index']);
 Route::post('/peminjam/kembali/cek', [PengembalianController::class, 'cek'])->middleware('throttle:60,1');
 Route::post('/peminjam/kembali/proses', [PengembalianController::class, 'proses'])->middleware('throttle:10,1');
-Route::get('/peminjam/daftar-barang',  [PeminjamanController::class, 'katalog'])
+
+// Daftar barang: method di controller bernama "katalog"
+Route::get('/peminjam/daftar-barang', [PeminjamanController::class, 'katalog'])
     ->name('peminjam.daftar-barang');
+
+// Link lama /peminjam/katalog diarahkan ke halaman yang benar
+Route::redirect('/peminjam/katalog', '/peminjam/daftar-barang');
 
 // Riwayat peminjaman untuk peminjam (nama peminjam disamarkan)
 Route::get('/peminjam/riwayat', [RiwayatController::class, 'peminjam'])
@@ -46,6 +51,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('barang', BarangController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+
     // Halaman Riwayat Peminjaman
     Route::get('/admin/riwayat', [RiwayatController::class, 'index'])
         ->name('admin.riwayat');
@@ -53,5 +59,4 @@ Route::middleware('auth')->group(function () {
     // Cetak Riwayat Peminjaman ke PDF
     Route::get('/admin/riwayat/cetak-pdf', [RiwayatController::class, 'cetakPdf'])
         ->name('admin.riwayat.pdf');
-
 });

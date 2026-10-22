@@ -1,8 +1,8 @@
-]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Dashboard Peminjam - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
@@ -50,14 +50,26 @@
         }
         :root { --emas: #f1b53d; }
 
-        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+        }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
-        .wadah { max-width: 1120px; }
+
+        /* Wadah utama: ikut lebar layar, hormati area aman (notch) di HP */
+        .wadah {
+            max-width: 1120px;
+            padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
+            padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
+        }
 
         /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); }
-        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
+        .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; flex-shrink: 0; }
+        .navbar-toggler { min-width: 44px; min-height: 44px; border-color: var(--bs-border-color); }
         .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
         .navbar .nav-link:hover, .navbar .nav-link.active { color: var(--bs-body-color); border-color: var(--emas); }
         .btn-outline-secondary {
@@ -65,17 +77,17 @@
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
             --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
         }
-        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
         /* Judul */
-        h1 { font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.06; }
-        h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.015em; }
+        h1 { font-size: clamp(1.75rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
+        h2 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.015em; }
         .lead { max-width: 28rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
 
         /* Kondisi barang: daftar polos, satu baris per status */
         .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
-        .papan-kepala { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+        .papan-kepala { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .25rem 1rem; }
         .kondisi { list-style: none; margin: 0; padding: 0; }
         .kondisi li { display: grid; grid-template-columns: 6.5rem 1fr 2.5rem; align-items: center; gap: 14px; padding: .7rem 0; border-bottom: 1px solid var(--bs-border-color); }
         .kondisi li:last-child { border-bottom: 0; }
@@ -91,12 +103,12 @@
         /* Layanan */
         .layanan { display: block; padding: 2rem; border-radius: 14px; background: var(--emas); color: #1a1405; text-decoration: none; transition: transform .2s, background .2s; }
         .layanan:hover { background: #f7c55c; color: #1a1405; transform: translateY(-3px); }
-        .layanan h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.01em; }
+        .layanan h3 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.01em; }
         .layanan-kembali { background: transparent; border: 1.5px solid var(--bs-secondary-color); color: var(--bs-body-color); }
         .layanan-kembali p { color: var(--bs-secondary-color); }
         .layanan-kembali:hover { background: var(--hover); border-color: var(--bs-body-color); color: var(--bs-body-color); }
 
-        .daftar .list-group-item { background: transparent; color: var(--bs-body-color); display: grid; grid-template-columns: 16rem 1fr; gap: 20px; padding: 1.1rem .5rem; }
+        .daftar .list-group-item { background: transparent; color: var(--bs-body-color); display: grid; grid-template-columns: 16rem 1fr; gap: 20px; padding: 1.1rem .5rem; min-height: 56px; }
         .daftar .list-group-item:hover { background: var(--hover); }
         .daftar span { color: var(--bs-secondary-color); }
 
@@ -104,19 +116,53 @@
         .aturan strong { color: #b97d00; }
         [data-bs-theme="dark"] .aturan strong { color: var(--emas); }
 
-        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
-        footer a { color: var(--bs-secondary-color); }
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+        footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* Responsif */
+        /* ====== Responsif ====== */
+
+        /* Laptop kecil & tablet landscape (di bawah 992px): hero sudah menumpuk, rapikan jarak */
+        @media (max-width: 991.98px) {
+            .lead { max-width: 36rem; }
+            .daftar .list-group-item { grid-template-columns: 12rem 1fr; gap: 16px; }
+        }
+
+        /* Tablet portrait & HP (di bawah 768px) */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
-            .navbar .nav-link { padding-top: .5rem; padding-bottom: .5rem; }
+            .navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; border-bottom-width: 0; border-left: 3px solid transparent; padding-left: .75rem; }
+            .navbar .nav-link:hover, .navbar .nav-link.active { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
             .layanan { padding: 1.5rem; }
             .daftar .list-group-item { grid-template-columns: 1fr; gap: 2px; }
             .kondisi li { grid-template-columns: 5.5rem 1fr 2rem; gap: 10px; }
+            .btn-kembali { width: 100%; }        /* tombol kembali selebar layar agar mudah ditekan */
+            .aturan { padding: 1rem !important; margin-top: 2rem !important; margin-bottom: 2rem !important; }
+            footer .wadah { text-align: center; }
+        }
+
+        /* HP kecil (di bawah 400px) */
+        @media (max-width: 399.98px) {
+            .navbar-brand { font-size: 1.05rem; gap: .5rem !important; }
+            .logo { width: 38px; height: 38px; }
+            .kondisi li { grid-template-columns: 4.75rem 1fr 1.75rem; gap: 8px; }
+            .papan { border-radius: 12px; }
+            .layanan { padding: 1.25rem; }
+            footer { font-size: .8rem; }
+        }
+
+        /* Layar pendek (HP landscape): kurangi jarak vertikal */
+        @media (max-height: 480px) and (orientation: landscape) {
+            .navbar { padding-top: .35rem; padding-bottom: .35rem; }
+            .logo { width: 38px; height: 38px; }
+            section.row { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+        }
+
+        /* Layar sangat lebar */
+        @media (min-width: 1400px) {
+            .wadah { max-width: 1200px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -173,12 +219,12 @@
         </div>
 
         <section class="row g-4 g-lg-5 align-items-center py-4 py-md-5">
-            <div class="col-lg-5">
+            <div class="col-12 col-lg-5">
                 <h1>Selamat datang di layanan peminjaman.</h1>
                 <p class="lead mt-3">Pinjam dan kembalikan barang sekolah di satu tempat, tanpa perlu login.</p>
             </div>
 
-            <div class="col-lg-7">
+            <div class="col-12 col-lg-7">
                 <div class="papan p-3 p-md-4">
                     <div class="papan-kepala mb-2">
                         <h2 class="h5 fw-bold mb-0">Kondisi barang saat ini</h2>
@@ -218,13 +264,13 @@
             <h2 id="judul-layanan" class="mb-3">Layanan</h2>
 
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <a class="layanan h-100" href="{{ url('/peminjam/pinjam') }}">
                         <h3 class="mb-2">Peminjaman</h3>
                         <p class="mb-0">Scan barcode barang, isi data, lalu dapatkan struk.</p>
                     </a>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <a class="layanan layanan-kembali h-100" href="{{ url('/peminjam/kembali') }}">
                         <h3 class="mb-2">Pengembalian</h3>
                         <p class="mb-0">Scan QR pada struk untuk mengembalikan barang.</p>
