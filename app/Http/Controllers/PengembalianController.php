@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Models\Activity_log;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ class PengembalianController extends Controller
             return $q->where('id_peminjaman', (int) $m[2])->first();
         }
 
-        return $q->whereHas('barang', fn ($b) => $b->where('kode_barcode', $kode))
+        return $q->whereHas('barang', fn($b) => $b->where('kode_barcode', $kode))
             ->whereNull('tgl_kembali')
             ->latest('id_peminjaman')
             ->first();
@@ -96,10 +97,20 @@ class PengembalianController extends Controller
             // Barang kembali tersedia
             $pinjam->barang?->update(['status_barang' => 'Tersedia']);
 
+            $menit = $terlambat ? (int) $batas->diffInMinutes($sekarang, true) : 0;
+
+            Activity_log::catat_aktivitas_peminjam(
+                'kembali',
+                'peminjaman',
+                $pinjam->id_peminjaman,
+                "Kembali {$pinjam->barang?->kode_barcode} ({$pinjam->barang?->nama_barang}) oleh {$pinjam->peminjam?->nama_peminjam}, "
+                    . ($terlambat ? "terlambat {$menit} menit" : 'tepat waktu')
+            );
+
             return response()->json([
                 'ok'              => true,
                 'terlambat'       => $terlambat,
-                'menit_terlambat' => $terlambat ? (int) $batas->diffInMinutes($sekarang, true) : 0,
+                'menit_terlambat' => $menit,
                 'sanksi'          => ($terlambat && $this->apakahSiswa($pinjam)) ? 'Membersihkan lab' : null,
             ]);
         });

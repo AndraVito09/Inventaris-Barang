@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity_log;
 use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Peminjam;
@@ -112,13 +113,22 @@ class PeminjamanController extends Controller
 
             $sekarang = now();
 
-            return Peminjaman::create([
+            $peminjaman = Peminjaman::create([
                 'id_barang'         => $barang->id_barang,
                 'id_peminjam'       => $peminjam->id_peminjam,
                 'tgl_pinjam'        => $sekarang,
                 'tgl_jatuh_tempo'   => $sekarang->copy()->addHours(self::LAMA_PINJAM_JAM),
                 'status_peminjaman' => 'Dipinjam',
             ]);
+
+            Activity_log::catat_aktivitas_peminjam(
+                'pinjam',
+                'peminjaman',
+                $peminjaman->id_peminjaman,
+                "Pinjam {$barang->kode_barcode} ({$barang->nama_barang}) oleh {$peminjam->nama_peminjam} [{$tipe}], jatuh tempo {$peminjaman->tgl_jatuh_tempo->format('d-m-Y H:I')}"
+            );
+
+            return $peminjaman;
         });
 
         // kode_transaksi dihitung otomatis dari model (tidak disimpan di database)

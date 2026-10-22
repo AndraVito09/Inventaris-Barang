@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+
 
 class Activity_log extends Model
 {
@@ -21,4 +23,30 @@ class Activity_log extends Model
         'deskripsi',
         'ip_address'
     ];
+
+    public static function catat_aktivitas_admin(string $aksi, string $tabel, ?int $idData, string $deskripsi, string $aktor = 'admin'): void
+    {
+        static::create([
+            'id_admin'   => $aktor === 'admin' ? Auth::id() : null,
+            'aktor'      => $aktor,
+            'aksi'       => $aksi,
+            'nama_tabel' => $tabel,
+            'id_data'    => $idData,
+            'deskripsi'  => mb_substr($deskripsi, 0, 255),
+            'ip_address' => request()->ip(),
+        ]);
+    }
+    
+    public static function catat_aktivitas_peminjam(string $aksi, string $tabel, ?int $idData, string $deskripsi,): void
+    {
+        static::create([
+            'id_admin'   => null,
+            'aktor'      => 'peminjam',
+            'aksi'       => $aksi,
+            'nama_tabel' => $tabel,
+            'id_data'    => $idData,
+            'deskripsi'  => mb_substr($deskripsi, 0, 255),
+            'ip_address' => request()->ip(),
+        ]);
+    }
 }

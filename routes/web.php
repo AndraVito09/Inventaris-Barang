@@ -49,6 +49,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('barang/{barang}/cetak', [BarangController::class, 'cetak'])->name('barang.cetak');
 
+    Route::post('barang/{barang}/cetak/catat', [BarangController::class, 'catatCetak'])
+        ->name('barang.cetak.catat')
+        ->middleware('throttle:30,1');
+
     Route::resource('barang', BarangController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
@@ -57,6 +61,7 @@ Route::middleware('auth')->group(function () {
         ->name('admin.riwayat');
 
     // Cetak Riwayat Peminjaman ke PDF
-    Route::get('/admin/riwayat/cetak-pdf', [RiwayatController::class, 'cetakPdf'])
-        ->name('admin.riwayat.pdf');
+    Route::post('/admin/riwayat/cetak/catat', [RiwayatController::class, 'catatCetakPDF'])
+        ->name('admin.riwayat.cetak.catat')
+        ->middleware('throttle:30,1');
 });

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Data Laporan</title>
     <style>
         @page { size: 60mm 35mm; margin: 0; }
@@ -129,6 +130,18 @@
             fontSize: 14,
             margin: 0,
             lineColor: '#0b2447',
+        });
+
+        window.addEventListener('afterprint', () => {
+            if (!confirm('Apakah barcode sudah berhasil dicetak?')) return;
+
+            fetch(@json(route('barang.cetak.catat', $barang->id_barang)), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                keepalive: true,
+            });
         });
 
         window.addEventListener('load', () => setTimeout(() => window.print(), 300));

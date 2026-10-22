@@ -459,6 +459,27 @@
                 tampilkanLabel();
             });
         })();
+
+        (function () {
+        let sedangKonfirmasi = false;
+
+        window.addEventListener('afterprint', () => {
+            if (sedangKonfirmasi) return;
+            sedangKonfirmasi = true;
+
+            if (confirm('Apakah laporan sudah berhasil dicetak / disimpan sebagai PDF?')) {
+                fetch(@json(route('admin.riwayat.cetak.catat')), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    keepalive: true,
+                });
+            }
+
+            sedangKonfirmasi = false;
+        });
+    })();
     </script>
 </body>
 </html>

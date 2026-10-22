@@ -432,6 +432,12 @@
                                                 </td>
                                                 <td class="col-aksi text-end">
                                                     <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+
+                                                        <button type="button" class="btn btn-sm btn-outline-info btn-cetak"
+                                                                data-url="{{ route('barang.cetak', $item->id_barang) }}">
+                                                            <i class="bi bi-upc-scan"></i> Cetak
+                                                        </button>
+
                                                         <button type="button"
                                                                 class="btn btn-outline-secondary tombol-aksi btn-edit"
                                                                 data-url="{{ route('barang.update', $item->id_barang) }}"
@@ -642,6 +648,10 @@
 
         // Edit: isi modal, lalu konfirmasi sebelum kirim
         const formEdit = document.getElementById('formEdit');
+        
+        document.querySelectorAll('.btn-cetak').forEach(btn => {
+            btn.addEventListener('click', () => window.open(btn.dataset.url, '_blank'));
+        });
 
         document.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', () => {

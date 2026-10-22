@@ -8,7 +8,6 @@ use App\Models\Kategori;
 use App\Models\Activity_log;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class BarangController extends Controller
 {
@@ -42,6 +41,13 @@ class BarangController extends Controller
             return Barang::create($data);
         });
 
+        Activity_log::catat_aktivitas_admin(
+            'tambah',
+            'barang',
+            $barang->id_barang,
+            "Tambah barang {$barang->kode_barcode} ({$barang->nama_barang})"
+        );
+
         return redirect()->route('barang.index')
             ->with('success', "Barang berhasil ditambahkan dengan kode {$barang->kode_barcode}.")
             ->with('cetak_url', route('barang.cetak', $barang->id_barang));
@@ -57,7 +63,15 @@ class BarangController extends Controller
             return redirect()->route('barang.index')->with('info', 'Data tidak terubah');
         }
 
+        $lama = $barang->getOriginal('nama_barang');
         $barang->save();
+
+        Activity_log::catat_aktivitas_admin(
+            'ubah',
+            'barang',
+            $barang->id_barang,
+            "Ubah barang {$barang->kode_barcode}: '{$lama}' → '{$barang->nama_barang}'"
+        );
 
         return redirect()->route('barang.index')->with('success', 'Data terupdate.');
     }
@@ -74,6 +88,13 @@ class BarangController extends Controller
                 ->with('error', 'Barang tidak bisa dihapus karena memiliki riwayat peminjaman');
         }
 
+        Activity_log::catat_aktivitas_admin(
+            'hapus',
+            'barang',
+            $barang->id_barang,
+            "hapus barang {$barang->kode_barcode} ({$barang->nama_barang})"
+        );
+
         try {
             $barang->delete();
         } catch (QueryException $e) {
@@ -86,17 +107,20 @@ class BarangController extends Controller
 
     public function cetak(Request $request, Barang $barang)
     {
-        Activity_log::create([
-            'id_admin'   => Auth::id(),
-            'aktor'      => 'admin',
-            'aksi'       => 'cetak_barcode',
-            'nama_tabel' => 'barang',
-            'id_data'    => $barang->id_barang,
-            'deskripsi'  => "Cetak barcode {$barang->kode_barcode} ({$barang->nama_barang})",
-            'ip_address' => $request->ip(),
-        ]);
 
         return view('admin.barang.cetak', compact('barang'));
+    }
+
+    public function catatCetak(Barang $barang)
+    {
+        Activity_log::catat_aktivitas_admin(
+            'cetak_barcode',
+            'barang',
+            $barang->id_barang,
+            "Cetak Barcode {$barang->kode_barcode} ({$barang->nama_barang})"
+        );
+
+        return response()->noContent();
     }
 
     private function rules(): array

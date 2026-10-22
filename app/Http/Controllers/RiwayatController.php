@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use Symfony\Component\HttpFoundation\Response;
+use App\Models\Activity_log;
 
 class RiwayatController extends Controller
 {
@@ -20,18 +19,18 @@ class RiwayatController extends Controller
         ]);
     }
 
-    /**
-     * ADMIN: cetak laporan riwayat peminjaman ke PDF.
-     */
-    public function cetakPdf(): Response
+    public function catatCetakPDF()
     {
-        $pdf = Pdf::loadView('admin.riwayat_pdf', [
-            'riwayat' => $this->ambilRiwayat(),
-        ]);
+        $jumlah = Peminjaman::count();
 
-        $pdf->setPaper('a4', 'portrait');
+        Activity_log::catat_aktivitas_admin(
+            'ekspor',
+            'Peminjaman',
+            null,
+            "Cetak laporan riwayat peminjaman ({$jumlah} data)"
+        );
 
-        return $pdf->stream('laporan-riwayat-peminjaman.pdf');
+        return response()->noContent();
     }
 
     /**
@@ -68,7 +67,7 @@ class RiwayatController extends Controller
     private function samarkanNama(string $nama): string
     {
         return collect(explode(' ', $nama))
-            ->map(fn (string $kata) => mb_substr($kata, 0, 1) . str_repeat('*', max(mb_strlen($kata) - 1, 0)))
+            ->map(fn(string $kata) => mb_substr($kata, 0, 1) . str_repeat('*', max(mb_strlen($kata) - 1, 0)))
             ->implode(' ');
     }
 }
