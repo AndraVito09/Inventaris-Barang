@@ -1,11 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title>Login - Inventaris Barang</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
 
     {{-- Terapkan tema tersimpan sebelum halaman ditampilkan --}}
     <script>
@@ -67,11 +67,15 @@
 
         html {
             scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
             min-height: 100vh;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
             font-family: 'Bricolage Grotesque', system-ui, sans-serif;
             background: var(--bs-body-bg);
             color: var(--bs-body-color);
@@ -93,6 +97,7 @@
             background: var(--nav-bg);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--bs-border-color);
+            padding-top: env(safe-area-inset-top);
         }
 
         .navbar-inner {
@@ -112,24 +117,23 @@
             min-width: 0;
         }
 
-        .brand-mark {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: #1a1405;
-            background: var(--emas);
+        /* Logo (sama dengan tampilan peminjam) */
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            object-fit: contain;
             flex-shrink: 0;
         }
 
         .brand-text {
             font-weight: 800;
-            font-size: 1.15rem;
-            letter-spacing: -.02em;
+            font-size: 1.25rem;
+            letter-spacing: -.01em;
             line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .brand-caption {
@@ -137,19 +141,28 @@
             color: var(--bs-secondary-color);
             font-size: .72rem;
             font-weight: 500;
-            margin-top: 4px;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .brand-login > span {
+            min-width: 0;
         }
 
         .navbar-actions {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         .nav-home {
             display: inline-flex;
             align-items: center;
             gap: 7px;
+            min-height: 40px;
             color: var(--bs-secondary-color);
             text-decoration: none;
             font-size: .9rem;
@@ -180,6 +193,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            min-height: 40px;
             border-radius: 10px;
             padding: 8px 12px;
         }
@@ -192,7 +206,7 @@
         /* AREA LOGIN */
 
         .login-area {
-            min-height: calc(100vh - 76px - 66px);
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -229,6 +243,7 @@
             background-color: var(--bs-body-bg);
             color: var(--bs-body-color);
             border-color: var(--bs-border-color);
+            font-size: 1rem; /* 16px: cegah zoom otomatis di iOS */
         }
 
         .form-control::placeholder {
@@ -283,12 +298,54 @@
             line-height: 1.6;
         }
 
-        .login-footer {
+        /* Alert login gagal */
+        .alert-login {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border-radius: 10px;
+            font-size: .9rem;
+            padding: .75rem 1rem;
+            animation: goyang .35s ease-in-out;
+        }
+        .alert-login i { font-size: 1.1rem; line-height: 1.4; flex-shrink: 0; }
+        .alert-login .btn-close { margin-left: auto; padding: .9rem .75rem; }
+
+        @keyframes goyang {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* Footer (sama dengan tampilan peminjam) */
+        footer {
             border-top: 1px solid var(--bs-border-color);
             color: var(--bs-secondary-color);
-            font-size: .8rem;
-            text-align: center;
-            padding: 22px 15px;
+            font-size: .9rem;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+
+        footer a {
+            color: var(--bs-secondary-color);
+            display: inline-block;
+            padding: .25rem 0;
+        }
+
+        footer a:hover {
+            color: var(--bs-body-color);
+        }
+
+        .wadah {
+            max-width: 1120px;
+            padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
+            padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
+        }
+
+        /* ====== Responsif ====== */
+
+        @media (max-width: 767.98px) {
+            .brand-text { font-size: 1.15rem; }
+            .logo { width: 46px; height: 46px; }
         }
 
         @media (max-width: 575.98px) {
@@ -297,16 +354,16 @@
             }
 
             .brand-text {
-                font-size: 1rem;
+                font-size: 1.05rem;
             }
 
             .brand-caption {
                 font-size: .68rem;
             }
 
-            .brand-mark {
-                width: 38px;
-                height: 38px;
+            .logo {
+                width: 40px;
+                height: 40px;
             }
 
             .nav-home {
@@ -323,8 +380,8 @@
             }
 
             .login-area {
-                min-height: calc(100vh - 68px - 62px);
                 padding: 30px 15px;
+                align-items: flex-start;
             }
 
             .login-card {
@@ -333,9 +390,26 @@
             }
         }
 
+        @media (max-width: 399.98px) {
+            .brand-caption { display: none; }
+            .login-card { padding: 22px 18px; }
+            .judul { font-size: 1.4rem; }
+            footer { font-size: .8rem; }
+        }
+
+        /* Layar pendek (HP landscape) */
+        @media (max-height: 480px) and (orientation: landscape) {
+            .navbar-inner { min-height: 56px; }
+            .login-area { padding-top: 20px; padding-bottom: 20px; align-items: flex-start; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             html {
                 scroll-behavior: auto;
+            }
+
+            .alert-login {
+                animation: none;
             }
 
             *,
@@ -350,16 +424,14 @@
 <body>
 
     {{-- NAVBAR --}}
-    <nav class="navbar-login">
-        <div class="container">
+    <nav class="navbar-login" aria-label="Menu utama">
+        <div class="container wadah">
             <div class="navbar-inner">
 
                 <a href="{{ route('menu') }}" class="brand-login">
-                    <div class="brand-mark">
-                        <i class="bi bi-box-seam-fill"></i>
-                    </div>
+                    <img src="{{ asset('images/logo.png') }}" alt="" width="56" height="56" class="logo">
                     <span>
-                        <span class="brand-text d-block">Inventaris Barang</span>
+                        <span class="brand-text d-block">InventarisBarang</span>
                         <span class="brand-caption">Sistem Informasi Inventaris</span>
                     </span>
                 </a>
@@ -367,7 +439,7 @@
                 <div class="navbar-actions">
                     <a href="{{ route('menu') }}" class="nav-home">
                         <i class="bi bi-house-door"></i>
-                        <span class="nav-home-text">Beranda</span>
+                        <span class="nav-home-text">Dashboard</span>
                     </a>
 
                     <button
@@ -420,6 +492,23 @@
                 mengelola inventaris barang.
             </p>
 
+            {{-- Alert: username/password salah atau error validasi --}}
+            @if (session('login_error') || session('error') || $errors->any())
+                <div class="alert alert-danger alert-dismissible alert-login" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                    <div>
+                        @if (session('login_error'))
+                            {{ session('login_error') }}
+                        @elseif (session('error'))
+                            {{ session('error') }}
+                        @else
+                            {{ $errors->first() }}
+                        @endif
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+                </div>
+            @endif
+
             <form action="{{ route('login.process') }}" method="POST">
                 @csrf
 
@@ -428,7 +517,7 @@
 
                     <input
                         type="text"
-                        class="form-control @error('username') is-invalid @enderror"
+                        class="form-control @if ($errors->has('username') || session('login_error') || session('error')) is-invalid @endif"
                         id="username"
                         name="username"
                         placeholder="Masukkan username"
@@ -437,10 +526,6 @@
                         required
                         autofocus
                     >
-
-                    @error('username')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
                 </div>
 
                 <div class="mb-3">
@@ -448,24 +533,14 @@
 
                     <input
                         type="password"
-                        class="form-control @error('password') is-invalid @enderror"
+                        class="form-control @if ($errors->has('password') || session('login_error') || session('error')) is-invalid @endif"
                         id="password"
                         name="password"
                         placeholder="Masukkan password"
                         autocomplete="current-password"
                         required
                     >
-
-                    @error('password')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
                 </div>
-
-                @if (session('login_error'))
-                    <div class="alert alert-danger py-2 small" role="alert">
-                        {{ session('login_error') }}
-                    </div>
-                @endif
 
                 <button type="submit" class="btn btn-emas w-100 mt-2">
                     <i class="bi bi-box-arrow-in-right me-2"></i>
@@ -481,11 +556,15 @@
         </div>
     </main>
 
-    {{-- FOOTER --}}
-    <footer class="login-footer">
-        &copy; {{ date('Y') }} Inventaris Barang. Semua hak dilindungi.
+    {{-- FOOTER (sama dengan tampilan peminjam) --}}
+    <footer class="py-3">
+        <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
+            <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
+            <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a></span>
+        </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         (function () {
             const html = document.documentElement;

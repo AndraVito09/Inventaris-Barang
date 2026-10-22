@@ -2,8 +2,10 @@
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Peminjaman</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Riwayat Peminjaman - Inventaris Barang</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
 
     {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
@@ -31,10 +33,10 @@
             --kartu: #ffffff;
             --nav-bg: rgba(238, 243, 251, .92);
             --hover: rgba(11, 36, 71, .06);
-            --bayangan: rgba(11, 36, 71, .14);
-            --hijau: #1b7f55;
-            --emas-teks: #9a6204;
-            --merah: #c2334d;
+            --biru: #1d4fa8;
+            --ada: #0f9d7a;
+            --telat: #d6336c;
+            --emas-teks: #b97d00;
         }
         /* Palet biru tua: gelap */
         [data-bs-theme="dark"] {
@@ -45,216 +47,163 @@
             --kartu: #102445;
             --nav-bg: rgba(10, 25, 48, .92);
             --hover: rgba(173, 198, 245, .1);
-            --bayangan: rgba(0, 0, 0, .5);
-            --hijau: #4cc38a;
+            --biru: #6ea8ff;
+            --ada: #4fd1ac;
+            --telat: #f0708f;
             --emas-teks: #f1b53d;
-            --merah: #ff7a8e;
         }
         :root { --emas: #f1b53d; }
 
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
         /* Tombol */
-        .btn-emas {
-            --bs-btn-color: #1a1405;
-            --bs-btn-bg: var(--emas);
-            --bs-btn-border-color: var(--emas);
-            --bs-btn-hover-color: #1a1405;
-            --bs-btn-hover-bg: #f7c55c;
-            --bs-btn-hover-border-color: #f7c55c;
-            --bs-btn-active-color: #1a1405;
-            --bs-btn-active-bg: #f7c55c;
-            --bs-btn-active-border-color: #f7c55c;
-            font-weight: 700;
-            padding: 14px 26px;
+        .btn-outline-secondary {
+            --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
+            --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
+            --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
             border-radius: 10px;
+        }
+        .btn-emas {
+            --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
+            --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
+            --bs-btn-active-color: #1a1405; --bs-btn-active-bg: #f7c55c; --bs-btn-active-border-color: #f7c55c;
+            border-radius: 10px; padding: 11px 20px; min-height: 44px; font-weight: 700;
             transition: transform .2s, background .2s;
         }
         .btn-emas:hover { transform: translateY(-2px); }
-
-        .btn-outline-secondary {
-            --bs-btn-color: var(--bs-body-color);
-            --bs-btn-border-color: var(--bs-border-color);
-            --bs-btn-hover-color: var(--bs-body-color);
-            --bs-btn-hover-bg: var(--hover);
-            --bs-btn-hover-border-color: var(--bs-secondary-color);
-            --bs-btn-active-color: var(--bs-body-color);
-            --bs-btn-active-bg: var(--hover);
-            --bs-btn-active-border-color: var(--bs-secondary-color);
-        }
-
-        .btn-tema { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-tema { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* Layout: sidebar + konten */
+        /* ====== Layout: sidebar + konten ====== */
         .layout { display: flex; min-height: 100vh; }
-
-        .sidebar { --bs-offcanvas-width: 280px; }
-
-        .sidebar-inner {
-            width: 100%;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            background: var(--kartu);
-        }
+        .sidebar { --bs-offcanvas-width: min(280px, 85vw); background: var(--kartu); }
+        .sidebar-inner { width: 100%; min-height: 100%; display: flex; flex-direction: column; padding: 20px 16px; background: var(--kartu); }
 
         @media (min-width: 992px) {
-            .sidebar {
-                flex: 0 0 270px;
-                position: sticky;
-                top: 0;
-                height: 100vh;
-                border-right: 1px solid var(--bs-border-color);
-            }
-            .sidebar-inner {
-                width: 270px;
-                height: 100vh;
-                overflow-y: auto;
-            }
+            .sidebar { flex: 0 0 270px; position: sticky; top: 0; height: 100vh; border-right: 1px solid var(--bs-border-color); }
+            .sidebar-inner { width: 270px; height: 100vh; overflow-y: auto; }
         }
 
-        .brand-mark {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            color: #1a1405;
-            background: var(--emas);
-            flex-shrink: 0;
-        }
-        .brand-teks { font-weight: 800; font-size: 1.25rem; letter-spacing: -.01em; }
-
-        .side-label {
-            font-size: .7rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--bs-secondary-color);
-            padding: 0 14px;
-            margin: 28px 0 10px;
-        }
+        .logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; flex-shrink: 0; }
+        .brand-teks { font-weight: 800; font-size: 1.35rem; letter-spacing: -.01em; color: var(--bs-body-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .side-judul { font-size: .85rem; font-weight: 700; color: var(--bs-secondary-color); padding: 0 14px; margin: 24px 0 8px; }
 
         .side-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 11px 14px;
-            border-radius: 12px;
-            color: var(--bs-secondary-color);
-            text-decoration: none;
-            font-weight: 500;
-            border: 1px solid transparent;
-            transition: all .2s;
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; min-height: 44px; border-radius: 10px;
+            color: var(--bs-secondary-color); text-decoration: none; font-weight: 500;
+            border: 1px solid transparent; transition: background .2s, color .2s;
         }
         .side-link i { font-size: 1.1rem; }
         .side-link:hover { color: var(--bs-body-color); background: var(--hover); }
-        .side-link.active {
-            color: var(--bs-body-color);
-            background: var(--hover);
-            border-color: var(--bs-border-color);
-            box-shadow: inset 3px 0 0 var(--emas);
-        }
+        .side-link.active { color: var(--bs-body-color); background: var(--hover); border-color: var(--bs-border-color); box-shadow: inset 3px 0 0 var(--emas); }
+        .sidebar-inner nav { margin-bottom: 24px; }
 
-        .user-box {
-            margin-top: auto;
-            padding: 14px;
-            border-radius: 16px;
-            background: var(--bs-body-bg);
-            border: 1px solid var(--bs-border-color);
-        }
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: #1a1405;
-            background: var(--emas);
-            flex-shrink: 0;
-        }
+        .user-box { margin-top: auto; padding: 14px; border-radius: 14px; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #1a1405; background: var(--emas); flex-shrink: 0; }
 
-        .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--bs-border-color);
-        }
+        .topbar { position: sticky; top: 0; z-index: 1020; background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: max(.75rem, env(safe-area-inset-top)); }
+        .topbar .btn-menu { min-width: 44px; min-height: 44px; }
+        .content { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
-        .content {
-            flex: 1;
-            min-width: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        /* ====== Isi halaman ====== */
+        h1 { font-size: clamp(1.75rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
+        h2 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.015em; }
+        .lead { max-width: 36rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
 
-        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; }
+        .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
+        .papan-kepala { padding: 20px 24px; border-bottom: 1px solid var(--bs-border-color); }
 
-        /* Isi halaman */
-        .judul { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+        .ikon-kotak { width: 44px; height: 44px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; background: color-mix(in srgb, var(--biru) 14%, transparent); color: var(--biru); }
+        .badge-jumlah { background: var(--hover); color: var(--bs-body-color); border: 1px solid var(--bs-border-color); font-weight: 600; }
 
-        .panel {
-            border-radius: 18px;
-            overflow: hidden;
-            background: var(--kartu);
-            border: 1px solid var(--bs-border-color);
-        }
+        /* Tabel */
+        .tabel-data { margin-bottom: 0; vertical-align: middle; --bs-table-bg: transparent; --bs-table-color: var(--bs-body-color); --bs-table-border-color: var(--bs-border-color); --bs-table-hover-bg: var(--hover); --bs-table-hover-color: var(--bs-body-color); }
+        .tabel-data thead th { padding: 14px 16px; color: var(--bs-secondary-color); background: var(--hover); font-size: .85rem; font-weight: 700; white-space: nowrap; border-bottom: 1px solid var(--bs-border-color); }
+        .tabel-data tbody td { padding: 16px; border-color: var(--bs-border-color); }
+        .nomor { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; background: var(--hover); font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
 
-        .table {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--bs-body-color);
-            --bs-table-border-color: var(--bs-border-color);
-            --bs-table-hover-bg: var(--hover);
-            --bs-table-hover-color: var(--bs-body-color);
-            margin-bottom: 0;
-            vertical-align: middle;
-        }
-        .table thead th {
-            padding: 16px;
-            color: var(--bs-secondary-color);
-            font-size: .75rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            border-bottom: 1px solid var(--bs-border-color);
-        }
-        .table tbody td { padding: 14px 16px; }
+        .badge-status { font-weight: 600; border: 1px solid; padding: .45em .85em; }
+        .b-hijau { color: var(--ada); background: color-mix(in srgb, var(--ada) 12%, transparent); border-color: color-mix(in srgb, var(--ada) 40%, transparent); }
+        .b-emas { color: var(--emas-teks); background: color-mix(in srgb, var(--emas-teks) 12%, transparent); border-color: color-mix(in srgb, var(--emas-teks) 40%, transparent); }
+        .b-merah { color: var(--telat); background: color-mix(in srgb, var(--telat) 12%, transparent); border-color: color-mix(in srgb, var(--telat) 40%, transparent); }
 
-        /* Badge status */
-        .badge-status { font-weight: 600; border: 1px solid; }
-        .b-hijau { color: var(--hijau);
-                   background: color-mix(in srgb, var(--hijau) 12%, transparent);
-                   border-color: color-mix(in srgb, var(--hijau) 40%, transparent); }
-        .b-emas  { color: var(--emas-teks);
-                   background: color-mix(in srgb, var(--emas-teks) 12%, transparent);
-                   border-color: color-mix(in srgb, var(--emas-teks) 40%, transparent); }
-        .b-merah { color: var(--merah);
-                   background: color-mix(in srgb, var(--merah) 12%, transparent);
-                   border-color: color-mix(in srgb, var(--merah) 40%, transparent); }
-
+        .kosong { padding: 48px 20px !important; color: var(--bs-secondary-color); }
+        .kosong i { display: block; font-size: 2.5rem; margin-bottom: 12px; opacity: .65; }
+        .alert { border-radius: 12px; }
         .print-only { display: none; }
 
+        footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+        footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
+        footer a:hover { color: var(--bs-body-color); }
+
+        /* ====== Responsif ====== */
         @media (max-width: 991.98px) {
             .sidebar-inner { min-height: 100vh; }
+            .papan-kepala { padding: 20px; }
         }
+
+        /* HP: tabel jadi daftar kartu */
+        @media screen and (max-width: 767.98px) {
+            .papan { border-radius: 14px; }
+            .papan-kepala { padding: 16px; }
+            .topbar { padding-left: max(1rem, env(safe-area-inset-left)) !important; padding-right: max(1rem, env(safe-area-inset-right)) !important; }
+
+            .aksi-halaman { width: 100%; }
+            .aksi-halaman .btn { flex: 1 1 0; }
+
+            .tabel-data thead { display: none; }
+            .tabel-data, .tabel-data tbody { display: block; width: 100%; }
+
+            .tabel-data tbody tr:not(.baris-kosong) {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-areas: "peminjam status" "barang barang" "pinjam pinjam" "kembali kembali";
+                column-gap: 12px; row-gap: 4px;
+                padding: 16px;
+                border-bottom: 1px solid var(--bs-border-color);
+            }
+            .tabel-data tbody tr:not(.baris-kosong):last-child { border-bottom: 0; }
+            .tabel-data tbody tr:not(.baris-kosong) td { display: block; padding: 0; border: 0; }
+
+            .col-no { display: none !important; }
+            .col-peminjam { grid-area: peminjam; font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+            .col-status { grid-area: status; align-self: start; }
+            .col-barang { grid-area: barang; color: var(--bs-secondary-color); overflow-wrap: anywhere; }
+            .col-pinjam { grid-area: pinjam; font-size: .9rem; margin-top: 8px; }
+            .col-kembali { grid-area: kembali; font-size: .9rem; }
+            .col-pinjam::before, .col-kembali::before { content: attr(data-label) ": "; color: var(--bs-secondary-color); }
+
+            .tabel-data tbody tr.baris-kosong { display: table-row; }
+            .tabel-data tbody tr.baris-kosong td { display: table-cell; }
+        }
+
+        @media (max-width: 399.98px) {
+            .logo { width: 44px; height: 44px; }
+            .brand-teks { font-size: 1.1rem; }
+            .papan { border-radius: 12px; }
+            .papan-kepala { padding: 14px; }
+            .ikon-kotak { width: 38px; height: 38px; font-size: 1.05rem; }
+            footer { font-size: .8rem; }
+        }
+
+        @media (max-height: 480px) and (orientation: landscape) {
+            .topbar { padding-top: .35rem !important; padding-bottom: .35rem !important; }
+        }
+
+        @media (min-width: 1400px) { .isi { max-width: 1200px !important; } }
+
         @media (prefers-reduced-motion: reduce) {
-            html { scroll-behavior: auto; }
             .btn-emas, .side-link { transition: none; }
             .btn-emas:hover { transform: none; }
         }
 
-        /* ---------- Tampilan saat dicetak / disimpan sebagai PDF ---------- */
+        /* ====== Cetak / simpan PDF ====== */
         @page { size: A4 portrait; margin: 12mm; }
 
         @media print {
@@ -267,26 +216,22 @@
             }
 
             body { background: #fff !important; color: #000 !important; }
-
-            .sidebar, .topbar, .no-print, .alert, footer { display: none !important; }
-
-            .layout { display: block; }
-            .content { min-height: 0; }
-            .area { padding: 0 !important; }
-
+            .sidebar, .topbar, footer, .no-print, .alert { display: none !important; }
+            .layout, .content { display: block !important; min-height: 0; }
+            main { padding: 0 !important; }
+            .isi { max-width: none !important; }
             .print-only { display: block; margin: 0 0 12px; color: #444; font-size: 12px; }
 
-            .panel { background: #fff; border: 0; border-radius: 0; overflow: visible; }
+            .papan { background: #fff; border: 0; border-radius: 0; overflow: visible; }
 
-            .table th, .table td {
+            .tabel-data th, .tabel-data td {
                 padding: 7px 8px !important;
                 color: #000 !important;
                 background: #fff !important;
                 border: 1px solid #999 !important;
                 font-size: 12px;
             }
-            .table thead th { background: #e4eaf5 !important; letter-spacing: 0; text-transform: none; }
-
+            .tabel-data thead th { background: #e4eaf5 !important; }
             .badge-status { color: #000 !important; background: #fff !important; border: 1px solid #666 !important; }
 
             thead { display: table-header-group; }
@@ -297,16 +242,17 @@
 
 <body>
     @php
-        $user = auth()->user();
-        $namaUser = $user->name ?: ($user->username ?? 'Admin');
+        $user       = auth()->user();
+        $namaUser   = $user->name ?? ($user->username ?? 'Admin');
+        $linkBarang = Route::has('barang.index') ? route('barang.index') : route('kategori.index');
     @endphp
 
     <div class="layout">
 
-        {{-- Sidebar --}}
-        <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebarMenu">
+        <!-- Sidebar -->
+        <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebarMenu" aria-label="Menu admin">
 
-            <div class="offcanvas-header justify-content-end pb-0">
+            <div class="offcanvas-header justify-content-end pb-0 d-lg-none">
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
                         data-bs-target="#sidebarMenu" aria-label="Tutup"></button>
             </div>
@@ -314,20 +260,22 @@
             <div class="offcanvas-body p-0">
                 <div class="sidebar-inner">
 
-                    <a href="{{ route('dashboard') }}"
-                       class="d-flex align-items-center gap-3 text-decoration-none text-reset mb-2">
-                        <div class="brand-mark"><i class="bi bi-box-seam-fill"></i></div>
+                    <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none text-reset">
+                        <img src="{{ asset('images/logo.png') }}" alt="" width="56" height="56" class="logo">
                         <span class="brand-teks">InventarisBarang</span>
                     </a>
 
-                    <div class="side-label">Menu</div>
+                    <div class="side-judul">Menu</div>
 
-                    <nav class="nav flex-column gap-1">
+                    <nav class="nav flex-column gap-1" aria-label="Navigasi admin">
                         <a class="side-link" href="{{ route('dashboard') }}">
-                            <i class="bi bi-grid-1x2-fill"></i> Beranda
+                            <i class="bi bi-grid-1x2-fill"></i> Dashboard
                         </a>
                         <a class="side-link" href="{{ route('kategori.index') }}">
-                            <i class="bi bi-box-seam"></i> Data Kategori
+                            <i class="bi bi-tags"></i> Kategori
+                        </a>
+                        <a class="side-link" href="{{ $linkBarang }}">
+                            <i class="bi bi-box-seam"></i> Daftar Barang
                         </a>
                         <a class="side-link active" href="{{ route('admin.riwayat') }}" aria-current="page">
                             <i class="bi bi-clock-history"></i> Riwayat
@@ -355,24 +303,24 @@
             </div>
         </aside>
 
-        {{-- Konten utama --}}
+        <!-- Konten utama -->
         <div class="content">
 
-            <header class="topbar px-3 px-md-5 py-3 d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-secondary d-lg-none" type="button"
+            <header class="topbar px-3 px-md-5 pb-3 d-flex align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-3" style="min-width: 0;">
+                    <button class="btn btn-outline-secondary btn-menu d-lg-none" type="button"
                             data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
                             aria-controls="sidebarMenu" aria-label="Buka menu">
                         <i class="bi bi-list"></i>
                     </button>
 
-                    <div>
-                        <div class="fw-semibold">Panel Admin</div>
-                        <div class="small text-body-secondary">Manajemen inventaris barang</div>
+                    <div class="overflow-hidden">
+                        <div class="fw-semibold text-truncate">Panel Admin</div>
+                        <div class="small text-body-secondary text-truncate">Manajemen inventaris barang</div>
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3 flex-shrink-0">
                     <div class="small text-body-secondary d-none d-sm-block">{{ now()->format('d/m/Y') }}</div>
 
                     <button type="button" id="btnTema" class="btn btn-outline-secondary btn-sm btn-tema"
@@ -384,27 +332,28 @@
                 </div>
             </header>
 
-            <main class="area flex-grow-1 px-3 px-md-5 py-4 py-md-5">
-                <div class="mx-auto" style="max-width: 1100px;">
+            <main class="flex-grow-1 px-3 px-md-5">
+                <div class="isi mx-auto" style="max-width: 1120px;">
 
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-                        <div>
-                            <h1 class="judul mb-1">Riwayat Peminjaman</h1>
-                            <p class="text-body-secondary mb-0">
-                                Catatan transaksi peminjaman dan pengembalian barang.
-                            </p>
+                    {{-- Judul halaman --}}
+                    <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 py-4 py-md-5">
+                        <div style="min-width: 0;">
+                            <h1>Riwayat Peminjaman</h1>
+                            <p class="lead mt-3 mb-0">Catatan transaksi peminjaman dan pengembalian barang.</p>
                         </div>
 
-                        <div class="d-flex gap-2 flex-wrap no-print">
-                            <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary py-2 px-3">
+                        <div class="aksi-halaman d-flex gap-2 flex-wrap no-print">
+                            <a href="{{ route('dashboard') }}"
+                               class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center"
+                               style="min-height: 44px;">
                                 <i class="bi bi-arrow-left me-1"></i> Kembali
                             </a>
 
-                            <button type="button" class="btn btn-emas py-2 px-3" onclick="window.print()">
+                            <button type="button" class="btn btn-emas" onclick="window.print()">
                                 <i class="bi bi-printer me-1"></i> Cetak / Simpan PDF
                             </button>
                         </div>
-                    </div>
+                    </section>
 
                     <p class="print-only">Dicetak pada {{ now()->format('d/m/Y H:i') }}</p>
 
@@ -412,9 +361,25 @@
                         <div class="alert alert-danger">{{ session('error') }}</div>
                     @endif
 
-                    <section class="panel">
+                    <section class="papan mb-5" aria-labelledby="judul-daftar">
+
+                        <div class="papan-kepala no-print">
+                            <div class="d-flex flex-wrap align-items-center gap-3">
+                                <div class="ikon-kotak"><i class="bi bi-clock-history"></i></div>
+
+                                <div class="flex-grow-1" style="min-width: 0;">
+                                    <h2 id="judul-daftar" class="h5 fw-bold mb-1">Daftar Transaksi</h2>
+                                    <div class="small text-body-secondary">Peminjaman yang berjalan dan yang sudah selesai</div>
+                                </div>
+
+                                <span class="badge rounded-pill px-3 py-2 badge-jumlah">
+                                    {{ $riwayat->count() }} transaksi
+                                </span>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover tabel-data">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
@@ -441,19 +406,21 @@
                                             }
                                         @endphp
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
-                                            <td>{{ $item->barang->nama_barang ?? '-' }}</td>
-                                            <td>{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td>{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td>
+                                            <td class="col-no"><span class="nomor">{{ $loop->iteration }}</span></td>
+                                            <td class="col-peminjam fw-semibold">{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
+                                            <td class="col-barang">{{ $item->barang->nama_barang ?? '-' }}</td>
+                                            <td class="col-pinjam" data-label="Dipinjam">{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
+                                            <td class="col-kembali" data-label="Dikembalikan">{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
+                                            <td class="col-status">
                                                 <span class="badge rounded-pill badge-status {{ $kelas }}">{{ $status }}</span>
                                             </td>
                                         </tr>
                                     @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center text-body-secondary py-5">
-                                                Belum ada riwayat peminjaman.
+                                        <tr class="baris-kosong">
+                                            <td colspan="6" class="text-center kosong">
+                                                <i class="bi bi-inbox"></i>
+                                                <div class="fw-bold mb-1">Belum ada riwayat peminjaman</div>
+                                                <div class="small">Transaksi akan muncul di sini setelah ada peminjaman.</div>
                                             </td>
                                         </tr>
                                     @endforelse
@@ -462,13 +429,14 @@
                         </div>
                     </section>
 
-                    <p class="text-body-secondary small mt-3 mb-0 no-print">Total {{ $riwayat->count() }} transaksi.</p>
-
                 </div>
             </main>
 
-            <footer class="text-center py-4 mt-auto">
-                <small>&copy; 2026 Inventaris Barang. Semua hak dilindungi.</small>
+            <footer class="py-3 mt-auto px-3 px-md-5">
+                <div class="isi mx-auto d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start" style="max-width: 1120px;">
+                    <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
+                    <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a></span>
+                </div>
             </footer>
 
         </div>

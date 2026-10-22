@@ -3,63 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cetak Barcode {{ $barang->kode_barcode }}</title>
+    <title>Data Laporan</title>
     <style>
-          @page { size: 60mm 35mm; margin: 0; }
- 
-        * { box-sizing: border-box; }
- 
+        @page { size: 60mm 35mm; margin: 0; }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #eee;
+            background: #e8eef9;
         }
- 
+
         .toolbar {
             padding: 12px;
             text-align: center;
         }
- 
+
         .toolbar button, .toolbar a {
             padding: 8px 16px;
             margin: 0 4px;
-            border: 1px solid #198754;
-            background: #198754;
-            color: #fff;
+            border: 1px solid #0b2447;
+            background: #0b2447;
+            color: #f1b53d;
             border-radius: 6px;
             font-size: 14px;
+            font-weight: bold;
             text-decoration: none;
             cursor: pointer;
         }
- 
-        .toolbar a { background: #fff; color: #198754; }
- 
+
+        .toolbar a { background: #fff; color: #0b2447; }
+
         .stiker {
             width: 60mm;
             height: 35mm;
             margin: 10px auto;
-            padding: 2mm;
+            padding: 0;
             background: #fff;
-            border: 1px dashed #999;
+            border: 0.4mm solid #0b2447;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Judul laporan */
+        .stiker .judul {
+            width: 100%;
+            padding: 1.2mm 0;
+            background: #0b2447;
+            color: #f1b53d;
+            font-size: 7pt;
+            font-weight: bold;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+        }
+
+        .stiker .isi {
+            flex: 1;
+            width: 100%;
+            padding: 1mm 2mm;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            gap: .6mm;
         }
- 
+
         .stiker .nama {
             font-size: 9pt;
             font-weight: bold;
+            color: #0b2447;
             max-width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
- 
-        .stiker svg { width: 54mm; height: 20mm; }
- 
+
+        .stiker svg { width: 54mm; height: 18mm; }
+
+        /* Garis aksen emas di bawah */
+        .stiker .aksen {
+            width: 100%;
+            height: 1.5mm;
+            background: #f1b53d;
+        }
+
         @media print {
             body { background: #fff; }
             .toolbar { display: none; }
@@ -74,8 +109,14 @@
     </div>
 
     <div class="stiker">
-        <div class="nama">{{ $barang->nama_barang }}</div>
-        <svg id="barcode"></svg>
+        <div class="judul">Data Laporan</div>
+
+        <div class="isi">
+            <div class="nama">{{ $barang->nama_barang }}</div>
+            <svg id="barcode"></svg>
+        </div>
+
+        <div class="aksen"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -87,6 +128,7 @@
             displayValue: true,
             fontSize: 14,
             margin: 0,
+            lineColor: '#0b2447',
         });
 
         window.addEventListener('load', () => setTimeout(() => window.print(), 300));
