@@ -24,6 +24,11 @@ class Activity_log extends Model
         'ip_address'
     ];
 
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'id_admin', 'id_admin');
+    }
+
     public static function catat_aktivitas_admin(string $aksi, string $tabel, ?int $idData, string $deskripsi, string $aktor = 'admin'): void
     {
         static::create([
