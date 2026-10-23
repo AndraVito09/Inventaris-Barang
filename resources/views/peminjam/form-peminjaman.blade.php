@@ -224,7 +224,7 @@
                         <label for="kode_barcode" class="form-label">Kode barang (scan barcode)</label>
                         <input type="text" id="kode_barcode" name="kode_barcode" value="{{ old('kode_barcode') }}"
                                class="form-control form-control-lg kode-struk @error('kode_barcode') is-invalid @enderror"
-                               placeholder="Arahkan scanner ke barcode barang" autocomplete="off" required>
+                               placeholder="Scan barcode atau ketik kode barang" autocomplete="off" required>
                         @error('kode_barcode') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         <div id="hasil-barang" class="small mt-2" aria-live="polite"></div>
                     </div>
@@ -270,7 +270,7 @@
                         </div>
                     </div>
 
-                    <div data-tipe="Orang Tua/Lainnya" class="d-none">
+                    <div data-tipe="Lainnya" class="d-none">
                         <div class="mb-3">
                             <label for="no_hp" class="form-label">Nomor HP</label>
                             <input type="tel" id="no_hp" name="no_hp" value="{{ old('no_hp') }}" autocomplete="tel" class="form-control @error('no_hp') is-invalid @enderror" maxlength="20" required>
@@ -322,7 +322,6 @@
     <footer class="py-3">
         <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
             <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
-            <span><a href="{{ route('peminjaman.index') }}">Peminjaman</a> &nbsp;|&nbsp; <a href="{{ route('login') }}">Login admin</a></span>
         </div>
     </footer>
 
@@ -353,6 +352,8 @@
         const modalKonfirmasi = new bootstrap.Modal(document.getElementById('modalKonfirmasi'));
 
         let namaBarang = '';
+        let timerCek   = null;  // timer debounce pengecekan barang
+        let idCek      = 0;     // penanda request terbaru, supaya respons lama diabaikan
 
         // Tampilkan kolom sesuai tipe peminjam
         function aturTipe() {
@@ -368,32 +369,38 @@
             if (tipe) inputKode.focus();
         }
 
-        // Cek barang hasil scan: harus ada dan berstatus Tersedia
+        // Cek barang hasil scan/ketik: harus ada dan berstatus Tersedia
         async function cekBarang() {
             const kode = inputKode.value.trim();
+            const id = ++idCek;              // tandai request ini sebagai yang terbaru
             tombolSimpan.disabled = true;
             namaBarang = '';
-            if (!kode) { hasilBarang.textContent = ''; return; }
+
+            if (!kode) { hasilBarang.className = 'small mt-2'; hasilBarang.textContent = ''; return; }
+
+            hasilBarang.className = 'small mt-2 text-secondary';
+            hasilBarang.textContent = 'Memeriksa barang...';
 
             try {
                 const respon = await fetch(`{{ url('/peminjam/barang') }}/${encodeURIComponent(kode)}`, {
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await respon.json();
+                if (id !== idCek) return;    // sudah ada request lebih baru, abaikan hasil ini
 
                 if (data.ok) {
                     namaBarang = data.nama;
                     hasilBarang.className = 'small mt-2 text-success';
                     hasilBarang.textContent = `${data.nama} tersedia.`;
                     tombolSimpan.disabled = false;
-                    document.getElementById('nama_peminjam').focus();
                 } else {
                     hasilBarang.className = 'small mt-2 text-danger';
                     hasilBarang.textContent = data.pesan;
                 }
             } catch (e) {
+                if (id !== idCek) return;
                 hasilBarang.className = 'small mt-2 text-danger';
-                hasilBarang.textContent = 'Gagal memeriksa barang. Periksa koneksi lalu scan ulang.';
+                hasilBarang.textContent = 'Gagal memeriksa barang. Periksa koneksi lalu coba lagi.';
             }
         }
 
@@ -439,10 +446,18 @@
             formPinjam.submit();
         });
 
-        // Scanner mengirim Enter setelah kode: jangan kirim form, cukup cek barang
-        inputKode.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); cekBarang(); } });
-        inputKode.addEventListener('input', () => { tombolSimpan.disabled = true; hasilBarang.textContent = ''; });
-        inputKode.addEventListener('change', cekBarang);
+        // Cek otomatis 400ms setelah berhenti mengetik (tanpa harus pindah kolom)
+        inputKode.addEventListener('input', () => {
+            tombolSimpan.disabled = true;
+            clearTimeout(timerCek);
+            timerCek = setTimeout(cekBarang, 400);
+        });
+
+        // Scanner mengirim Enter setelah kode: jangan kirim form, langsung cek barang
+        inputKode.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); clearTimeout(timerCek); cekBarang(); }
+        });
+
         pilihTipe.addEventListener('change', aturTipe);
 
         // Jika pengguna menekan tombol Back, kembalikan tombol konfirmasi ke keadaan awal

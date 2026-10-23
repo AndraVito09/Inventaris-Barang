@@ -14,8 +14,9 @@ use Illuminate\Validation\ValidationException;
 
 class PeminjamanController extends Controller
 {
-    // Pilihan pada dropdown form peminjaman
-    private const TIPE_PEMINJAM = ['Siswa', 'Guru', 'Staff', 'Orang Tua/Lainnya'];
+    // Pilihan pada dropdown form peminjaman.
+    // Harus sama persis dengan isi ENUM kolom peminjam.tipe_peminjam di database.
+    private const TIPE_PEMINJAM = ['Siswa', 'Guru', 'Staff', 'Lainnya'];
 
     // Lama peminjaman tetap: 24 jam. Lewat dari ini dianggap terlambat.
     private const LAMA_PINJAM_JAM = 24;
@@ -68,10 +69,11 @@ class PeminjamanController extends Controller
             'kelas'         => [Rule::requiredIf($tipe === 'Siswa'), 'nullable', 'string', 'max:30'],
             'nip'           => ['nullable', 'string', 'max:30'],
             'bagian'        => [Rule::requiredIf($tipe === 'Staff'), 'nullable', 'string', 'max:100'],
-            'no_hp'         => [Rule::requiredIf($tipe === 'Orang Tua/Lainnya'), 'nullable', 'string', 'max:20'],
-            'keperluan'     => [Rule::requiredIf($tipe === 'Orang Tua/Lainnya'), 'nullable', 'string', 'max:150'],
+            'no_hp'         => [Rule::requiredIf($tipe === 'Lainnya'), 'nullable', 'string', 'max:20'],
+            'keperluan'     => [Rule::requiredIf($tipe === 'Lainnya'), 'nullable', 'string', 'max:150'],
         ], [
             'tipe_peminjam.required' => 'Pilih tipe peminjam.',
+            'tipe_peminjam.in'       => 'Tipe peminjam tidak valid.',
             'kode_barcode.required'  => 'Scan barcode barang terlebih dahulu.',
             'nama_peminjam.required' => 'Nama peminjam wajib diisi.',
             'nis.required'           => 'NIS wajib diisi.',
@@ -88,7 +90,7 @@ class PeminjamanController extends Controller
             'Staff' => $request->bagian,
             default => $request->keperluan,
         };
-        $noHp = $tipe === 'Orang Tua/Lainnya' ? $request->no_hp : null;
+        $noHp = $tipe === 'Lainnya' ? $request->no_hp : null;
 
         $peminjaman = DB::transaction(function () use ($request, $tipe, $keterangan, $noHp) {
             // Kunci baris barang supaya tidak bisa dipinjam dua orang sekaligus
@@ -125,7 +127,7 @@ class PeminjamanController extends Controller
                 'pinjam',
                 'peminjaman',
                 $peminjaman->id_peminjaman,
-                "Pinjam {$barang->kode_barcode} ({$barang->nama_barang}) oleh {$peminjam->nama_peminjam} [{$tipe}], jatuh tempo {$peminjaman->tgl_jatuh_tempo->format('d-m-Y H:I')}"
+                "Pinjam {$barang->kode_barcode} ({$barang->nama_barang}) oleh {$peminjam->nama_peminjam} [{$tipe}], jatuh tempo {$peminjaman->tgl_jatuh_tempo->format('d-m-Y H:i')}"
             );
 
             return $peminjaman;
@@ -166,6 +168,5 @@ class PeminjamanController extends Controller
             'barang'   => $barang,
             'kategori' => Kategori::orderBy('nama_kategori')->get(),
         ]);
-            
     }
 }
