@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Auth_log;
 
 class AuthController extends Controller
 {
@@ -25,8 +26,12 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
+            Auth_log::catat_login_berhasil(Auth::user());
+
             return redirect()->intended(route('dashboard'));
         }
+
+        Auth_log::catat_login_gagal($credentials['username']);
 
         return back()
             ->with('login_error', 'Username atau password salah!')
@@ -35,6 +40,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        if ($admin = Auth::user()) {
+            Auth_log::catat_logout($admin);
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();
