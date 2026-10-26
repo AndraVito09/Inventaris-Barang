@@ -133,6 +133,8 @@
         .b-emas { color: var(--emas-teks); background: color-mix(in srgb, var(--emas-teks) 12%, transparent); border-color: color-mix(in srgb, var(--emas-teks) 40%, transparent); }
         .b-merah { color: var(--telat); background: color-mix(in srgb, var(--telat) 12%, transparent); border-color: color-mix(in srgb, var(--telat) 40%, transparent); }
 
+        .col-aksi { white-space: nowrap; }
+
         .kosong { padding: 48px 20px !important; color: var(--bs-secondary-color); }
         .kosong i { display: block; font-size: 2.5rem; margin-bottom: 12px; opacity: .65; }
         .alert { border-radius: 12px; }
@@ -163,7 +165,7 @@
             .tabel-data tbody tr:not(.baris-kosong) {
                 display: grid;
                 grid-template-columns: 1fr auto;
-                grid-template-areas: "peminjam status" "barang barang" "pinjam pinjam" "kembali kembali";
+                grid-template-areas: "peminjam status" "barang barang" "pinjam pinjam" "kembali kembali" "aksi aksi";
                 column-gap: 12px; row-gap: 4px;
                 padding: 16px;
                 border-bottom: 1px solid var(--bs-border-color);
@@ -178,6 +180,8 @@
             .col-pinjam { grid-area: pinjam; font-size: .9rem; margin-top: 8px; }
             .col-kembali { grid-area: kembali; font-size: .9rem; }
             .col-pinjam::before, .col-kembali::before { content: attr(data-label) ": "; color: var(--bs-secondary-color); }
+            .col-aksi { grid-area: aksi; margin-top: 12px; }
+            .col-aksi .btn { width: 100%; min-height: 44px; }
 
             .tabel-data tbody tr.baris-kosong { display: table-row; }
             .tabel-data tbody tr.baris-kosong td { display: table-cell; }
@@ -203,6 +207,25 @@
             .btn-emas:hover { transform: none; }
         }
 
+        /* ====== Struk peminjaman ====== */
+        .struk {
+            background: #fff; color: #111;
+            max-width: 340px; margin: 0 auto; padding: 20px 18px;
+            font-family: 'Courier New', ui-monospace, monospace; font-size: .9rem;
+            border-radius: 6px;
+        }
+        .struk-judul { text-align: center; font-weight: 700; font-size: 1.05rem; letter-spacing: .04em; }
+        .struk-sub   { text-align: center; font-size: .8rem; color: #555; }
+        .struk hr    { border: 0; border-top: 1px dashed #777; opacity: 1; margin: 12px 0; }
+        .struk-baris { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+        .struk-baris span:first-child { color: #555; flex-shrink: 0; }
+        .struk-baris span:last-child  { text-align: right; font-weight: 700; overflow-wrap: anywhere; }
+        .struk-status { text-align: center; font-weight: 700; border: 1px dashed #111; padding: 6px; margin-top: 4px; }
+        .struk-foot   { text-align: center; font-size: .75rem; color: #555; margin-top: 12px; }
+        .struk-qr     { display: flex; justify-content: center; padding: 4px 0; }
+        .struk-qr canvas, .struk-qr img { max-width: 100%; height: auto !important; }
+        .struk-kode   { text-align: center; font-weight: 700; letter-spacing: .08em; overflow-wrap: anywhere; margin-top: 6px; }
+
         /* ====== Cetak / simpan PDF ====== */
         @page { size: A4 portrait; margin: 12mm; }
 
@@ -217,6 +240,7 @@
 
             body { background: #fff !important; color: #000 !important; }
             .sidebar, .topbar, footer, .no-print, .alert { display: none !important; }
+            .col-aksi { display: none !important; }
             .layout, .content { display: block !important; min-height: 0; }
             main { padding: 0 !important; }
             .isi { max-width: none !important; }
@@ -236,6 +260,23 @@
 
             thead { display: table-header-group; }
             tr { break-inside: avoid; }
+
+            /* Mode cetak struk: sembunyikan halaman, tampilkan hanya struk */
+            body.cetak-struk .layout,
+            body.cetak-struk .modal-backdrop { display: none !important; }
+            body.cetak-struk .modal {
+                position: static !important; display: block !important;
+                overflow: visible !important; opacity: 1 !important;
+            }
+            body.cetak-struk .modal-dialog {
+                margin: 0 auto !important; max-width: 340px;
+                transform: none !important; height: auto !important;
+            }
+            body.cetak-struk .modal-content {
+                border: 0 !important; background: #fff !important;
+                max-height: none !important; overflow: visible !important;
+            }
+            body.cetak-struk .modal-body { padding: 0 !important; overflow: visible !important; }
         }
     </style>
 </head>
@@ -388,6 +429,7 @@
                                         <th>Tanggal Pinjam</th>
                                         <th>Tanggal Kembali</th>
                                         <th>Status</th>
+                                        <th class="col-aksi">Aksi</th>
                                     </tr>
                                 </thead>
 
@@ -414,10 +456,23 @@
                                             <td class="col-status">
                                                 <span class="badge rounded-pill badge-status {{ $kelas }}">{{ $status }}</span>
                                             </td>
+                                            <td class="col-aksi">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                        data-bs-toggle="modal" data-bs-target="#modalStruk"
+                                                        data-kode="{{ $item->kode_transaksi ?? str_pad($item->id, 5, '0', STR_PAD_LEFT) }}"
+                                                        data-peminjam="{{ $item->peminjam->nama_peminjam ?? '-' }}"
+                                                        data-barang="{{ $item->barang->nama_barang ?? '-' }}"
+                                                        data-pinjam="{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}"
+                                                        data-tempo="{{ $item->tgl_jatuh_tempo?->format('d/m/Y H:i') ?? '-' }}"
+                                                        data-kembali="{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? 'Belum dikembalikan' }}"
+                                                        data-status="{{ $status }}">
+                                                    <i class="bi bi-receipt me-1"></i> Lihat selengkapnya
+                                                </button>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr class="baris-kosong">
-                                            <td colspan="6" class="text-center kosong">
+                                            <td colspan="7" class="text-center kosong">
                                                 <i class="bi bi-inbox"></i>
                                                 <div class="fw-bold mb-1">Belum ada riwayat peminjaman</div>
                                                 <div class="small">Transaksi akan muncul di sini setelah ada peminjaman.</div>
@@ -442,7 +497,47 @@
         </div>
     </div>
 
+    <!-- Modal struk peminjaman -->
+    <div class="modal fade" id="modalStruk" tabindex="-1" aria-labelledby="judulStruk" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header no-print">
+                    <h2 class="modal-title h5" id="judulStruk">Struk Peminjaman</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="struk">
+                        <div class="struk-judul">INVENTARIS BARANG</div>
+                        <div class="struk-sub">SMKN 4 Padalarang | Lab PPLG PK</div>
+                        <hr>
+                        <div class="struk-qr"><div id="sQr"></div></div>
+                        <div class="struk-kode" id="sKode">-</div>
+                        <hr>
+                        <div class="struk-baris"><span>Peminjam</span><span id="sPeminjam">-</span></div>
+                        <div class="struk-baris"><span>Barang</span><span id="sBarang">-</span></div>
+                        <hr>
+                        <div class="struk-baris"><span>Dipinjam</span><span id="sPinjam">-</span></div>
+                        <div class="struk-baris"><span>Jatuh tempo</span><span id="sTempo">-</span></div>
+                        <div class="struk-baris"><span>Dikembalikan</span><span id="sKembali">-</span></div>
+                        <hr>
+                        <div class="struk-status" id="sStatus">-</div>
+                        <div class="struk-foot">Simpan struk ini sebagai bukti peminjaman.</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer no-print">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-emas" id="btnCetakStruk">
+                        <i class="bi bi-printer me-1"></i> Cetak Struk
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         // Ganti tema terang/gelap (pilihan tersimpan di browser)
         (function () {
@@ -460,26 +555,56 @@
             });
         })();
 
+        // Struk peminjaman: isi modal dari data-* tombol, lalu cetak
         (function () {
-        let sedangKonfirmasi = false;
+            const modal = document.getElementById('modalStruk');
 
-        window.addEventListener('afterprint', () => {
-            if (sedangKonfirmasi) return;
-            sedangKonfirmasi = true;
+            modal.addEventListener('show.bs.modal', (e) => {
+                const d = e.relatedTarget.dataset;
+                document.getElementById('sKode').textContent     = d.kode;
+                const qr = document.getElementById('sQr');
+                qr.innerHTML = '';
+                new QRCode(qr, { text: d.kode, width: 150, height: 150 });
+                document.getElementById('sPeminjam').textContent = d.peminjam;
+                document.getElementById('sBarang').textContent   = d.barang;
+                document.getElementById('sPinjam').textContent   = d.pinjam;
+                document.getElementById('sTempo').textContent    = d.tempo;
+                document.getElementById('sKembali').textContent  = d.kembali;
+                document.getElementById('sStatus').textContent   = 'STATUS: ' + d.status.toUpperCase();
+            });
 
-            if (confirm('Apakah laporan sudah berhasil dicetak / disimpan sebagai PDF?')) {
-                fetch(@json(route('admin.riwayat.cetak.catat')), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                    keepalive: true,
-                });
-            }
+            document.getElementById('btnCetakStruk').addEventListener('click', () => {
+                document.body.classList.add('cetak-struk');
+                window.print();
+            });
+        })();
 
-            sedangKonfirmasi = false;
-        });
-    })();
+        // Konfirmasi setelah cetak laporan (struk tidak dihitung sebagai cetak laporan)
+        (function () {
+            let sedangKonfirmasi = false;
+
+            window.addEventListener('afterprint', () => {
+                if (document.body.classList.contains('cetak-struk')) {
+                    document.body.classList.remove('cetak-struk');
+                    return;
+                }
+
+                if (sedangKonfirmasi) return;
+                sedangKonfirmasi = true;
+
+                if (confirm('Apakah laporan sudah berhasil dicetak / disimpan sebagai PDF?')) {
+                    fetch(@json(route('admin.riwayat.cetak.catat')), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                        keepalive: true,
+                    });
+                }
+
+                sedangKonfirmasi = false;
+            });
+        })();
     </script>
 </body>
 </html>

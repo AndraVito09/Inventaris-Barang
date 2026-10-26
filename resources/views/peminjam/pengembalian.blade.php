@@ -347,8 +347,8 @@
         </div>
     </main>
 
-    <!-- Modal alert terlambat -->
-    <div class="modal fade modal-terlambat" id="modalTerlambat" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="judulTerlambat" aria-hidden="true">
+    <!-- Modal alert terlambat (tanpa kelas "fade" agar langsung muncul) -->
+    <div class="modal modal-terlambat" id="modalTerlambat" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="judulTerlambat" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center p-4">
                 <div class="mb-3"><span class="ikon-alert" aria-hidden="true">!</span></div>
@@ -420,30 +420,36 @@
 
         /* ---------- Suara alarm (file audio) ---------- */
         const suara = $('suaraTerlambat');
-        let timerSuara = null;
+        suara.loop = true;          // berulang terus
+        let sirineAktif = false;
 
-        // Browser memblokir suara sebelum ada klik pengguna.
-        // Audio "dibuka kuncinya" dengan memutarnya dalam keadaan bisu saat interaksi pertama.
+        // Browser memblokir suara sebelum ada interaksi pengguna.
+        // Audio "dibuka kuncinya" dengan memutarnya bisu saat interaksi pertama.
         function siapkanAudio() {
-            if (suara.dataset.siap) return;
+            if (suara.dataset.siap || sirineAktif) return;
             suara.muted = true;
             suara.play().then(() => {
+                suara.dataset.siap = '1';
+                if (sirineAktif) {      // sirene sudah mulai duluan, jangan dihentikan
+                    suara.muted = false;
+                    return;
+                }
                 suara.pause();
                 suara.currentTime = 0;
                 suara.muted = false;
-                suara.dataset.siap = '1';
             }).catch(() => { suara.muted = false; });
         }
 
         function mulaiSirene() {
-            hentikanSirene();
+            sirineAktif = true;
+            suara.muted = false;
             suara.currentTime = 0;
             suara.play().catch(() => {});
-            timerSuara = setTimeout(hentikanSirene, 6000); // berhenti otomatis setelah 6 detik
+            // tanpa timer: berbunyi terus sampai "Saya mengerti" / "Matikan suara" diklik
         }
 
         function hentikanSirene() {
-            clearTimeout(timerSuara);
+            sirineAktif = false;
             suara.pause();
             suara.currentTime = 0;
         }
