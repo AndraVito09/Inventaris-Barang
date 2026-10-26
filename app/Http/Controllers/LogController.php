@@ -70,7 +70,7 @@ class LogController extends Controller
             'opsiAksi'   => self::OPSI_AKSI,
             'opsiAktor'  => self::OPSI_AKTOR,
             'opsiHasil'  => self::OPSI_HASIL,
-        ])->withErrors($validator);
+        ])->with('error', $validator->errors());
     }
 
     private function queryAktivitas(array $filter)

@@ -9,6 +9,7 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\RiwayatController;
+use App\Http\Controllers\LogController;
 
 Route::get('/', [MenuController::class, 'index'])->name('menu');
 
@@ -63,5 +64,9 @@ Route::middleware('auth')->group(function () {
     // Cetak Riwayat Peminjaman ke PDF
     Route::post('/admin/riwayat/cetak/catat', [RiwayatController::class, 'catatCetakPDF'])
         ->name('admin.riwayat.cetak.catat')
+        ->middleware('throttle:30,1');
+
+    Route::get('/admin/log', [LogController::class, 'index'])
+        ->name('admin.log')
         ->middleware('throttle:30,1');
 });

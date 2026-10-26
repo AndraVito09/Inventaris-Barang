@@ -298,6 +298,9 @@
                         <a class="side-link" href="{{ route('admin.riwayat') }}">
                             <i class="bi bi-clock-history"></i> Riwayat
                         </a>
+                        <a class="side-link" href="{{ route('admin.log') }}" aria-current="page">
+                            <i class="bi bi-journal-text"></i> Log
+                        </a>
                     </nav>
 
                     <div class="user-box">
