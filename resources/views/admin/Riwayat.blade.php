@@ -508,6 +508,7 @@
                                             <th>Tanggal Pinjam</th>
                                             <th>Tanggal Kembali</th>
                                             <th>Status</th>
+                                            <th class="col-aksi">Aksi</th>
                                         </tr>
                                     </thead>
 
@@ -523,10 +524,23 @@
                                                 <td class="col-status">
                                                     <span class="badge rounded-pill badge-status {{ $kelas }}">{{ $statusItem }}</span>
                                                 </td>
+                                                <td class="col-aksi">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#modalStruk"
+                                                            data-kode="{{ $item->kode_transaksi }}"
+                                                            data-peminjam="{{ $item->peminjam->nama_peminjam ?? '-' }}"
+                                                            data-barang="{{ $item->barang->nama_barang ?? '-' }}"
+                                                            data-pinjam="{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}"
+                                                            data-tempo="{{ $item->tgl_jatuh_tempo?->format('d/m/Y H:i') ?? '-' }}"
+                                                            data-kembali="{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? 'Belum dikembalikan' }}"
+                                                            data-status="{{ $statusItem }}">
+                                                        <i class="bi bi-receipt me-1"></i> Lihat selengkapnya
+                                                    </button>
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr class="baris-kosong">
-                                                <td colspan="6" class="text-center kosong">
+                                                <td colspan="7" class="text-center kosong">
                                                     <i class="bi bi-inbox"></i>
                                                     @if ($adaFilter)
                                                         <div class="fw-bold mb-1">Tidak ada transaksi yang cocok</div>
@@ -568,7 +582,6 @@
                                         <th>Tanggal Pinjam</th>
                                         <th>Tanggal Kembali</th>
                                         <th>Status</th>
-                                        <th class="col-aksi">Aksi</th>
                                     </tr>
                                 </thead>
 
@@ -576,37 +589,14 @@
                                     @foreach ($semua as $item)
                                         @php [$statusItem, $kelas] = $statusTransaksi($item); @endphp
                                         <tr>
-                                            <td class="col-no"><span class="nomor">{{ $loop->iteration }}</span></td>
-                                            <td class="col-peminjam fw-semibold">{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
-                                            <td class="col-barang">{{ $item->barang->nama_barang ?? '-' }}</td>
-                                            <td class="col-pinjam" data-label="Dipinjam">{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td class="col-kembali" data-label="Dikembalikan">{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td class="col-status">
-                                                <span class="badge rounded-pill badge-status {{ $kelas }}">{{ $status }}</span>
-                                            </td>
-                                            <td class="col-aksi">
-                                                <button type="button" class="btn btn-outline-secondary btn-sm"
-                                                        data-bs-toggle="modal" data-bs-target="#modalStruk"
-                                                        data-kode="{{ $item->kode_transaksi ?? str_pad($item->id, 5, '0', STR_PAD_LEFT) }}"
-                                                        data-peminjam="{{ $item->peminjam->nama_peminjam ?? '-' }}"
-                                                        data-barang="{{ $item->barang->nama_barang ?? '-' }}"
-                                                        data-pinjam="{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}"
-                                                        data-tempo="{{ $item->tgl_jatuh_tempo?->format('d/m/Y H:i') ?? '-' }}"
-                                                        data-kembali="{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? 'Belum dikembalikan' }}"
-                                                        data-status="{{ $status }}">
-                                                    <i class="bi bi-receipt me-1"></i> Lihat selengkapnya
-                                                </button>
-                                            </td>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
+                                            <td>{{ $item->barang->nama_barang ?? '-' }}</td>
+                                            <td>{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
+                                            <td>{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
+                                            <td><span class="badge rounded-pill badge-status {{ $kelas }}">{{ $statusItem }}</span></td>
                                         </tr>
-                                    @empty
-                                        <tr class="baris-kosong">
-                                            <td colspan="7" class="text-center kosong">
-                                                <i class="bi bi-inbox"></i>
-                                                <div class="fw-bold mb-1">Belum ada riwayat peminjaman</div>
-                                                <div class="small">Transaksi akan muncul di sini setelah ada peminjaman.</div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -720,7 +710,7 @@
                 sedangKonfirmasi = true;
 
                 if (confirm('Apakah laporan sudah berhasil dicetak / disimpan sebagai PDF?')) {
-                    fetch(@json(route('admin.riwayat.cetak.catat')), {
+                    fetch(@json(route('admin.riwayat.cetak.catat')) + window.location.search, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
