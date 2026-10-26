@@ -138,6 +138,20 @@
         .alert { border-radius: 12px; }
         .print-only { display: none; }
 
+        .papan-isi { padding: 24px; }
+
+        /* Cari & filter (sama seperti halaman Barang) */
+        .input-cari, .form-control, .form-select { min-height: 44px; background-color: var(--kartu); border-color: var(--bs-border-color); color: var(--bs-body-color); border-radius: 10px; }
+        .input-cari:focus, .form-control:focus, .form-select:focus { background-color: var(--kartu); color: var(--bs-body-color); border-color: var(--biru); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--biru) 20%, transparent); }
+        .input-group > .input-group-text.input-cari { border-radius: 10px 0 0 10px; color: var(--bs-secondary-color); }
+        .input-group > .form-control.input-cari { border-radius: 0 10px 10px 0; }
+
+        /* Pagination */
+        .pagination { gap: 5px; margin-bottom: 0; flex-wrap: wrap; }
+        .page-link { min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; color: var(--bs-body-color); background: var(--kartu); border-color: var(--bs-border-color); border-radius: 8px !important; }
+        .page-item.active .page-link { color: #1a1405; background: var(--emas); border-color: var(--emas); }
+        .page-item.disabled .page-link { color: var(--bs-secondary-color); background: var(--hover); }
+
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
@@ -145,17 +159,22 @@
         /* ====== Responsif ====== */
         @media (max-width: 991.98px) {
             .sidebar-inner { min-height: 100vh; }
-            .papan-kepala { padding: 20px; }
+            .papan-kepala, .papan-isi { padding: 20px; }
         }
 
         /* HP: tabel jadi daftar kartu */
         @media screen and (max-width: 767.98px) {
             .papan { border-radius: 14px; }
-            .papan-kepala { padding: 16px; }
+            .papan-kepala, .papan-isi { padding: 16px; }
             .topbar { padding-left: max(1rem, env(safe-area-inset-left)) !important; padding-right: max(1rem, env(safe-area-inset-right)) !important; }
 
             .aksi-halaman { width: 100%; }
             .aksi-halaman .btn { flex: 1 1 0; }
+
+            .cari-tombol { display: flex; gap: 8px; width: 100%; }
+            .cari-tombol .btn { flex: 1 1 0; }
+            .info-halaman { width: 100%; text-align: center; }
+            .nav-halaman { width: 100%; display: flex; justify-content: center; }
 
             .tabel-data thead { display: none; }
             .tabel-data, .tabel-data tbody { display: block; width: 100%; }
@@ -187,7 +206,7 @@
             .logo { width: 44px; height: 44px; }
             .brand-teks { font-size: 1.1rem; }
             .papan { border-radius: 12px; }
-            .papan-kepala { padding: 14px; }
+            .papan-kepala, .papan-isi { padding: 14px; }
             .ikon-kotak { width: 38px; height: 38px; font-size: 1.05rem; }
             footer { font-size: .8rem; }
         }
@@ -245,6 +264,19 @@
         $user       = auth()->user();
         $namaUser   = $user->name ?? ($user->username ?? 'Admin');
         $linkBarang = Route::has('barang.index') ? route('barang.index') : route('kategori.index');
+
+        $adaFilter = $cari !== '' || $status !== '';
+
+        // Status transaksi + warna badge
+        $statusTransaksi = function ($item) {
+            if ($item->tgl_kembali) {
+                return ['Selesai', 'b-hijau'];
+            }
+            if ($item->tgl_jatuh_tempo && $item->tgl_jatuh_tempo->isPast()) {
+                return ['Terlambat', 'b-merah'];
+            }
+            return ['Dipinjam', 'b-emas'];
+        };
     @endphp
 
     <div class="layout">
@@ -280,7 +312,7 @@
                         <a class="side-link active" href="{{ route('admin.riwayat') }}" aria-current="page">
                             <i class="bi bi-clock-history"></i> Riwayat
                         </a>
-                        <a class="side-link" href="{{ route('admin.log') }}" aria-current="page">
+                        <a class="side-link" href="{{ route('admin.log') }}">
                             <i class="bi bi-journal-text"></i> Log
                         </a>
                     </nav>
@@ -358,7 +390,12 @@
                         </div>
                     </section>
 
-                    <p class="print-only">Dicetak pada {{ now()->format('d/m/Y H:i') }}</p>
+                    <p class="print-only">
+                        Dicetak pada {{ now()->format('d/m/Y H:i') }}
+                        @if ($cari !== '') | Pencarian: "{{ $cari }}" @endif
+                        @if ($status !== '') | Status: {{ $opsiStatus[$status] }} @endif
+                        | {{ $semua->count() }} transaksi
+                    </p>
 
                     @if (session('error'))
                         <div class="alert alert-danger">{{ session('error') }}</div>
@@ -376,13 +413,112 @@
                                 </div>
 
                                 <span class="badge rounded-pill px-3 py-2 badge-jumlah">
-                                    {{ $riwayat->count() }} transaksi
+                                    {{ $riwayat->total() }} transaksi
                                 </span>
                             </div>
                         </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-hover tabel-data">
+                        <div class="papan-isi no-print">
+
+                            {{-- Cari & filter status --}}
+                            <form method="GET" action="{{ route('admin.riwayat') }}" class="row g-2 align-items-center mb-4">
+                                <div class="col-12 col-md-5 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text input-cari"><i class="bi bi-search"></i></span>
+                                        <input type="text" name="q" value="{{ $cari }}" class="form-control input-cari"
+                                               placeholder="Cari peminjam, barang, atau kode..." maxlength="100"
+                                               aria-label="Cari riwayat">
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-4 col-lg-3">
+                                    <select name="status" class="form-select" aria-label="Filter status">
+                                        <option value="">Semua status</option>
+                                        @foreach ($opsiStatus as $nilai => $label)
+                                            <option value="{{ $nilai }}" @selected($status === $nilai)>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-auto">
+                                    <div class="cari-tombol d-md-flex gap-2">
+                                        <button type="submit" class="btn btn-emas">
+                                            <i class="bi bi-search me-1"></i> Cari
+                                        </button>
+
+                                        @if ($adaFilter)
+                                            <a href="{{ route('admin.riwayat') }}"
+                                               class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center">
+                                                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </form>
+
+                            {{-- Tabel di layar (per halaman) --}}
+                            <div class="table-responsive">
+                                <table class="table table-hover tabel-data">
+                                    <thead>
+                                        <tr>
+                                            <th>No.</th>
+                                            <th>Peminjam</th>
+                                            <th>Barang</th>
+                                            <th>Tanggal Pinjam</th>
+                                            <th>Tanggal Kembali</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @forelse ($riwayat as $item)
+                                            @php [$statusItem, $kelas] = $statusTransaksi($item); @endphp
+                                            <tr>
+                                                <td class="col-no"><span class="nomor">{{ $riwayat->firstItem() + $loop->index }}</span></td>
+                                                <td class="col-peminjam fw-semibold">{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
+                                                <td class="col-barang">{{ $item->barang->nama_barang ?? '-' }}</td>
+                                                <td class="col-pinjam" data-label="Dipinjam">{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
+                                                <td class="col-kembali" data-label="Dikembalikan">{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
+                                                <td class="col-status">
+                                                    <span class="badge rounded-pill badge-status {{ $kelas }}">{{ $statusItem }}</span>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr class="baris-kosong">
+                                                <td colspan="6" class="text-center kosong">
+                                                    <i class="bi bi-inbox"></i>
+                                                    @if ($adaFilter)
+                                                        <div class="fw-bold mb-1">Tidak ada transaksi yang cocok</div>
+                                                        <div class="small">Coba ubah kata kunci atau reset filter.</div>
+                                                    @else
+                                                        <div class="fw-bold mb-1">Belum ada riwayat peminjaman</div>
+                                                        <div class="small">Transaksi akan muncul di sini setelah ada peminjaman.</div>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if ($riwayat->hasPages())
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+                                    <small class="text-body-secondary info-halaman">
+                                        Menampilkan {{ $riwayat->firstItem() ?? 0 }}–{{ $riwayat->lastItem() ?? 0 }}
+                                        dari {{ $riwayat->total() }} transaksi
+                                    </small>
+
+                                    <div class="nav-halaman">
+                                        {{ $riwayat->links('pagination::bootstrap-5') }}
+                                    </div>
+                                </div>
+                            @endif
+
+                        </div>
+
+                        {{-- Tabel khusus cetak / PDF: semua hasil filter, bukan hanya halaman yang tampil --}}
+                        <div class="print-only">
+                            <table class="table tabel-data">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
@@ -395,38 +531,17 @@
                                 </thead>
 
                                 <tbody>
-                                    @forelse ($riwayat as $item)
-                                        @php
-                                            if ($item->tgl_kembali) {
-                                                $status = 'Selesai';
-                                                $kelas  = 'b-hijau';
-                                            } elseif ($item->tgl_jatuh_tempo && $item->tgl_jatuh_tempo->isPast()) {
-                                                $status = 'Terlambat';
-                                                $kelas  = 'b-merah';
-                                            } else {
-                                                $status = 'Dipinjam';
-                                                $kelas  = 'b-emas';
-                                            }
-                                        @endphp
+                                    @foreach ($semua as $item)
+                                        @php [$statusItem, $kelas] = $statusTransaksi($item); @endphp
                                         <tr>
-                                            <td class="col-no"><span class="nomor">{{ $loop->iteration }}</span></td>
-                                            <td class="col-peminjam fw-semibold">{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
-                                            <td class="col-barang">{{ $item->barang->nama_barang ?? '-' }}</td>
-                                            <td class="col-pinjam" data-label="Dipinjam">{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td class="col-kembali" data-label="Dikembalikan">{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td class="col-status">
-                                                <span class="badge rounded-pill badge-status {{ $kelas }}">{{ $status }}</span>
-                                            </td>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
+                                            <td>{{ $item->barang->nama_barang ?? '-' }}</td>
+                                            <td>{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
+                                            <td>{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
+                                            <td><span class="badge rounded-pill badge-status {{ $kelas }}">{{ $statusItem }}</span></td>
                                         </tr>
-                                    @empty
-                                        <tr class="baris-kosong">
-                                            <td colspan="6" class="text-center kosong">
-                                                <i class="bi bi-inbox"></i>
-                                                <div class="fw-bold mb-1">Belum ada riwayat peminjaman</div>
-                                                <div class="small">Transaksi akan muncul di sini setelah ada peminjaman.</div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -471,7 +586,7 @@
             sedangKonfirmasi = true;
 
             if (confirm('Apakah laporan sudah berhasil dicetak / disimpan sebagai PDF?')) {
-                fetch(@json(route('admin.riwayat.cetak.catat')), {
+                fetch(@json(route('admin.riwayat.cetak.catat')) + window.location.search, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
