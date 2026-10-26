@@ -298,7 +298,7 @@
                         <a class="side-link" href="{{ route('admin.riwayat') }}">
                             <i class="bi bi-clock-history"></i> Riwayat
                         </a>
-                        <a class="side-link" href="{{ route('admin.log') }}" aria-current="page">
+                        <a class="side-link" href="{{ route('admin.log') }}">
                             <i class="bi bi-journal-text"></i> Log
                         </a>
                     </nav>
@@ -312,7 +312,7 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('logout') }}" method="POST">
+                        <form action="{{ route('logout') }}" method="POST" class="form-logout">
                             @csrf
                             <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
                                 <i class="bi bi-box-arrow-right me-1"></i> Logout
@@ -633,6 +633,23 @@
         </div>
     </div>
 
+    {{-- Modal konfirmasi logout --}}
+    <div class="modal fade" id="modalLogout" tabindex="-1" aria-labelledby="judulLogout" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div class="fs-1 mb-2" style="color: var(--emas);"><i class="bi bi-box-arrow-right"></i></div>
+                    <h2 class="h5 fw-bold mb-2" id="judulLogout">Yakin akan logout?</h2>
+                    <p class="text-body-secondary small mb-4">Kamu akan keluar dari panel admin dan kembali ke menu utama.</p>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-emas flex-fill" id="btnYaLogout">Ya, logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Ganti tema terang/gelap (pilihan tersimpan di browser)
@@ -648,6 +665,24 @@
                 html.setAttribute('data-bs-theme', baru);
                 try { localStorage.setItem('tema', baru); } catch (e) {}
                 tampilkanLabel();
+            });
+        })();
+
+        // Konfirmasi sebelum logout
+        (function () {
+            const modal = new bootstrap.Modal(document.getElementById('modalLogout'));
+            let formLogout = null;
+
+            document.querySelectorAll('.form-logout').forEach(form => {
+                form.addEventListener('submit', e => {
+                    e.preventDefault();
+                    formLogout = form;
+                    modal.show();
+                });
+            });
+
+            document.getElementById('btnYaLogout').addEventListener('click', () => {
+                if (formLogout) formLogout.submit();
             });
         })();
 
