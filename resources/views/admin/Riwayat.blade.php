@@ -154,6 +154,9 @@
         .page-item.active .page-link { color: #1a1405; background: var(--emas); border-color: var(--emas); }
         .page-item.disabled .page-link { color: var(--bs-secondary-color); background: var(--hover); }
 
+        /* Modal konfirmasi logout */
+        .modal-content { color: var(--bs-body-color); background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
+
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
@@ -282,20 +285,21 @@
 
             /* Mode cetak struk: sembunyikan halaman, tampilkan hanya struk */
             body.cetak-struk .layout,
-            body.cetak-struk .modal-backdrop { display: none !important; }
-            body.cetak-struk .modal {
+            body.cetak-struk .modal-backdrop,
+            body.cetak-struk #modalLogout { display: none !important; }
+            body.cetak-struk #modalStruk {
                 position: static !important; display: block !important;
                 overflow: visible !important; opacity: 1 !important;
             }
-            body.cetak-struk .modal-dialog {
+            body.cetak-struk #modalStruk .modal-dialog {
                 margin: 0 auto !important; max-width: 340px;
                 transform: none !important; height: auto !important;
             }
-            body.cetak-struk .modal-content {
+            body.cetak-struk #modalStruk .modal-content {
                 border: 0 !important; background: #fff !important;
                 max-height: none !important; overflow: visible !important;
             }
-            body.cetak-struk .modal-body { padding: 0 !important; overflow: visible !important; }
+            body.cetak-struk #modalStruk .modal-body { padding: 0 !important; overflow: visible !important; }
         }
     </style>
 </head>
@@ -367,7 +371,7 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('logout') }}" method="POST">
+                        <form action="{{ route('logout') }}" method="POST" class="form-logout">
                             @csrf
                             <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
                                 <i class="bi bi-box-arrow-right me-1"></i> Logout
@@ -614,6 +618,23 @@
         </div>
     </div>
 
+    {{-- Modal konfirmasi logout --}}
+    <div class="modal fade" id="modalLogout" tabindex="-1" aria-labelledby="judulLogout" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div class="fs-1 mb-2" style="color: var(--emas);"><i class="bi bi-box-arrow-right"></i></div>
+                    <h2 class="h5 fw-bold mb-2" id="judulLogout">Yakin akan logout?</h2>
+                    <p class="text-body-secondary small mb-4">Kamu akan keluar dari panel admin dan kembali ke menu utama.</p>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-emas flex-fill" id="btnYaLogout">Ya, logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal struk peminjaman -->
     <div class="modal fade" id="modalStruk" tabindex="-1" aria-labelledby="judulStruk" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -669,6 +690,24 @@
                 html.setAttribute('data-bs-theme', baru);
                 try { localStorage.setItem('tema', baru); } catch (e) {}
                 tampilkanLabel();
+            });
+        })();
+
+        // Konfirmasi sebelum logout
+        (function () {
+            const modal = new bootstrap.Modal(document.getElementById('modalLogout'));
+            let formLogout = null;
+
+            document.querySelectorAll('.form-logout').forEach(form => {
+                form.addEventListener('submit', e => {
+                    e.preventDefault();
+                    formLogout = form;
+                    modal.show();
+                });
+            });
+
+            document.getElementById('btnYaLogout').addEventListener('click', () => {
+                if (formLogout) formLogout.submit();
             });
         })();
 
