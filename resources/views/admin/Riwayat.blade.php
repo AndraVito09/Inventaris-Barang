@@ -1,3 +1,156 @@
+{{-- Mode laporan (mingguan/bulanan/tahunan): dipakai oleh RiwayatController@unduh --}}
+@if (! empty($laporan))
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- Judul dipakai browser sebagai nama file default saat "Simpan sebagai PDF" --}}
+    <title>{{ $namaFile }}</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
+
+    <style>
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #111; background: #e9eef7; }
+
+        /* Bilah aksi (hanya di layar) */
+        .bar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; background: #0b2447; color: #fff; }
+        .bar .teks { font-size: 13px; }
+        .bar .teks small { display: block; opacity: .75; margin-top: 2px; }
+        .bar .tombol { display: flex; gap: 8px; }
+        .bar button { cursor: pointer; border: 0; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 700; }
+        .bar .utama { background: #f1b53d; color: #1a1405; }
+        .bar .sekunder { background: rgba(255,255,255,.15); color: #fff; }
+
+        /* Kertas */
+        .kertas { width: 297mm; max-width: 100%; margin: 18px auto; padding: 14mm; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,.15); }
+
+        .kop { border-bottom: 2px solid #0b2447; padding-bottom: 8px; margin-bottom: 12px; }
+        .kop h1 { margin: 0; font-size: 20px; color: #0b2447; letter-spacing: .02em; }
+        .kop .sub { margin-top: 3px; font-size: 12px; color: #555; }
+
+        table.info { border-collapse: collapse; margin-bottom: 10px; }
+        table.info td { padding: 2px 12px 2px 0; vertical-align: top; }
+        table.info td:first-child { color: #555; width: 110px; }
+
+        table.ringkasan { border-collapse: collapse; margin-bottom: 14px; }
+        table.ringkasan td { border: 1px solid #999; padding: 6px 18px; text-align: center; }
+        table.ringkasan .angka { font-size: 17px; font-weight: 700; }
+        table.ringkasan .label { font-size: 10px; color: #555; }
+
+        table.data { width: 100%; border-collapse: collapse; }
+        table.data th { background: #dfe7f5; border: 1px solid #888; padding: 7px 6px; text-align: left; font-size: 11px; }
+        table.data td { border: 1px solid #aaa; padding: 6px; vertical-align: top; overflow-wrap: anywhere; }
+        table.data thead { display: table-header-group; }
+        table.data tr { break-inside: avoid; page-break-inside: avoid; }
+        table.data tbody tr:nth-child(even) td { background: #f5f8fd; }
+        .c { text-align: center; }
+
+        .s-selesai   { color: #0a7a5c; font-weight: 700; }
+        .s-terlambat { color: #c0245c; font-weight: 700; }
+        .s-dipinjam  { color: #a06a00; font-weight: 700; }
+
+        .kosong { text-align: center; padding: 30px !important; color: #555; }
+        .foot { margin-top: 12px; font-size: 10px; color: #666; border-top: 1px solid #bbb; padding-top: 5px; }
+
+        @page { size: A4 landscape; margin: 10mm; }
+
+        @media print {
+            body { background: #fff; }
+            .bar { display: none !important; }
+            .kertas { width: auto; margin: 0; padding: 0; box-shadow: none; }
+        }
+
+        @media (max-width: 900px) {
+            .kertas { padding: 12px; overflow-x: auto; }
+            table.data { min-width: 760px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bar">
+        <div class="teks">
+            Pratinjau laporan
+            <small>Pada dialog cetak, pilih tujuan <strong>Simpan sebagai PDF</strong> (Save as PDF).</small>
+        </div>
+        <div class="tombol">
+            <button type="button" class="sekunder" onclick="window.close()">Tutup</button>
+            <button type="button" class="utama" onclick="window.print()">Simpan / Cetak PDF</button>
+        </div>
+    </div>
+
+    <div class="kertas">
+
+        <div class="kop">
+            <h1>LAPORAN RIWAYAT PEMINJAMAN</h1>
+            <div class="sub">Inventaris Barang &mdash; SMKN 4 Padalarang | Lab PPLG PK</div>
+        </div>
+
+        <table class="info">
+            <tr><td>Jenis laporan</td><td>: {{ $judul }}</td></tr>
+            <tr><td>Periode</td><td>: {{ $awal->format('d/m/Y') }} s.d. {{ $akhir->format('d/m/Y') }} (berdasarkan tanggal pinjam)</td></tr>
+            @if ($cari !== '')
+                <tr><td>Pencarian</td><td>: "{{ $cari }}"</td></tr>
+            @endif
+            @if ($statusLbl !== '')
+                <tr><td>Filter status</td><td>: {{ $statusLbl }}</td></tr>
+            @endif
+            <tr><td>Dicetak pada</td><td>: {{ now()->format('d/m/Y H:i') }}</td></tr>
+        </table>
+
+        <table class="ringkasan">
+            <tr>
+                <td><div class="angka">{{ $rows->count() }}</div><div class="label">Total transaksi</div></td>
+                @foreach ($ringkasan as $label => $jumlah)
+                    <td><div class="angka">{{ $jumlah }}</div><div class="label">{{ $label }}</div></td>
+                @endforeach
+            </tr>
+        </table>
+
+        <table class="data">
+            <thead>
+                <tr>
+                    <th class="c" style="width: 34px;">No.</th>
+                    <th style="width: 110px;">Kode</th>
+                    <th>Peminjam</th>
+                    <th>Barang</th>
+                    <th style="width: 105px;">Tgl Pinjam</th>
+                    <th style="width: 105px;">Jatuh Tempo</th>
+                    <th style="width: 105px;">Tgl Kembali</th>
+                    <th class="c" style="width: 70px;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($rows as $item)
+                    <tr>
+                        <td class="c">{{ $loop->iteration }}</td>
+                        <td>{{ $item->kode_transaksi }}</td>
+                        <td>{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
+                        <td>{{ $item->barang->nama_barang ?? '-' }}</td>
+                        <td>{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
+                        <td>{{ $item->tgl_jatuh_tempo?->format('d/m/Y H:i') ?? '-' }}</td>
+                        <td>{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
+                        <td class="c s-{{ strtolower($item->status_label) }}">{{ $item->status_label }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="8" class="kosong">Tidak ada transaksi pada periode ini.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        <div class="foot">&copy; 2026 smkn4padalarang | Lab PPLG PK</div>
+    </div>
+
+    <script>
+        // Buka dialog cetak otomatis setelah halaman siap
+        window.addEventListener('load', function () {
+            setTimeout(function () { window.print(); }, 500);
+        });
+    </script>
+</body>
+</html>
+@else
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
@@ -138,7 +291,6 @@
         .kosong { padding: 48px 20px !important; color: var(--bs-secondary-color); }
         .kosong i { display: block; font-size: 2.5rem; margin-bottom: 12px; opacity: .65; }
         .alert { border-radius: 12px; }
-        .print-only { display: none; }
 
         .papan-isi { padding: 24px; }
 
@@ -154,8 +306,10 @@
         .page-item.active .page-link { color: #1a1405; background: var(--emas); border-color: var(--emas); }
         .page-item.disabled .page-link { color: var(--bs-secondary-color); background: var(--hover); }
 
-        /* Modal konfirmasi logout */
+        /* Modal */
         .modal-content { color: var(--bs-body-color); background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
+        .modal-header, .modal-footer { border-color: var(--bs-border-color); }
+        .form-text { color: var(--bs-secondary-color); }
 
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
@@ -248,7 +402,7 @@
         .struk-qr canvas, .struk-qr img { max-width: 100%; height: auto !important; }
         .struk-kode   { text-align: center; font-weight: 700; letter-spacing: .08em; overflow-wrap: anywhere; margin-top: 6px; }
 
-        /* ====== Cetak / simpan PDF ====== */
+        /* ====== Cetak struk ====== */
         @page { size: A4 portrait; margin: 12mm; }
 
         @media print {
@@ -266,7 +420,6 @@
             .layout, .content { display: block !important; min-height: 0; }
             main { padding: 0 !important; }
             .isi { max-width: none !important; }
-            .print-only { display: block; margin: 0 0 12px; color: #444; font-size: 12px; }
 
             .papan { background: #fff; border: 0; border-radius: 0; overflow: visible; }
 
@@ -286,7 +439,8 @@
             /* Mode cetak struk: sembunyikan halaman, tampilkan hanya struk */
             body.cetak-struk .layout,
             body.cetak-struk .modal-backdrop,
-            body.cetak-struk #modalLogout { display: none !important; }
+            body.cetak-struk #modalLogout,
+            body.cetak-struk #modalUnduh { display: none !important; }
             body.cetak-struk #modalStruk {
                 position: static !important; display: block !important;
                 overflow: visible !important; opacity: 1 !important;
@@ -311,6 +465,13 @@
         $linkBarang = Route::has('barang.index') ? route('barang.index') : route('kategori.index');
 
         $adaFilter = $cari !== '' || $status !== '';
+
+        // Daftar nama bulan untuk modal unduh (cadangan jika controller tidak mengirim $namaBulan)
+        $namaBulan = $namaBulan ?? [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
 
         // Status transaksi + warna badge
         $statusTransaksi = function ($item) {
@@ -429,21 +590,19 @@
                                 <i class="bi bi-arrow-left me-1"></i> Kembali
                             </a>
 
-                            <button type="button" class="btn btn-emas" onclick="window.print()">
-                                <i class="bi bi-printer me-1"></i> Cetak / Simpan PDF
+                            <button type="button" class="btn btn-emas"
+                                    data-bs-toggle="modal" data-bs-target="#modalUnduh">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Unduh Laporan (PDF)
                             </button>
                         </div>
                     </section>
 
-                    <p class="print-only">
-                        Dicetak pada {{ now()->format('d/m/Y H:i') }}
-                        @if ($cari !== '') | Pencarian: "{{ $cari }}" @endif
-                        @if ($status !== '') | Status: {{ $opsiStatus[$status] }} @endif
-                        | {{ $semua->count() }} transaksi
-                    </p>
-
                     @if (session('error'))
                         <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger">{{ $errors->first() }}</div>
                     @endif
 
                     <section class="papan mb-5" aria-labelledby="judul-daftar">
@@ -574,36 +733,6 @@
                             @endif
 
                         </div>
-
-                        {{-- Tabel khusus cetak / PDF: semua hasil filter, bukan hanya halaman yang tampil --}}
-                        <div class="print-only">
-                            <table class="table tabel-data">
-                                <thead>
-                                    <tr>
-                                        <th>No.</th>
-                                        <th>Peminjam</th>
-                                        <th>Barang</th>
-                                        <th>Tanggal Pinjam</th>
-                                        <th>Tanggal Kembali</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @foreach ($semua as $item)
-                                        @php [$statusItem, $kelas] = $statusTransaksi($item); @endphp
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->peminjam->nama_peminjam ?? '-' }}</td>
-                                            <td>{{ $item->barang->nama_barang ?? '-' }}</td>
-                                            <td>{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td>{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
-                                            <td><span class="badge rounded-pill badge-status {{ $kelas }}">{{ $statusItem }}</span></td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
                     </section>
 
                 </div>
@@ -631,6 +760,67 @@
                         <button type="button" class="btn btn-emas flex-fill" id="btnYaLogout">Ya, logout</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal unduh laporan -->
+    <div class="modal fade no-print" id="modalUnduh" tabindex="-1" aria-labelledby="judulUnduh" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="GET" action="{{ route('admin.riwayat.unduh') }}" id="formUnduh" target="_blank">
+                    <input type="hidden" name="q" value="{{ $cari }}">
+                    <input type="hidden" name="status" value="{{ $status }}">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="judulUnduh">Unduh Laporan PDF</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="uPeriode" class="form-label fw-semibold">Periode</label>
+                            <select name="periode" id="uPeriode" class="form-select">
+                                <option value="mingguan">Mingguan</option>
+                                <option value="bulanan" selected>Bulanan</option>
+                                <option value="tahunan">Tahunan</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="grupTanggal">
+                            <label for="uTanggal" class="form-label fw-semibold">Pilih tanggal</label>
+                            <input type="date" name="tanggal" id="uTanggal" class="form-control" value="{{ now()->toDateString() }}">
+                            <div class="form-text">Laporan mencakup satu minggu (Senin–Minggu) yang memuat tanggal ini.</div>
+                        </div>
+
+                        <div class="mb-3" id="grupBulan">
+                            <label for="uBulan" class="form-label fw-semibold">Bulan</label>
+                            <select name="bulan" id="uBulan" class="form-select">
+                                @foreach ($namaBulan as $angka => $nama)
+                                    <option value="{{ $angka }}" @selected(now()->month === $angka)>{{ $nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-1" id="grupTahun">
+                            <label for="uTahun" class="form-label fw-semibold">Tahun</label>
+                            <input type="number" name="tahun" id="uTahun" class="form-control"
+                                   value="{{ now()->year }}" min="2000" max="2100">
+                        </div>
+
+                        <div class="form-text mt-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Laporan terbuka di tab baru, lalu pilih <strong>Simpan sebagai PDF</strong> pada dialog cetak. Dihitung berdasarkan tanggal pinjam.
+                            @if ($adaFilter) Pencarian dan filter status yang sedang aktif ikut diterapkan. @endif
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-emas">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Buat PDF
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -711,6 +901,41 @@
             });
         })();
 
+        // Unduh laporan: tampilkan input sesuai periode yang dipilih
+        (function () {
+            const periode = document.getElementById('uPeriode');
+            const grup = {
+                tanggal: document.getElementById('grupTanggal'),
+                bulan:   document.getElementById('grupBulan'),
+                tahun:   document.getElementById('grupTahun'),
+            };
+
+            function atur() {
+                const p = periode.value;
+                const tampil = {
+                    tanggal: p === 'mingguan',
+                    bulan:   p === 'bulanan',
+                    tahun:   p !== 'mingguan',
+                };
+                for (const k in grup) {
+                    grup[k].hidden = !tampil[k];
+                    grup[k].querySelectorAll('input, select').forEach(el => el.disabled = !tampil[k]);
+                }
+            }
+
+            periode.addEventListener('change', atur);
+            atur();
+
+            // Tutup modal setelah unduhan dimulai
+            const form = document.getElementById('formUnduh');
+            form.addEventListener('submit', () => {
+                setTimeout(() => {
+                    const inst = bootstrap.Modal.getInstance(document.getElementById('modalUnduh'));
+                    if (inst) inst.hide();
+                }, 400);
+            });
+        })();
+
         // Struk peminjaman: isi modal dari data-* tombol, lalu cetak
         (function () {
             const modal = document.getElementById('modalStruk');
@@ -735,32 +960,9 @@
             });
         })();
 
-        // Konfirmasi setelah cetak laporan (struk tidak dihitung sebagai cetak laporan)
-        (function () {
-            let sedangKonfirmasi = false;
-
-            window.addEventListener('afterprint', () => {
-                if (document.body.classList.contains('cetak-struk')) {
-                    document.body.classList.remove('cetak-struk');
-                    return;
-                }
-
-                if (sedangKonfirmasi) return;
-                sedangKonfirmasi = true;
-
-                if (confirm('Apakah laporan sudah berhasil dicetak / disimpan sebagai PDF?')) {
-                    fetch(@json(route('admin.riwayat.cetak.catat')) + window.location.search, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        },
-                        keepalive: true,
-                    });
-                }
-
-                sedangKonfirmasi = false;
-            });
-        })();
+        // Bersihkan mode cetak struk setelah dialog cetak ditutup
+        window.addEventListener('afterprint', () => document.body.classList.remove('cetak-struk'));
     </script>
 </body>
 </html>
+@endif

@@ -61,9 +61,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/riwayat', [RiwayatController::class, 'index'])
         ->name('admin.riwayat');
 
-    // Cetak Riwayat Peminjaman ke PDF
-    Route::post('/admin/riwayat/cetak/catat', [RiwayatController::class, 'catatCetakPDF'])
-        ->name('admin.riwayat.cetak.catat')
+    // Unduh Laporan Riwayat Peminjaman (mingguan / bulanan / tahunan, simpan sebagai PDF)
+    Route::get('/admin/riwayat/unduh', [RiwayatController::class, 'unduh'])
+        ->name('admin.riwayat.unduh')
         ->middleware('throttle:30,1');
 
     Route::get('/admin/log', [LogController::class, 'index'])

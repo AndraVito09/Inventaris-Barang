@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Models\Activity_log;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use App\Models\Activity_log;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -19,38 +20,96 @@ class RiwayatController extends Controller
         'selesai'   => 'Selesai',
     ];
 
+    private const NAMA_BULAN = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+    ];
+
     public function index(Request $request): View
     {
         [$cari, $status] = $this->bacaFilter($request);
 
-        $query = $this->queryAdmin($cari, $status);
-
         return view('admin.riwayat', [
-            // Per halaman, untuk tampilan di layar
-            'riwayat'    => (clone $query)->paginate(self::PER_HALAMAN)->withQueryString(),
-            // Semua hasil filter, untuk tabel cetak / PDF
-            'semua'      => $query->get(),
+            'riwayat'    => $this->queryAdmin($cari, $status)->paginate(self::PER_HALAMAN)->withQueryString(),
             'cari'       => $cari,
             'status'     => $status,
             'opsiStatus' => self::OPSI_STATUS,
+            'namaBulan'  => self::NAMA_BULAN,
         ]);
     }
 
-    public function catatCetakPDF()
+    /**
+     * Laporan mingguan / bulanan / tahunan.
+     * Menampilkan laporan siap cetak (view admin.riwayat mode laporan) yang langsung membuka dialog
+     * cetak browser, sehingga bisa disimpan sebagai PDF (tanpa library tambahan).
+     * Rentang dihitung dari tanggal pinjam; pencarian & filter status ikut diterapkan.
+     */
+    public function unduh(Request $request): View
     {
+        $data = $request->validate([
+            'periode' => ['required', 'in:mingguan,bulanan,tahunan'],
+            'tanggal' => ['nullable', 'required_if:periode,mingguan', 'date'],
+            'bulan'   => ['nullable', 'required_if:periode,bulanan', 'integer', 'between:1,12'],
+            'tahun'   => ['nullable', 'required_if:periode,bulanan,tahunan', 'integer', 'between:2000,2100'],
+        ]);
+
         [$cari, $status] = $this->bacaFilter($request);
 
-        $jumlah = $this->queryAdmin($cari, $status)->count();
+        switch ($data['periode']) {
+            case 'mingguan':
+                $dasar = Carbon::parse($data['tanggal']);
+                $awal  = $dasar->copy()->startOfWeek(Carbon::MONDAY);
+                $akhir = $dasar->copy()->endOfWeek(Carbon::SUNDAY);
+                $nama  = 'mingguan_' . $awal->format('Ymd') . '-' . $akhir->format('Ymd');
+                $judul = 'Mingguan';
+                break;
+
+            case 'bulanan':
+                $awal  = Carbon::create((int) $data['tahun'], (int) $data['bulan'], 1)->startOfMonth();
+                $akhir = $awal->copy()->endOfMonth();
+                $nama  = 'bulanan_' . $awal->format('Y-m');
+                $judul = 'Bulanan (' . self::NAMA_BULAN[$awal->month] . ' ' . $awal->year . ')';
+                break;
+
+            default: // tahunan
+                $awal  = Carbon::create((int) $data['tahun'], 1, 1)->startOfYear();
+                $akhir = $awal->copy()->endOfYear();
+                $nama  = 'tahunan_' . $awal->format('Y');
+                $judul = 'Tahunan (' . $awal->year . ')';
+        }
+
+        $rows = $this->queryAdmin($cari, $status)
+            ->whereBetween('tgl_pinjam', [$awal, $akhir])
+            ->reorder('tgl_pinjam')
+            ->get();
+
+        $rows->each(fn(Peminjaman $r) => $r->setAttribute('status_label', $this->labelStatus($r)));
+
         $filter = ($cari !== '' || $status !== '') ? ', dengan filter' : '';
 
         Activity_log::catat_aktivitas_admin(
             'ekspor',
             'Peminjaman',
             null,
-            "Cetak laporan riwayat peminjaman ({$jumlah} data{$filter})"
+            "Laporan PDF riwayat peminjaman {$judul} ({$awal->format('d/m/Y')} - {$akhir->format('d/m/Y')}, {$rows->count()} data{$filter})"
         );
 
-        return response()->noContent();
+        return view('admin.riwayat', [
+            'laporan'   => true,
+            'rows'      => $rows,
+            'judul'     => $judul,
+            'awal'      => $awal,
+            'akhir'     => $akhir,
+            'cari'      => $cari,
+            'statusLbl' => $status !== '' ? self::OPSI_STATUS[$status] : '',
+            'namaFile'  => "laporan_peminjaman_{$nama}",
+            'ringkasan' => [
+                'Dipinjam'  => $rows->where('status_label', 'Dipinjam')->count(),
+                'Terlambat' => $rows->where('status_label', 'Terlambat')->count(),
+                'Selesai'   => $rows->where('status_label', 'Selesai')->count(),
+            ],
+        ]);
     }
 
     /**
@@ -83,6 +142,17 @@ class RiwayatController extends Controller
         return [$cari, $status];
     }
 
+    private function labelStatus(Peminjaman $item): string
+    {
+        if ($item->tgl_kembali) {
+            return 'Selesai';
+        }
+        if ($item->tgl_jatuh_tempo && $item->tgl_jatuh_tempo->isPast()) {
+            return 'Terlambat';
+        }
+        return 'Dipinjam';
+    }
+
     private function queryAdmin(string $cari, string $status): Builder
     {
         return Peminjaman::with(['barang', 'peminjam'])
@@ -104,9 +174,6 @@ class RiwayatController extends Controller
             ->orderByDesc('tgl_pinjam');
     }
 
-    /**
-     * Query riwayat yang dipakai bersama admin dan peminjam.
-     */
     private function ambilRiwayat(): Collection
     {
         return Peminjaman::with(['barang', 'peminjam'])
@@ -114,9 +181,6 @@ class RiwayatController extends Controller
             ->get();
     }
 
-    /**
-     * Contoh: "Irlan M*****A"
-     */
     private function samarkanNama(string $nama): string
     {
         return collect(explode(' ', $nama))
