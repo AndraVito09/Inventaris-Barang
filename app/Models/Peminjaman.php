@@ -36,7 +36,7 @@ class Peminjaman extends Model
     // Cari peminjaman dari kode transaksi (dipakai di struk dan nanti di pengembalian)
     public static function cariDariKode(string $kode): ?self
     {
-        if (! preg_match('/^TRX-(\d{8})-(\d{5,})-([A-Z0-9]{5})$/', strtoupper(trim($kode)), $cocok)) {
+        if (! preg_match('/^TRX-(\d{8})-(\d{5,})-([A-Z0-9]{12})$/', strtoupper(trim($kode)), $cocok)) {
             return null;
         }
 
@@ -56,6 +56,6 @@ class Peminjaman extends Model
     // 5 karakter pengaman, dihitung dari nomor, tanggal, dan APP_KEY
     private static function tandaKode(int $nomor, string $tanggal): string
     {
-        return strtoupper(substr(hash_hmac('sha256', "{$nomor}|{$tanggal}", config('app.key')), 0, 5));
+        return strtoupper(substr(hash_hmac('sha256', "{$nomor}|{$tanggal}", config('app.key')), 0, 12));
     }
 }

@@ -25,8 +25,9 @@ class PengembalianController extends Controller
             $q->lockForUpdate();
         }
 
-        if (preg_match('/^TRX-(\d{8})-(\d+)-/', $kode, $m)) {
-            return $q->where('id_peminjaman', (int) $m[2])->first();
+        if (str_starts_with($kode, 'TRX-')) {
+            $valid = Peminjaman::cariDariKode($kode);
+            return $valid ? $q->find($valid->id_peminjaman) : null;
         }
 
         return $q->whereHas('barang', fn($b) => $b->where('kode_barcode', $kode))
