@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
-    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <style>
         /* Palet biru tua: terang */
@@ -106,13 +106,11 @@
         }
         .table tbody td { padding: 14px 16px; }
 
-        /* Lencana status:
-           Dipinjam (emas), Terlambat (merah), Selesai (hijau), Selesai (Terlambat) (biru) */
-        .badge-status { font-weight: 700; border: 1px solid; white-space: nowrap; }
+        /* Lencana status */
+        .badge-status { font-weight: 700; border: 1px solid; }
         .badge-selesai { background: rgba(79, 214, 156, .12); border-color: rgba(79, 214, 156, .4); color: var(--sukses); }
         .badge-pinjam { background: rgba(241, 181, 61, .12); border-color: rgba(241, 181, 61, .45); color: var(--emas-teks); }
         .badge-telat { background: rgba(214, 51, 79, .1); border-color: rgba(214, 51, 79, .4); color: var(--bahaya); }
-        .badge-selesai-telat { background: color-mix(in srgb, var(--aksen) 12%, transparent); border-color: color-mix(in srgb, var(--aksen) 40%, transparent); color: var(--aksen); }
 
         .pagination {
             --bs-pagination-bg: transparent;
@@ -253,18 +251,9 @@
                     <tbody>
                         @forelse ($riwayat as $row)
                             @php
-                                // Belum kembali, belum lewat tempo  : Dipinjam
-                                // Belum kembali, lewat tempo        : Terlambat
-                                // Sudah kembali, lewat tempo        : Selesai (Terlambat)
-                                // Sudah kembali, tepat waktu        : Selesai
                                 if ($row->tgl_kembali) {
-                                    if ($row->tgl_jatuh_tempo && $row->tgl_kembali->gt($row->tgl_jatuh_tempo)) {
-                                        $status = 'Selesai (Terlambat)';
-                                        $kelas  = 'badge-selesai-telat';
-                                    } else {
-                                        $status = 'Selesai';
-                                        $kelas  = 'badge-selesai';
-                                    }
+                                    $status = 'Selesai';
+                                    $kelas  = 'badge-selesai';
                                 } elseif ($row->tgl_jatuh_tempo && $row->tgl_jatuh_tempo->isPast()) {
                                     $status = 'Terlambat';
                                     $kelas  = 'badge-telat';

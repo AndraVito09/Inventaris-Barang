@@ -3,20 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\Peminjaman;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Semua data diambil dari tabel barang (kolom status_barang)
         $totalBarang    = Barang::count();
         $barangTersedia = Barang::where('status_barang', 'Tersedia')->count();
-        $barangDipinjam = Barang::where('status_barang', 'Dipinjam')->count();
+        $sedangDipinjam = Peminjaman::where('status_peminjaman', 'Dipinjam')->count();
+        $terlambat      = Peminjaman::where('status_peminjaman', 'Terlambat')->count();
 
         return view('admin/Dashboard', compact(
             'totalBarang',
             'barangTersedia',
-            'barangDipinjam'
+            'sedangDipinjam',
+            'terlambat'
         ));
     }
 }
