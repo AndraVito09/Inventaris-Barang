@@ -192,8 +192,7 @@
     @php
         $total    = (int) ($totalBarang ?? 0);
         $ada      = (int) ($barangTersedia ?? 0);
-        $telat    = (int) ($terlambat ?? 0);
-        $pinjam   = max((int) ($sedangDipinjam ?? 0) - $telat, 0);
+        $pinjam   = (int) ($sedangDipinjam ?? 0);
         $dasar    = max($total, 1);
         $lebar    = fn ($n) => round(min($n / $dasar * 100, 100), 2);
     @endphp
@@ -259,20 +258,7 @@
                             <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($pinjam) }}%"></span></span>
                             <span class="jumlah">{{ $pinjam }}</span>
                         </li>
-                        <li class="k-telat">
-                            <span class="nama">Terlambat</span>
-                            <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($telat) }}%"></span></span>
-                            <span class="jumlah">{{ $telat }}</span>
-                        </li>
                     </ul>
-
-                    <div class="border-top px-3 py-2 small">
-                        @if ($telat > 0)
-                            <p class="peringatan mb-0">{{ $telat }} barang melewati batas kembali dan belum dikembalikan.</p>
-                        @else
-                            <p class="text-body-secondary mb-0">Tidak ada barang yang terlambat.</p>
-                        @endif
-                    </div>
                 </div>
             </div>
         </section>
