@@ -34,8 +34,6 @@
             --hover: rgba(11, 36, 71, .06);
             --ada: #0f9d7a;
             --pinjam: #d99a14;
-            --telat: #d6336c;
-            --kembali: #2f6fed;
         }
         /* Palet biru tua: gelap */
         [data-bs-theme="dark"] {
@@ -48,8 +46,6 @@
             --hover: rgba(173, 198, 245, .1);
             --ada: #4fd1ac;
             --pinjam: #f1b53d;
-            --telat: #f0708f;
-            --kembali: #6ea8ff;
         }
         :root { --emas: #f1b53d; }
 
@@ -181,9 +177,6 @@
         .jalur > span { display: block; height: 100%; border-radius: 3px; background: var(--c); }
         .k-ada { --c: var(--ada); }
         .k-pinjam { --c: var(--pinjam); }
-        .k-telat { --c: var(--telat); }
-        .k-kembali { --c: var(--kembali); }
-        .peringatan { color: var(--telat); font-weight: 500; }
 
         /* Menu utama */
         .layanan { display: block; padding: 2rem; border-radius: 14px; background: var(--emas); color: #1a1405; text-decoration: none; transition: transform .2s, background .2s; }
@@ -258,12 +251,10 @@
         $user     = auth()->user();
         $namaUser = $user->name ?? ($user->username ?? 'Admin');
 
-        // Data ringkasan
+        // Data ringkasan (semua dari tabel barang)
         $total   = (int) ($totalBarang ?? 0);
         $ada     = (int) ($barangTersedia ?? 0);
-        $telat   = (int) ($terlambat ?? 0);
-        $pinjam  = max((int) ($sedangDipinjam ?? 0) - $telat, 0);
-        $kembali = (int) ($sudahKembali ?? 0); // barang yang sudah dikembalikan
+        $pinjam  = (int) ($barangDipinjam ?? 0);
         $dasar   = max($total, 1);
         $lebar   = fn ($n) => round(min($n / $dasar * 100, 100), 2);
 
@@ -388,25 +379,7 @@
                                         <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($pinjam) }}%"></span></span>
                                         <span class="jumlah">{{ $pinjam }}</span>
                                     </li>
-                                    <li class="k-telat">
-                                        <span class="nama">Terlambat</span>
-                                        <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($telat) }}%"></span></span>
-                                        <span class="jumlah">{{ $telat }}</span>
-                                    </li>
-                                    <li class="k-kembali">
-                                        <span class="nama">Dikembalikan</span>
-                                        <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($kembali) }}%"></span></span>
-                                        <span class="jumlah">{{ $kembali }}</span>
-                                    </li>
                                 </ul>
-
-                                <div class="border-top mt-2 pt-3 small">
-                                    @if ($telat > 0)
-                                        <p class="peringatan mb-0">{{ $telat }} barang melewati batas kembali dan belum dikembalikan.</p>
-                                    @else
-                                        <p class="text-secondary mb-0">Tidak ada barang yang terlambat.</p>
-                                    @endif
-                                </div>
                             </div>
                         </div>
                     </section>
