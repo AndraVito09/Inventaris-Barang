@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Inventaris Barang</title>
-    <link rel="icon" href="{{ asset('images/logo.jpg') }}">
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
 
     <script>
         (function () {
@@ -534,11 +533,18 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
 
         .foto-anggota svg {
             width: 48px;
             height: 48px;
+        }
+
+        /* Jika foto ada, ikon cadangan disembunyikan.
+           Jika foto gagal dimuat, <img> dihapus oleh onerror dan ikon tampil. */
+        .foto-anggota img ~ svg {
+            display: none;
         }
 
         .nama-anggota {
@@ -1032,10 +1038,10 @@
                         </h2>
 
                         <p class="deskripsi-tim">
-                             Kami adalah siswa SMKN 4 Padalarang yang sedang
-                             menjalani PKL selama enam bulan di PT Inovasi Edukasi Karya Anak Negeri.
-                             Website Sistem Inventaris Barang ini kami kembangkan selama satu bulan 
-                             sebagai bentuk penerapan ilmu dan keterampilan yang telah kami pelajari.
+                            Kami adalah siswa SMKN 4 Padalarang yang sedang
+                            menjalani PKL selama enam bulan di PT Inovasi Edukasi Karya Anak Negeri.
+                            Website Sistem Inventaris Barang ini kami kembangkan selama satu bulan
+                            sebagai bentuk penerapan ilmu dan keterampilan yang telah kami pelajari.
                         </p>
                     </div>
 
@@ -1049,11 +1055,14 @@
                     <div class="row g-3">
 
                         {{-- ANGGOTA 1 --}}
+                        {{-- Foto: public/images/anggota1.jpeg --}}
                         <div class="col-12 col-md-4">
                             <article class="kartu-anggota">
                                 <div class="foto-anggota">
-                                    {{-- Ganti ikon ini dengan foto anggota jika sudah tersedia. --}}
-                                    {{-- Contoh: <img src="{{ public('images/Anggota1.jpeg') }}" alt="Foto Nama Anggota 1"> --}}
+                                    <img src="{{ asset('images/anggota1.jpeg') }}"
+                                         alt="Foto Nama Anggota 1"
+                                         loading="lazy"
+                                         onerror="this.remove()">
                                     <svg viewBox="0 0 24 24"
                                          fill="none"
                                          stroke="currentColor"
@@ -1066,10 +1075,10 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="nama-anggota">Nama Anggota 1</h3>
+                                <h3 class="nama-anggota">Andravito Brilian Satriya</h3>
 
                                 <span class="peran-anggota">
-                                    Frontend Developer
+                                    Fullstack Developer
                                 </span>
 
                                 <p class="bio-anggota">
@@ -1081,9 +1090,14 @@
                         </div>
 
                         {{-- ANGGOTA 2 --}}
+                        {{-- Foto: public/images/anggota2.jpeg --}}
                         <div class="col-12 col-md-4">
                             <article class="kartu-anggota">
                                 <div class="foto-anggota">
+                                    <img src="{{ asset('images/anggota2.jpeg') }}"
+                                         alt="Foto Nama Anggota 2"
+                                         loading="lazy"
+                                         onerror="this.remove()">
                                     <svg viewBox="0 0 24 24"
                                          fill="none"
                                          stroke="currentColor"
@@ -1096,10 +1110,10 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="nama-anggota">Nama Anggota 2</h3>
+                                <h3 class="nama-anggota">Naura Fauziah</h3>
 
                                 <span class="peran-anggota">
-                                    Backend Developer
+                                    Fullstack Developer
                                 </span>
 
                                 <p class="bio-anggota">
@@ -1111,9 +1125,14 @@
                         </div>
 
                         {{-- ANGGOTA 3 --}}
+                        {{-- Foto: public/images/anggota3.jpeg --}}
                         <div class="col-12 col-md-4">
                             <article class="kartu-anggota">
                                 <div class="foto-anggota">
+                                    <img src="{{ asset('images/anggota3.jpeg') }}"
+                                         alt="Foto Nama Anggota 3"
+                                         loading="lazy"
+                                         onerror="this.remove()">
                                     <svg viewBox="0 0 24 24"
                                          fill="none"
                                          stroke="currentColor"
@@ -1126,10 +1145,10 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="nama-anggota">Nama Anggota 3</h3>
+                                <h3 class="nama-anggota">Zikhal Syabil Arabi</h3>
 
                                 <span class="peran-anggota">
-                                    Database & Documentation
+                                    Fullstack Developer
                                 </span>
 
                                 <p class="bio-anggota">
