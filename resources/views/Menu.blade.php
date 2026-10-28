@@ -418,6 +418,7 @@
         #modalTim .modal-header {
             position: relative;
             padding: 30px 32px 25px;
+            gap: 16px;
             border-bottom: 1px solid var(--bs-border-color);
             background:
                 radial-gradient(ellipse at top right,
@@ -468,6 +469,8 @@
             padding: 13px;
             margin: 0;
             background-color: var(--hover);
+            flex-shrink: 0;
+            align-self: flex-start;
         }
 
         [data-bs-theme="dark"] #modalTim .btn-close {
@@ -1046,7 +1049,7 @@
                     </div>
 
                     <button type="button"
-                            class="btn-close ms-3"
+                            class="btn-close ms-auto"
                             data-bs-dismiss="modal"
                             aria-label="Tutup profil tim"></button>
                 </div>
@@ -1055,11 +1058,11 @@
                     <div class="row g-3">
 
                         {{-- ANGGOTA 1 --}}
-                        {{-- Foto: public/images/anggota1.jpeg --}}
+                        {{-- Foto: public/images/anggota1.jpg --}}
                         <div class="col-12 col-md-4">
                             <article class="kartu-anggota">
                                 <div class="foto-anggota">
-                                    <img src="{{ asset('images/anggota1.jpeg') }}"
+                                    <img src="{{ asset('images/anggota1.jpg') }}"
                                          alt="Foto Nama Anggota 1"
                                          loading="lazy"
                                          onerror="this.remove()">
@@ -1082,9 +1085,10 @@
                                 </span>
 
                                 <p class="bio-anggota">
-                                 Mengembangkan frontend dan backend,
-                                 serta mengelola server, database, model,
-                                 migrasi, dan log aktivitas.
+                                    Mengembangkan frontend dan backend,
+                                    serta mengelola server, database, model,
+                                    migrasi, dan log aktivitas.
+                                </p>
                             </article>
                         </div>
 
@@ -1116,7 +1120,7 @@
                                 </span>
 
                                 <p class="bio-anggota">
-                                    Merancang UI/UX, mengembangkan frontend dan backend, 
+                                    Merancang UI/UX, mengembangkan frontend dan backend,
                                     serta membangun fitur scanner.
                                 </p>
                             </article>
@@ -1150,7 +1154,7 @@
                                 </span>
 
                                 <p class="bio-anggota">
-                                    Mengembangkan frontend dan backend serta 
+                                    Mengembangkan frontend dan backend serta
                                     membangun fitur-fitur pada sistem inventaris barang.
                                 </p>
                             </article>
