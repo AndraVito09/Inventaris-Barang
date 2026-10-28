@@ -29,9 +29,18 @@ class RiwayatController extends Controller
     ];
 
     private const NAMA_BULAN = [
-        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        1 => 'Januari',
+        2 => 'Februari',
+        3 => 'Maret',
+        4 => 'April',
+        5 => 'Mei',
+        6 => 'Juni',
+        7 => 'Juli',
+        8 => 'Agustus',
+        9 => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Desember',
     ];
 
     public function index(Request $request): View
@@ -126,12 +135,17 @@ class RiwayatController extends Controller
      */
     public function peminjam(): View
     {
-        $riwayat = $this->ambilRiwayat();
+        $riwayat = Peminjaman::with(['barang', 'peminjam'])
+            ->orderByDesc('tgl_pinjam')
+            ->orderByDesc('id_peminjaman')
+            ->paginate(self::PER_HALAMAN)
+            ->withQueryString();
 
-        $riwayat->each(function (Peminjaman $row) {
-            $nama = $row->peminjam->nama_peminjam ?? '-';
-
-            $row->setAttribute('nama_tampil', $this->samarkanNama($nama));
+        $riwayat->getCollection()->each(function (Peminjaman $row) {
+            $row->setAttribute(
+                'nama_tampil',
+                $this->samarkanNama($row->peminjam->nama_peminjam ?? '-')
+            );
         });
 
         return view('peminjam.riwayat-peminjaman', [

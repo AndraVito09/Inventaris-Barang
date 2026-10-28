@@ -238,7 +238,7 @@
                 </dl>
 
                 {{-- Pengingat sanksi, hanya untuk siswa --}}
-                @if ($peminjaman->peminjam->tipe_peminjam === 'Siswa')
+                @if (strtolower($peminjaman->peminjam->tipe_peminjam) === 'siswa')
                     <div class="aturan px-3 py-3 mt-4 small text-start">
                         <strong>Pengingat:</strong>
                         siswa yang terlambat mengembalikan barang wajib membersihkan lab.

@@ -114,6 +114,24 @@
         .badge-telat { background: rgba(214, 51, 79, .1); border-color: rgba(214, 51, 79, .4); color: var(--bahaya); }
         .badge-selesai-telat { background: color-mix(in srgb, var(--aksen) 12%, transparent); border-color: color-mix(in srgb, var(--aksen) 40%, transparent); color: var(--aksen); }
 
+        .pagination {
+            --bs-pagination-bg: transparent;
+            --bs-pagination-color: var(--aksen);
+            --bs-pagination-border-color: var(--bs-border-color);
+            --bs-pagination-hover-bg: var(--hover);
+            --bs-pagination-hover-color: var(--bs-body-color);
+            --bs-pagination-hover-border-color: var(--bs-border-color);
+            --bs-pagination-focus-bg: var(--hover);
+            --bs-pagination-active-bg: var(--emas);
+            --bs-pagination-active-border-color: var(--emas);
+            --bs-pagination-active-color: #1a1405;
+            --bs-pagination-disabled-bg: transparent;
+            --bs-pagination-disabled-color: var(--bs-secondary-color);
+            --bs-pagination-disabled-border-color: var(--bs-border-color);
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
@@ -154,6 +172,8 @@
             .tabel-riwayat td[data-label="Nama Barang"] { font-weight: 700; }
             .tabel-riwayat td.kosong { display: block; text-align: center; }
             .tabel-riwayat td.kosong::before { content: none; }
+            .info-bawah { align-items: stretch !important; text-align: center; }
+            .info-bawah .pagination { justify-content: center; }
         }
 
         /* HP kecil (di bawah 400px) */
@@ -255,7 +275,7 @@
                             @endphp
                             <tr>
                                 {{-- data-label dipakai CSS untuk menampilkan nama kolom di tampilan HP --}}
-                                <td data-label="No">{{ $loop->iteration }}</td>
+                                <td data-label="No">{{ $riwayat->firstItem() + $loop->index }}</td>
                                 <td data-label="Nama Barang">{{ $row->barang->nama_barang ?? '-' }}</td>
                                 <td data-label="Peminjam">{{ $row->nama_tampil }}</td>
                                 <td data-label="Tanggal Pinjam">{{ $row->tgl_pinjam?->format('d/m/Y H:i') }}</td>
@@ -280,7 +300,12 @@
             </div>
         </div>
 
-        <p class="text-secondary small mt-3 mb-0">Total {{ $riwayat->count() }} transaksi.</p>
+        <div class="info-bawah d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-3">
+            <p class="text-secondary small mb-0">Total {{ $riwayat->total() }} transaksi.</p>
+            @if ($riwayat->hasPages())
+                {{ $riwayat->links('pagination::bootstrap-5') }}
+            @endif
+        </div>
 
     </main>
 
