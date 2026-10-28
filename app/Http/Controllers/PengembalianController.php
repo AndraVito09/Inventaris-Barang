@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class PengembalianController extends Controller
 {
-    // GET /peminjam/kembali -> halaman scan QR
+
     public function index()
     {
-        return view('peminjam.pengembalian'); // sesuaikan dengan lokasi file blade kamu
+        return view('peminjam.pengembalian');
     }
 
     private function cariPeminjaman(string $kode, bool $kunci = false): ?Peminjaman
@@ -36,13 +36,11 @@ class PengembalianController extends Controller
             ->first();
     }
 
-    // Sanksi (membersihkan lab) hanya untuk siswa
     private function apakahSiswa(Peminjaman $pinjam): bool
     {
         return strtolower(trim($pinjam->peminjam->tipe_peminjam ?? '')) === 'siswa';
     }
 
-    // POST /peminjam/kembali/cek -> baca kode dari QR, kirim detail transaksi
     public function cek(Request $request): JsonResponse
     {
         $request->validate(['kode' => 'required|string|max:100']);
@@ -62,7 +60,7 @@ class PengembalianController extends Controller
             'data' => [
                 'kode'          => $request->kode,
                 'nama'          => $pinjam->peminjam->nama_peminjam ?? '-',
-                'tipe'          => $pinjam->peminjam->tipe_peminjam ?? '',   // dipakai halaman untuk menentukan sanksi
+                'tipe'          => $pinjam->peminjam->tipe_peminjam ?? '',  
                 'kelas'         => $pinjam->peminjam->keterangan ?? '-',
                 'barang'        => [$pinjam->barang->nama_barang ?? '-'],
                 'batas_kembali' => $pinjam->tgl_jatuh_tempo->toIso8601String(),
@@ -70,7 +68,6 @@ class PengembalianController extends Controller
         ]);
     }
 
-    // POST /peminjam/kembali/proses -> tandai dikembalikan
     public function proses(Request $request): JsonResponse
     {
         $request->validate(['kode' => 'required|string|max:100']);
@@ -95,7 +92,6 @@ class PengembalianController extends Controller
                 'status_peminjaman' => $terlambat ? 'Terlambat' : 'Selesai',
             ]);
 
-            // Barang kembali tersedia
             $pinjam->barang?->update(['status_barang' => 'Tersedia']);
 
             $menit = $terlambat ? (int) $batas->diffInMinutes($sekarang, true) : 0;

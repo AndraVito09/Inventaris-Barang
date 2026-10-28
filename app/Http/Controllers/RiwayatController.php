@@ -39,12 +39,6 @@ class RiwayatController extends Controller
         ]);
     }
 
-    /**
-     * Laporan mingguan / bulanan / tahunan.
-     * Menampilkan laporan siap cetak (view admin.riwayat mode laporan) yang langsung membuka dialog
-     * cetak browser, sehingga bisa disimpan sebagai PDF (tanpa library tambahan).
-     * Rentang dihitung dari tanggal pinjam; pencarian & filter status ikut diterapkan.
-     */
     public function unduh(Request $request): View
     {
         $data = $request->validate([
@@ -112,9 +106,6 @@ class RiwayatController extends Controller
         ]);
     }
 
-    /**
-     * PEMINJAM (publik, tanpa login): nama peminjam disamarkan.
-     */
     public function peminjam(): View
     {
         $riwayat = $this->ambilRiwayat();

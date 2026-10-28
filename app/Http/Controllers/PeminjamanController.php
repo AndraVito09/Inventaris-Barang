@@ -14,14 +14,12 @@ use Illuminate\Validation\ValidationException;
 
 class PeminjamanController extends Controller
 {
-    // Pilihan pada dropdown form peminjaman.
-    // Harus sama persis dengan isi ENUM kolom peminjam.tipe_peminjam di database.
+    // pilihan dropdown
     private const TIPE_PEMINJAM = ['Siswa', 'Guru', 'Staff', 'Lainnya'];
 
-    // Lama peminjaman tetap: 24 jam. Lewat dari ini dianggap terlambat.
+    // lewat dari 24 jam, terlambat
     private const LAMA_PINJAM_JAM = 24;
 
-    // Dashboard peminjam
     public function index()
     {
         return view('peminjam.dashboard-peminjam', [
@@ -33,13 +31,11 @@ class PeminjamanController extends Controller
         ]);
     }
 
-    // Tampilkan form peminjaman
     public function formPinjam()
     {
         return view('peminjam.form-peminjaman', ['daftarTipe' => self::TIPE_PEMINJAM]);
     }
 
-    // Cek barang hasil scan barcode (dipanggil lewat fetch dari form)
     public function cekBarang(string $kode)
     {
         $barang = Barang::where('kode_barcode', trim($kode))->first();
@@ -55,12 +51,10 @@ class PeminjamanController extends Controller
         return response()->json(['ok' => true, 'nama' => $barang->nama_barang]);
     }
 
-    // Simpan peminjaman dan ubah status barang
     public function simpan(Request $request)
     {
         $tipe = $request->input('tipe_peminjam');
 
-        // Tidak ada lama_pinjam: durasi ditentukan server (24 jam), bukan dari form.
         $request->validate([
             'tipe_peminjam' => ['required', Rule::in(self::TIPE_PEMINJAM)],
             'kode_barcode'  => ['required', 'string', 'max:50'],
@@ -83,7 +77,6 @@ class PeminjamanController extends Controller
             'keperluan.required'     => 'Keperluan wajib diisi.',
         ]);
 
-        // Data tambahan digabung ke kolom "keterangan" sesuai tipe peminjam
         $keterangan = match ($tipe) {
             'Siswa' => "Kelas {$request->kelas}, NIS {$request->nis}",
             'Guru'  => $request->filled('nip') ? "NIP {$request->nip}" : null,
@@ -93,7 +86,7 @@ class PeminjamanController extends Controller
         $noHp = $tipe === 'Lainnya' ? $request->no_hp : null;
 
         $peminjaman = DB::transaction(function () use ($request, $tipe, $keterangan, $noHp) {
-            // Kunci baris barang supaya tidak bisa dipinjam dua orang sekaligus
+            // agar barang tidak bisa dipinjam 2 orang
             $barang = Barang::where('kode_barcode', trim($request->kode_barcode))->lockForUpdate()->first();
 
             if (! $barang) {
@@ -133,12 +126,10 @@ class PeminjamanController extends Controller
             return $peminjaman;
         });
 
-        // kode_transaksi dihitung otomatis dari model (tidak disimpan di database)
         return redirect('/peminjam/struk/' . $peminjaman->kode_transaksi)
             ->with('berhasil', 'Data peminjaman berhasil disimpan.');
     }
 
-    // Struk + QR code bukti peminjaman
     public function struk(string $kode)
     {
         $peminjaman = Peminjaman::cariDariKode($kode);
