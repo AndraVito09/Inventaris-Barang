@@ -19,7 +19,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
-    <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
         /* Palet biru tua: terang */
@@ -31,9 +32,11 @@
             --kartu: #ffffff;
             --nav-bg: rgba(238, 243, 251, .92);
             --hover: rgba(11, 36, 71, .06);
+            --biru: #1d4fa8;
             --ada: #0f9d7a;
             --pinjam: #d99a14;
             --telat: #d6336c;
+            --emas-teks: #b97d00;
         }
         /* Palet biru tua: gelap */
         [data-bs-theme="dark"] {
@@ -44,27 +47,29 @@
             --kartu: #102445;
             --nav-bg: rgba(10, 25, 48, .92);
             --hover: rgba(173, 198, 245, .1);
+            --biru: #6ea8ff;
             --ada: #4fd1ac;
             --pinjam: #f1b53d;
             --telat: #f0708f;
+            --emas-teks: #f1b53d;
         }
         :root { --emas: #f1b53d; }
 
         html { -webkit-text-size-adjust: 100%; }
         body {
             font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
-            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+            overflow-x: hidden;
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Wadah utama: ikut lebar layar, hormati area aman (notch) di HP */
+        /* Wadah utama */
         .wadah {
             max-width: 1120px;
             padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
             padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
         }
 
-        /* Navbar */
+        /* Navbar (tetap di atas) */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
         .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
         .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -72,22 +77,30 @@
         .navbar-toggler { min-width: 44px; min-height: 44px; border-color: var(--bs-border-color); }
         .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
         .navbar .nav-link:hover, .navbar .nav-link.active { color: var(--bs-body-color); border-color: var(--emas); }
+
+        /* Tombol */
         .btn-outline-secondary {
             --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
             --bs-btn-active-color: var(--bs-body-color); --bs-btn-active-bg: var(--hover); --bs-btn-active-border-color: var(--bs-secondary-color);
+            border-radius: 10px;
         }
         .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
         /* Judul */
-        h1 { font-size: clamp(1.75rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
+        h1 { font-size: clamp(1.75rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
         h2 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.015em; }
-        .lead { max-width: 28rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
+        .lead { max-width: 36rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
 
-        /* Kondisi barang: daftar polos, satu baris per status */
-        .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
-        .papan-kepala { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .25rem 1rem; }
+        /* Kartu gaya admin */
+        .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
+        .papan-kepala { padding: 20px 24px; border-bottom: 1px solid var(--bs-border-color); }
+        .papan-isi { padding: 24px; }
+        .ikon-kotak { width: 44px; height: 44px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; background: color-mix(in srgb, var(--biru) 14%, transparent); color: var(--biru); }
+        .badge-jumlah { background: var(--hover); color: var(--bs-body-color); border: 1px solid var(--bs-border-color); font-weight: 600; }
+
+        /* Kondisi barang */
         .kondisi { list-style: none; margin: 0; padding: 0; }
         .kondisi li { display: grid; grid-template-columns: 6.5rem 1fr 2.5rem; align-items: center; gap: 14px; padding: .7rem 0; border-bottom: 1px solid var(--bs-border-color); }
         .kondisi li:last-child { border-bottom: 0; }
@@ -100,70 +113,73 @@
         .k-telat { --c: var(--telat); }
         .peringatan { color: var(--telat); font-weight: 500; }
 
+        /* Kartu kondisi barang versi ringkas */
+        .papan-kecil .ikon-kecil { width: 36px; height: 36px; font-size: 1.05rem; border-radius: 10px; }
+        .papan-kecil .badge-jumlah { font-size: .75rem; padding: .4em .75em; }
+        .papan-kecil .kondisi li { padding: .5rem 0; grid-template-columns: 5.5rem 1fr 2rem; }
+        .papan-kecil .kondisi { padding-top: .25rem; padding-bottom: .25rem; }
+
         /* Layanan */
-        .layanan { display: block; padding: 2rem; border-radius: 14px; background: var(--emas); color: #1a1405; text-decoration: none; transition: transform .2s, background .2s; }
+        .layanan { display: block; padding: 1.75rem; border-radius: 16px; background: var(--emas); color: #1a1405; text-decoration: none; transition: transform .2s, background .2s; }
         .layanan:hover { background: #f7c55c; color: #1a1405; transform: translateY(-3px); }
         .layanan h3 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.01em; }
-        .layanan-kembali { background: transparent; border: 1.5px solid var(--bs-secondary-color); color: var(--bs-body-color); }
+        .layanan .bi { font-size: 1.6rem; display: block; margin-bottom: .6rem; }
+        .layanan-kembali { background: var(--kartu); border: 1px solid var(--bs-border-color); color: var(--bs-body-color); }
+        .layanan-kembali .bi { color: var(--biru); }
         .layanan-kembali p { color: var(--bs-secondary-color); }
-        .layanan-kembali:hover { background: var(--hover); border-color: var(--bs-body-color); color: var(--bs-body-color); }
+        .layanan-kembali:hover { background: var(--hover); border-color: var(--bs-secondary-color); color: var(--bs-body-color); }
 
-        .daftar .list-group-item { background: transparent; color: var(--bs-body-color); display: grid; grid-template-columns: 16rem 1fr; gap: 20px; padding: 1.1rem .5rem; min-height: 56px; }
+        /* Pintasan */
+        .daftar .list-group-item { background: transparent; color: var(--bs-body-color); display: flex; align-items: center; gap: 14px; padding: 1rem 24px; min-height: 64px; border-color: var(--bs-border-color); }
         .daftar .list-group-item:hover { background: var(--hover); }
-        .daftar span { color: var(--bs-secondary-color); }
+        .daftar .teks { min-width: 0; }
+        .daftar .teks span { display: block; color: var(--bs-secondary-color); font-size: .9rem; }
+        .daftar .panah { margin-left: auto; color: var(--bs-secondary-color); }
 
-        .aturan { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); color: var(--bs-secondary-color); border-radius: 10px; }
-        .aturan strong { color: #b97d00; }
-        [data-bs-theme="dark"] .aturan strong { color: var(--emas); }
+        .aturan { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); color: var(--bs-secondary-color); border-radius: 12px; }
+        .aturan strong { color: var(--emas-teks); }
 
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
-        footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
-        footer a:hover { color: var(--bs-body-color); }
 
         /* ====== Responsif ====== */
-
-        /* Laptop kecil & tablet landscape (di bawah 992px): hero sudah menumpuk, rapikan jarak */
         @media (max-width: 991.98px) {
-            .lead { max-width: 36rem; }
-            .daftar .list-group-item { grid-template-columns: 12rem 1fr; gap: 16px; }
+            .papan-kepala, .papan-isi { padding: 20px; }
+            .daftar .list-group-item { padding-left: 20px; padding-right: 20px; }
         }
 
-        /* Tablet portrait & HP (di bawah 768px) */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
             .navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; border-bottom-width: 0; border-left: 3px solid transparent; padding-left: .75rem; }
             .navbar .nav-link:hover, .navbar .nav-link.active { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
-            .layanan { padding: 1.5rem; }
-            .daftar .list-group-item { grid-template-columns: 1fr; gap: 2px; }
+            .papan { border-radius: 14px; }
+            .papan-kepala, .papan-isi { padding: 16px; }
+            .daftar .list-group-item { padding-left: 16px; padding-right: 16px; }
             .kondisi li { grid-template-columns: 5.5rem 1fr 2rem; gap: 10px; }
-            .btn-kembali { width: 100%; }        /* tombol kembali selebar layar agar mudah ditekan */
-            .aturan { padding: 1rem !important; margin-top: 2rem !important; margin-bottom: 2rem !important; }
+            .layanan { padding: 1.5rem; }
+            .btn-kembali { width: 100%; }
+            .aturan { padding: 1rem !important; }
             footer .wadah { text-align: center; }
         }
 
-        /* HP kecil (di bawah 400px) */
         @media (max-width: 399.98px) {
             .navbar-brand { font-size: 1.05rem; gap: .5rem !important; }
             .logo { width: 38px; height: 38px; }
-            .kondisi li { grid-template-columns: 4.75rem 1fr 1.75rem; gap: 8px; }
             .papan { border-radius: 12px; }
+            .papan-kepala, .papan-isi { padding: 14px; }
+            .ikon-kotak { width: 38px; height: 38px; font-size: 1.05rem; }
+            .kondisi li { grid-template-columns: 4.75rem 1fr 1.75rem; gap: 8px; }
             .layanan { padding: 1.25rem; }
             footer { font-size: .8rem; }
         }
 
-        /* Layar pendek (HP landscape): kurangi jarak vertikal */
         @media (max-height: 480px) and (orientation: landscape) {
             .navbar { padding-top: .35rem; padding-bottom: .35rem; }
             .logo { width: 38px; height: 38px; }
-            section.row { padding-top: 1rem !important; padding-bottom: 1rem !important; }
         }
 
-        /* Layar sangat lebar */
-        @media (min-width: 1400px) {
-            .wadah { max-width: 1200px; }
-        }
+        @media (min-width: 1400px) { .wadah { max-width: 1200px; } }
 
         @media (prefers-reduced-motion: reduce) {
             .layanan { transition: none; }
@@ -213,25 +229,26 @@
     <main class="container wadah flex-grow-1">
         <div class="pt-4">
             <a class="btn btn-outline-secondary btn-sm btn-kembali" href="{{ url('/') }}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-                Kembali ke menu
+                <i class="bi bi-arrow-left"></i> Kembali ke menu
             </a>
         </div>
 
+        {{-- Judul + kondisi barang (berdampingan) --}}
         <section class="row g-4 g-lg-5 align-items-center py-4 py-md-5">
-            <div class="col-12 col-lg-5">
+            <div class="col-12 col-lg-6">
                 <h1>Selamat datang di layanan peminjaman.</h1>
-                <p class="lead mt-3">Pinjam dan kembalikan barang sekolah di satu tempat, tanpa perlu login.</p>
+                <p class="lead mt-3 mb-0">Pinjam dan kembalikan barang sekolah di satu tempat, tanpa perlu login.</p>
             </div>
 
-            <div class="col-12 col-lg-7">
-                <div class="papan p-3 p-md-4">
-                    <div class="papan-kepala mb-2">
-                        <h2 class="h5 fw-bold mb-0">Kondisi barang saat ini</h2>
-                        <span class="small text-secondary">{{ $total }} barang terdaftar</span>
+            <div class="col-12 col-lg-6">
+                <div class="papan papan-kecil" aria-labelledby="judul-kondisi">
+                    <div class="d-flex align-items-center gap-3 px-3 pt-3 pb-2">
+                        <div class="ikon-kotak ikon-kecil"><i class="bi bi-box-seam"></i></div>
+                        <h2 id="judul-kondisi" class="h6 fw-bold mb-0 flex-grow-1">Kondisi barang saat ini</h2>
+                        <span class="badge rounded-pill badge-jumlah">{{ $total }} barang</span>
                     </div>
 
-                    <ul class="kondisi">
+                    <ul class="kondisi px-3">
                         <li class="k-ada">
                             <span class="nama">Tersedia</span>
                             <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($ada) }}%"></span></span>
@@ -249,48 +266,62 @@
                         </li>
                     </ul>
 
-                    <div class="border-top mt-2 pt-3 small">
+                    <div class="border-top px-3 py-2 small">
                         @if ($telat > 0)
                             <p class="peringatan mb-0">{{ $telat }} barang melewati batas kembali dan belum dikembalikan.</p>
                         @else
-                            <p class="text-secondary mb-0">Tidak ada barang yang terlambat.</p>
+                            <p class="text-body-secondary mb-0">Tidak ada barang yang terlambat.</p>
                         @endif
                     </div>
                 </div>
             </div>
         </section>
 
-        <section aria-labelledby="judul-layanan">
+        {{-- Layanan --}}
+        <section aria-labelledby="judul-layanan" class="mb-4">
             <h2 id="judul-layanan" class="mb-3">Layanan</h2>
 
             <div class="row g-3">
                 <div class="col-12 col-md-6">
                     <a class="layanan h-100" href="{{ url('/peminjam/pinjam') }}">
+                        <i class="bi bi-upc-scan"></i>
                         <h3 class="mb-2">Peminjaman</h3>
                         <p class="mb-0">Scan barcode barang, isi data, lalu dapatkan struk.</p>
                     </a>
                 </div>
                 <div class="col-12 col-md-6">
                     <a class="layanan layanan-kembali h-100" href="{{ url('/peminjam/kembali') }}">
+                        <i class="bi bi-qr-code-scan"></i>
                         <h3 class="mb-2">Pengembalian</h3>
                         <p class="mb-0">Scan QR pada struk untuk mengembalikan barang.</p>
                     </a>
                 </div>
             </div>
+        </section>
 
-            <div class="list-group list-group-flush daftar mt-4 border-top border-bottom">
+        {{-- Pintasan --}}
+        <section class="papan mb-4" aria-label="Pintasan">
+            <div class="list-group list-group-flush daftar">
                 <a href="{{ url('/peminjam/katalog') }}" class="list-group-item list-group-item-action">
-                    <strong>Daftar barang</strong>
-                    <span>Cek barang yang tersedia dan yang sedang dipinjam.</span>
+                    <div class="ikon-kotak"><i class="bi bi-box-seam"></i></div>
+                    <div class="teks">
+                        <strong>Daftar barang</strong>
+                        <span>Cek barang yang tersedia dan yang sedang dipinjam.</span>
+                    </div>
+                    <i class="bi bi-chevron-right panah"></i>
                 </a>
                 <a href="{{ url('/peminjam/riwayat') }}" class="list-group-item list-group-item-action">
-                    <strong>Riwayat peminjaman dan pengembalian</strong>
-                    <span>Pantau transaksi yang berjalan dan yang sudah selesai.</span>
+                    <div class="ikon-kotak"><i class="bi bi-clock-history"></i></div>
+                    <div class="teks">
+                        <strong>Riwayat peminjaman dan pengembalian</strong>
+                        <span>Pantau transaksi yang berjalan dan yang sudah selesai.</span>
+                    </div>
+                    <i class="bi bi-chevron-right panah"></i>
                 </a>
             </div>
         </section>
 
-        <div class="aturan px-4 py-3 mt-5 mb-5 small">
+        <div class="aturan px-4 py-3 mb-5 small">
             <strong>Ketentuan keterlambatan:</strong>
             batas pengembalian tertera di struk. Siswa yang terlambat mengembalikan barang wajib membersihkan lab.
         </div>
@@ -304,19 +335,21 @@
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap
-        const html = document.documentElement;
-        const label = document.getElementById('labelTema');
-        const tampilkanLabel = () => {
-            label.textContent = html.getAttribute('data-bs-theme') === 'dark' ? 'Mode terang' : 'Mode gelap';
-        };
-        tampilkanLabel();
-        document.getElementById('btnTema').addEventListener('click', () => {
-            const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-bs-theme', baru);
-            try { localStorage.setItem('tema', baru); } catch (e) {}
+        // Ganti tema terang/gelap (pilihan tersimpan di browser)
+        (function () {
+            const html = document.documentElement;
+            const label = document.getElementById('labelTema');
+            const tampilkanLabel = () => {
+                label.textContent = html.getAttribute('data-bs-theme') === 'dark' ? 'Mode terang' : 'Mode gelap';
+            };
             tampilkanLabel();
-        });
+            document.getElementById('btnTema').addEventListener('click', () => {
+                const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-bs-theme', baru);
+                try { localStorage.setItem('tema', baru); } catch (e) {}
+                tampilkanLabel();
+            });
+        })();
     </script>
 </body>
 </html>
