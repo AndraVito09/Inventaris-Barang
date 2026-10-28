@@ -14,10 +14,18 @@ class RiwayatController extends Controller
 {
     private const PER_HALAMAN = 10;
 
+    /**
+     * Status riwayat:
+     * - dipinjam           : belum kembali, belum lewat jatuh tempo
+     * - terlambat          : belum kembali, sudah lewat jatuh tempo
+     * - selesai            : sudah kembali tepat waktu
+     * - selesai_terlambat  : sudah kembali tapi melewati jatuh tempo
+     */
     private const OPSI_STATUS = [
-        'dipinjam'  => 'Dipinjam',
-        'terlambat' => 'Terlambat',
-        'selesai'   => 'Selesai',
+        'dipinjam'          => 'Dipinjam',
+        'terlambat'         => 'Terlambat',
+        'selesai'           => 'Selesai',
+        'selesai_terlambat' => 'Selesai (Terlambat)',
     ];
 
     private const NAMA_BULAN = [
@@ -105,9 +113,10 @@ class RiwayatController extends Controller
             'statusLbl' => $status !== '' ? self::OPSI_STATUS[$status] : '',
             'namaFile'  => "laporan_peminjaman_{$nama}",
             'ringkasan' => [
-                'Dipinjam'  => $rows->where('status_label', 'Dipinjam')->count(),
-                'Terlambat' => $rows->where('status_label', 'Terlambat')->count(),
-                'Selesai'   => $rows->where('status_label', 'Selesai')->count(),
+                'Dipinjam'            => $rows->where('status_label', 'Dipinjam')->count(),
+                'Terlambat'           => $rows->where('status_label', 'Terlambat')->count(),
+                'Selesai'             => $rows->where('status_label', 'Selesai')->count(),
+                'Selesai (Terlambat)' => $rows->where('status_label', 'Selesai (Terlambat)')->count(),
             ],
         ]);
     }
@@ -142,14 +151,24 @@ class RiwayatController extends Controller
         return [$cari, $status];
     }
 
+    /**
+     * Tentukan label status satu transaksi.
+     */
     private function labelStatus(Peminjaman $item): string
     {
+        // Sudah dikembalikan: cek tepat waktu atau terlambat
         if ($item->tgl_kembali) {
+            if ($item->tgl_jatuh_tempo && $item->tgl_kembali->gt($item->tgl_jatuh_tempo)) {
+                return 'Selesai (Terlambat)';
+            }
             return 'Selesai';
         }
+
+        // Belum dikembalikan: cek sudah lewat jatuh tempo atau belum
         if ($item->tgl_jatuh_tempo && $item->tgl_jatuh_tempo->isPast()) {
             return 'Terlambat';
         }
+
         return 'Dipinjam';
     }
 
@@ -165,8 +184,21 @@ class RiwayatController extends Controller
                         });
                 });
             })
-            ->when($status === 'selesai', fn(Builder $q) => $q->whereNotNull('tgl_kembali'))
+            // Selesai: sudah kembali dan tepat waktu (kembali <= jatuh tempo, atau tidak ada jatuh tempo)
+            ->when($status === 'selesai', function (Builder $q) {
+                $q->whereNotNull('tgl_kembali')
+                    ->where(fn(Builder $w) => $w->whereNull('tgl_jatuh_tempo')
+                        ->orWhereColumn('tgl_kembali', '<=', 'tgl_jatuh_tempo'));
+            })
+            // Selesai (Terlambat): sudah kembali tapi melewati jatuh tempo
+            ->when($status === 'selesai_terlambat', function (Builder $q) {
+                $q->whereNotNull('tgl_kembali')
+                    ->whereNotNull('tgl_jatuh_tempo')
+                    ->whereColumn('tgl_kembali', '>', 'tgl_jatuh_tempo');
+            })
+            // Terlambat: belum kembali dan sudah lewat jatuh tempo
             ->when($status === 'terlambat', fn(Builder $q) => $q->whereNull('tgl_kembali')->where('tgl_jatuh_tempo', '<', now()))
+            // Dipinjam: belum kembali dan belum lewat jatuh tempo
             ->when($status === 'dipinjam', function (Builder $q) {
                 $q->whereNull('tgl_kembali')
                     ->where(fn(Builder $w) => $w->whereNull('tgl_jatuh_tempo')->orWhere('tgl_jatuh_tempo', '>=', now()));

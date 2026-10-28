@@ -46,9 +46,10 @@
         table.data tbody tr:nth-child(even) td { background: #f5f8fd; }
         .c { text-align: center; }
 
-        .s-selesai   { color: #0a7a5c; font-weight: 700; }
-        .s-terlambat { color: #c0245c; font-weight: 700; }
-        .s-dipinjam  { color: #a06a00; font-weight: 700; }
+        .s-selesai            { color: #0a7a5c; font-weight: 700; }
+        .s-selesai-terlambat  { color: #1d4fa8; font-weight: 700; }
+        .s-terlambat          { color: #c0245c; font-weight: 700; }
+        .s-dipinjam           { color: #a06a00; font-weight: 700; }
 
         .kosong { text-align: center; padding: 30px !important; color: #555; }
         .foot { margin-top: 12px; font-size: 10px; color: #666; border-top: 1px solid #bbb; padding-top: 5px; }
@@ -118,7 +119,7 @@
                     <th style="width: 105px;">Tgl Pinjam</th>
                     <th style="width: 105px;">Jatuh Tempo</th>
                     <th style="width: 105px;">Tgl Kembali</th>
-                    <th class="c" style="width: 70px;">Status</th>
+                    <th class="c" style="width: 110px;">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -131,7 +132,7 @@
                         <td>{{ $item->tgl_pinjam?->format('d/m/Y H:i') ?? '-' }}</td>
                         <td>{{ $item->tgl_jatuh_tempo?->format('d/m/Y H:i') ?? '-' }}</td>
                         <td>{{ $item->tgl_kembali?->format('d/m/Y H:i') ?? '-' }}</td>
-                        <td class="c s-{{ strtolower($item->status_label) }}">{{ $item->status_label }}</td>
+                        <td class="c s-{{ \Illuminate\Support\Str::slug($item->status_label) }}">{{ $item->status_label }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="8" class="kosong">Tidak ada transaksi pada periode ini.</td></tr>
@@ -173,7 +174,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
-    <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
@@ -281,10 +282,12 @@
         .tabel-data tbody td { padding: 16px; border-color: var(--bs-border-color); }
         .nomor { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; background: var(--hover); font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
 
-        .badge-status { font-weight: 600; border: 1px solid; padding: .45em .85em; }
+        /* Badge status: Dipinjam (emas), Terlambat (merah), Selesai (hijau), Selesai (Terlambat) (biru) */
+        .badge-status { font-weight: 600; border: 1px solid; padding: .45em .85em; white-space: nowrap; }
         .b-hijau { color: var(--ada); background: color-mix(in srgb, var(--ada) 12%, transparent); border-color: color-mix(in srgb, var(--ada) 40%, transparent); }
         .b-emas { color: var(--emas-teks); background: color-mix(in srgb, var(--emas-teks) 12%, transparent); border-color: color-mix(in srgb, var(--emas-teks) 40%, transparent); }
         .b-merah { color: var(--telat); background: color-mix(in srgb, var(--telat) 12%, transparent); border-color: color-mix(in srgb, var(--telat) 40%, transparent); }
+        .b-biru { color: var(--biru); background: color-mix(in srgb, var(--biru) 12%, transparent); border-color: color-mix(in srgb, var(--biru) 40%, transparent); }
 
         .col-aksi { white-space: nowrap; }
 
@@ -474,8 +477,15 @@
         ];
 
         // Status transaksi + warna badge
+        //  - belum kembali, belum lewat tempo  : Dipinjam            (emas)
+        //  - belum kembali, lewat tempo        : Terlambat           (merah)
+        //  - sudah kembali, lewat tempo        : Selesai (Terlambat) (biru)
+        //  - sudah kembali, tepat waktu        : Selesai             (hijau)
         $statusTransaksi = function ($item) {
             if ($item->tgl_kembali) {
+                if ($item->tgl_jatuh_tempo && $item->tgl_kembali->gt($item->tgl_jatuh_tempo)) {
+                    return ['Selesai (Terlambat)', 'b-biru'];
+                }
                 return ['Selesai', 'b-hijau'];
             }
             if ($item->tgl_jatuh_tempo && $item->tgl_jatuh_tempo->isPast()) {
