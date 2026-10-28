@@ -23,7 +23,6 @@
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -37,7 +36,7 @@
             --telat: #d6336c;
             --emas-teks: #b97d00;
         }
-        /* Palet biru tua: gelap */
+        
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -60,7 +59,7 @@
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Tombol */
+       
         .btn-outline-secondary {
             --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
@@ -78,7 +77,6 @@
         .btn-tema { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* ====== Layout: sidebar + konten ====== */
         .layout { display: flex; min-height: 100vh; }
         .sidebar { --bs-offcanvas-width: min(280px, 85vw); background: var(--kartu); }
         .sidebar-inner { width: 100%; min-height: 100%; display: flex; flex-direction: column; padding: 20px 16px; background: var(--kartu); }
@@ -110,7 +108,6 @@
         .topbar .btn-menu { min-width: 44px; min-height: 44px; }
         .content { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* ====== Isi halaman ====== */
         h1 { font-size: clamp(1.75rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
         h2 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.015em; }
         .lead { max-width: 36rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
@@ -122,7 +119,6 @@
         .ikon-kotak { width: 44px; height: 44px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; background: color-mix(in srgb, var(--biru) 14%, transparent); color: var(--biru); }
         .badge-jumlah { background: var(--hover); color: var(--bs-body-color); border: 1px solid var(--bs-border-color); font-weight: 600; }
 
-        /* Tab Aktivitas / Keamanan */
         .tab-log { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
         .tab-link {
             display: inline-flex; align-items: center; gap: 10px;
@@ -134,13 +130,11 @@
         .tab-link:hover { color: var(--bs-body-color); background: var(--hover); }
         .tab-link.active { color: var(--bs-body-color); background: var(--hover); box-shadow: inset 0 -3px 0 var(--emas); }
 
-        /* Form filter */
         .form-control, .form-select { min-height: 44px; background-color: var(--kartu); border-color: var(--bs-border-color); color: var(--bs-body-color); border-radius: 10px; }
         .form-control:focus, .form-select:focus { background-color: var(--kartu); color: var(--bs-body-color); border-color: var(--biru); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--biru) 20%, transparent); }
         [data-bs-theme="dark"] input[type="date"] { color-scheme: dark; }
         .form-label { font-size: .8rem; font-weight: 600; color: var(--bs-secondary-color); margin-bottom: .35rem; }
 
-        /* Tabel */
         .tabel-data { margin-bottom: 0; vertical-align: middle; --bs-table-bg: transparent; --bs-table-color: var(--bs-body-color); --bs-table-border-color: var(--bs-border-color); --bs-table-hover-bg: var(--hover); --bs-table-hover-color: var(--bs-body-color); }
         .tabel-data thead th { padding: 14px 16px; color: var(--bs-secondary-color); background: var(--hover); font-size: .85rem; font-weight: 700; white-space: nowrap; border-bottom: 1px solid var(--bs-border-color); }
         .tabel-data tbody td { padding: 16px; border-color: var(--bs-border-color); }
@@ -157,27 +151,23 @@
         .kosong { padding: 48px 20px !important; color: var(--bs-secondary-color); }
         .kosong i { display: block; font-size: 2.5rem; margin-bottom: 12px; opacity: .65; }
 
-        /* Pagination */
         .pagination { gap: 5px; margin-bottom: 0; flex-wrap: wrap; }
         .page-link { min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; color: var(--bs-body-color); background: var(--kartu); border-color: var(--bs-border-color); border-radius: 8px !important; }
         .page-item.active .page-link { color: #1a1405; background: var(--emas); border-color: var(--emas); }
         .page-item.disabled .page-link { color: var(--bs-secondary-color); background: var(--hover); }
         .alert { border-radius: 12px; }
 
-        /* Modal konfirmasi logout */
         .modal-content { color: var(--bs-body-color); background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
 
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* ====== Responsif ====== */
         @media (max-width: 991.98px) {
             .sidebar-inner { min-height: 100vh; }
             .papan-kepala, .papan-isi { padding: 20px; }
         }
 
-        /* HP: tabel jadi daftar kartu */
         @media screen and (max-width: 767.98px) {
             .papan { border-radius: 14px; }
             .papan-kepala, .papan-isi { padding: 16px; }
@@ -262,7 +252,6 @@
 
     <div class="layout">
 
-        <!-- Sidebar -->
         <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebarMenu" aria-label="Menu admin">
 
             <div class="offcanvas-header justify-content-end pb-0 d-lg-none">
@@ -319,7 +308,6 @@
             </div>
         </aside>
 
-        <!-- Konten utama -->
         <div class="content">
 
             <header class="topbar px-3 px-md-5 pb-3 d-flex align-items-center justify-content-between gap-2">
@@ -472,7 +460,6 @@
                                 </div>
                             </form>
 
-                            {{-- Tabel --}}
                             <div class="table-responsive">
 
                                 @if ($tab === 'aktivitas')
@@ -616,7 +603,6 @@
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap (pilihan tersimpan di browser)
         (function () {
             const html = document.documentElement;
             const label = document.getElementById('labelTema');
@@ -632,7 +618,6 @@
             });
         })();
 
-        // Konfirmasi sebelum logout
         (function () {
             const modal = new bootstrap.Modal(document.getElementById('modalLogout'));
             let formLogout = null;

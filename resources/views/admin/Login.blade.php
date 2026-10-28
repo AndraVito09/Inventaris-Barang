@@ -7,7 +7,6 @@
     <title>Login - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum halaman ditampilkan --}}
     <script>
         (function () {
             let tema = null;
@@ -88,8 +87,6 @@
             outline-offset: 3px;
         }
 
-        /* NAVBAR */
-
         .navbar-login {
             position: sticky;
             top: 0;
@@ -117,7 +114,6 @@
             min-width: 0;
         }
 
-        /* Logo (sama dengan tampilan peminjam) */
         .logo {
             width: 56px;
             height: 56px;
@@ -243,7 +239,7 @@
             background-color: var(--bs-body-bg);
             color: var(--bs-body-color);
             border-color: var(--bs-border-color);
-            font-size: 1rem; /* 16px: cegah zoom otomatis di iOS */
+            font-size: 1rem;
         }
 
         .form-control::placeholder {
@@ -298,7 +294,6 @@
             line-height: 1.6;
         }
 
-        /* Alert login gagal */
         .alert-login {
             display: flex;
             align-items: flex-start;
@@ -317,7 +312,6 @@
             75% { transform: translateX(6px); }
         }
 
-        /* Footer (sama dengan tampilan peminjam) */
         footer {
             border-top: 1px solid var(--bs-border-color);
             color: var(--bs-secondary-color);
@@ -340,8 +334,6 @@
             padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
             padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
         }
-
-        /* ====== Responsif ====== */
 
         @media (max-width: 767.98px) {
             .brand-text { font-size: 1.15rem; }
@@ -397,7 +389,6 @@
             footer { font-size: .8rem; }
         }
 
-        /* Layar pendek (HP landscape) */
         @media (max-height: 480px) and (orientation: landscape) {
             .navbar-inner { min-height: 56px; }
             .login-area { padding-top: 20px; padding-bottom: 20px; align-items: flex-start; }
@@ -423,7 +414,6 @@
 
 <body>
 
-    {{-- NAVBAR --}}
     <nav class="navbar-login" aria-label="Menu utama">
         <div class="container wadah">
             <div class="navbar-inner">
@@ -470,7 +460,6 @@
         </div>
     </nav>
 
-    {{-- FORM LOGIN --}}
     <main class="login-area">
         <div class="login-card">
 
@@ -492,7 +481,6 @@
                 mengelola inventaris barang.
             </p>
 
-            {{-- Alert: username/password salah atau error validasi --}}
             @if (session('login_error') || session('error') || $errors->any())
                 <div class="alert alert-danger alert-dismissible alert-login" role="alert">
                     <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
@@ -556,7 +544,6 @@
         </div>
     </main>
 
-    {{-- FOOTER (sama dengan tampilan peminjam) --}}
     <footer class="py-3">
         <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
             <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>

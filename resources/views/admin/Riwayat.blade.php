@@ -1,11 +1,9 @@
-{{-- Mode laporan (mingguan/bulanan/tahunan): dipakai oleh RiwayatController@unduh --}}
 @if (! empty($laporan))
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {{-- Judul dipakai browser sebagai nama file default saat "Simpan sebagai PDF" --}}
     <title>{{ $namaFile }}</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
@@ -13,7 +11,6 @@
         * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #111; background: #e9eef7; }
 
-        /* Bilah aksi (hanya di layar) */
         .bar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; background: #0b2447; color: #fff; }
         .bar .teks { font-size: 13px; }
         .bar .teks small { display: block; opacity: .75; margin-top: 2px; }
@@ -22,7 +19,6 @@
         .bar .utama { background: #f1b53d; color: #1a1405; }
         .bar .sekunder { background: rgba(255,255,255,.15); color: #fff; }
 
-        /* Kertas */
         .kertas { width: 297mm; max-width: 100%; margin: 18px auto; padding: 14mm; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,.15); }
 
         .kop { border-bottom: 2px solid #0b2447; padding-bottom: 8px; margin-bottom: 12px; }
@@ -143,7 +139,6 @@
     </div>
 
     <script>
-        // Buka dialog cetak otomatis setelah halaman siap
         window.addEventListener('load', function () {
             setTimeout(function () { window.print(); }, 500);
         });
@@ -160,7 +155,6 @@
     <title>Riwayat Peminjaman - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -177,7 +171,6 @@
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -191,7 +184,7 @@
             --telat: #d6336c;
             --emas-teks: #b97d00;
         }
-        /* Palet biru tua: gelap */
+
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -214,7 +207,6 @@
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Tombol */
         .btn-outline-secondary {
             --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
@@ -232,7 +224,6 @@
         .btn-tema { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* ====== Layout: sidebar + konten ====== */
         .layout { display: flex; min-height: 100vh; }
         .sidebar { --bs-offcanvas-width: min(280px, 85vw); background: var(--kartu); }
         .sidebar-inner { width: 100%; min-height: 100%; display: flex; flex-direction: column; padding: 20px 16px; background: var(--kartu); }
@@ -264,7 +255,6 @@
         .topbar .btn-menu { min-width: 44px; min-height: 44px; }
         .content { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* ====== Isi halaman ====== */
         h1 { font-size: clamp(1.75rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
         h2 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.015em; }
         .lead { max-width: 36rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
@@ -275,7 +265,6 @@
         .ikon-kotak { width: 44px; height: 44px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; background: color-mix(in srgb, var(--biru) 14%, transparent); color: var(--biru); }
         .badge-jumlah { background: var(--hover); color: var(--bs-body-color); border: 1px solid var(--bs-border-color); font-weight: 600; }
 
-        /* Tabel */
         .tabel-data { margin-bottom: 0; vertical-align: middle; --bs-table-bg: transparent; --bs-table-color: var(--bs-body-color); --bs-table-border-color: var(--bs-border-color); --bs-table-hover-bg: var(--hover); --bs-table-hover-color: var(--bs-body-color); }
         .tabel-data thead th { padding: 14px 16px; color: var(--bs-secondary-color); background: var(--hover); font-size: .85rem; font-weight: 700; white-space: nowrap; border-bottom: 1px solid var(--bs-border-color); }
         .tabel-data tbody td { padding: 16px; border-color: var(--bs-border-color); }
@@ -294,19 +283,16 @@
 
         .papan-isi { padding: 24px; }
 
-        /* Cari & filter (sama seperti halaman Barang) */
         .input-cari, .form-control, .form-select { min-height: 44px; background-color: var(--kartu); border-color: var(--bs-border-color); color: var(--bs-body-color); border-radius: 10px; }
         .input-cari:focus, .form-control:focus, .form-select:focus { background-color: var(--kartu); color: var(--bs-body-color); border-color: var(--biru); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--biru) 20%, transparent); }
         .input-group > .input-group-text.input-cari { border-radius: 10px 0 0 10px; color: var(--bs-secondary-color); }
         .input-group > .form-control.input-cari { border-radius: 0 10px 10px 0; }
 
-        /* Pagination */
         .pagination { gap: 5px; margin-bottom: 0; flex-wrap: wrap; }
         .page-link { min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; color: var(--bs-body-color); background: var(--kartu); border-color: var(--bs-border-color); border-radius: 8px !important; }
         .page-item.active .page-link { color: #1a1405; background: var(--emas); border-color: var(--emas); }
         .page-item.disabled .page-link { color: var(--bs-secondary-color); background: var(--hover); }
 
-        /* Modal */
         .modal-content { color: var(--bs-body-color); background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
         .modal-header, .modal-footer { border-color: var(--bs-border-color); }
         .form-text { color: var(--bs-secondary-color); }
@@ -315,13 +301,11 @@
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* ====== Responsif ====== */
         @media (max-width: 991.98px) {
             .sidebar-inner { min-height: 100vh; }
             .papan-kepala, .papan-isi { padding: 20px; }
         }
 
-        /* HP: tabel jadi daftar kartu */
         @media screen and (max-width: 767.98px) {
             .papan { border-radius: 14px; }
             .papan-kepala, .papan-isi { padding: 16px; }
@@ -383,7 +367,6 @@
             .btn-emas:hover { transform: none; }
         }
 
-        /* ====== Struk peminjaman ====== */
         .struk {
             background: #fff; color: #111;
             max-width: 340px; margin: 0 auto; padding: 20px 18px;
@@ -402,7 +385,6 @@
         .struk-qr canvas, .struk-qr img { max-width: 100%; height: auto !important; }
         .struk-kode   { text-align: center; font-weight: 700; letter-spacing: .08em; overflow-wrap: anywhere; margin-top: 6px; }
 
-        /* ====== Cetak struk ====== */
         @page { size: A4 portrait; margin: 12mm; }
 
         @media print {
@@ -436,7 +418,6 @@
             thead { display: table-header-group; }
             tr { break-inside: avoid; }
 
-            /* Mode cetak struk: sembunyikan halaman, tampilkan hanya struk */
             body.cetak-struk .layout,
             body.cetak-struk .modal-backdrop,
             body.cetak-struk #modalLogout,
@@ -487,7 +468,6 @@
 
     <div class="layout">
 
-        <!-- Sidebar -->
         <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebarMenu" aria-label="Menu admin">
 
             <div class="offcanvas-header justify-content-end pb-0 d-lg-none">
@@ -544,7 +524,6 @@
             </div>
         </aside>
 
-        <!-- Konten utama -->
         <div class="content">
 
             <header class="topbar px-3 px-md-5 pb-3 d-flex align-items-center justify-content-between gap-2">
@@ -576,7 +555,6 @@
             <main class="flex-grow-1 px-3 px-md-5">
                 <div class="isi mx-auto" style="max-width: 1120px;">
 
-                    {{-- Judul halaman --}}
                     <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 py-4 py-md-5">
                         <div style="min-width: 0;">
                             <h1>Riwayat Peminjaman</h1>
@@ -624,7 +602,6 @@
 
                         <div class="papan-isi no-print">
 
-                            {{-- Cari & filter status --}}
                             <form method="GET" action="{{ route('admin.riwayat') }}" class="row g-2 align-items-center mb-4">
                                 <div class="col-12 col-md-5 col-lg-4">
                                     <div class="input-group">
@@ -660,7 +637,6 @@
                                 </div>
                             </form>
 
-                            {{-- Tabel di layar (per halaman) --}}
                             <div class="table-responsive">
                                 <table class="table table-hover tabel-data">
                                     <thead>
@@ -747,7 +723,6 @@
         </div>
     </div>
 
-    {{-- Modal konfirmasi logout --}}
     <div class="modal fade" id="modalLogout" tabindex="-1" aria-labelledby="judulLogout" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
@@ -764,7 +739,6 @@
         </div>
     </div>
 
-    <!-- Modal unduh laporan -->
     <div class="modal fade no-print" id="modalUnduh" tabindex="-1" aria-labelledby="judulUnduh" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -825,7 +799,6 @@
         </div>
     </div>
 
-    <!-- Modal struk peminjaman -->
     <div class="modal fade" id="modalStruk" tabindex="-1" aria-labelledby="judulStruk" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -867,7 +840,7 @@
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('vendor/qrcodejs/qrcode.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap (pilihan tersimpan di browser)
+
         (function () {
             const html = document.documentElement;
             const label = document.getElementById('labelTema');
@@ -883,7 +856,6 @@
             });
         })();
 
-        // Konfirmasi sebelum logout
         (function () {
             const modal = new bootstrap.Modal(document.getElementById('modalLogout'));
             let formLogout = null;
@@ -901,7 +873,6 @@
             });
         })();
 
-        // Unduh laporan: tampilkan input sesuai periode yang dipilih
         (function () {
             const periode = document.getElementById('uPeriode');
             const grup = {
@@ -926,7 +897,6 @@
             periode.addEventListener('change', atur);
             atur();
 
-            // Tutup modal setelah unduhan dimulai
             const form = document.getElementById('formUnduh');
             form.addEventListener('submit', () => {
                 setTimeout(() => {
@@ -936,7 +906,6 @@
             });
         })();
 
-        // Struk peminjaman: isi modal dari data-* tombol, lalu cetak
         (function () {
             const modal = document.getElementById('modalStruk');
 
@@ -960,7 +929,6 @@
             });
         })();
 
-        // Bersihkan mode cetak struk setelah dialog cetak ditutup
         window.addEventListener('afterprint', () => document.body.classList.remove('cetak-struk'));
     </script>
 </body>

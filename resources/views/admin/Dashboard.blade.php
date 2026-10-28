@@ -6,7 +6,6 @@
     <title>Dashboard Admin - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -23,7 +22,6 @@
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -36,7 +34,7 @@
             --pinjam: #d99a14;
             --telat: #d6336c;
         }
-        /* Palet biru tua: gelap */
+    
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -58,7 +56,6 @@
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Tombol */
         .btn-outline-secondary {
             --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
@@ -67,7 +64,6 @@
         .btn-tema { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* ====== Layout: sidebar + konten ====== */
         .layout { display: flex; min-height: 100vh; }
 
         .sidebar { --bs-offcanvas-width: min(280px, 85vw); background: var(--kartu); }
@@ -130,7 +126,7 @@
         .sidebar-inner nav { margin-bottom: 24px; }
 
         .user-box {
-            margin-top: auto; /* dorong ke paling bawah sidebar */
+            margin-top: auto; 
             padding: 14px;
             border-radius: 14px;
             background: var(--bs-body-bg);
@@ -162,12 +158,10 @@
 
         .content { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* ====== Isi halaman (sama dengan tampilan peminjam) ====== */
         h1 { font-size: clamp(1.75rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
         h2 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.015em; }
         .lead { max-width: 28rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
 
-        /* Kondisi barang */
         .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
         .papan-kepala { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .25rem 1rem; }
         .kondisi { list-style: none; margin: 0; padding: 0; }
@@ -182,7 +176,6 @@
         .k-telat { --c: var(--telat); }
         .peringatan { color: var(--telat); font-weight: 500; }
 
-        /* Menu utama */
         .layanan { display: block; padding: 2rem; border-radius: 14px; background: var(--emas); color: #1a1405; text-decoration: none; transition: transform .2s, background .2s; }
         .layanan:hover { background: #f7c55c; color: #1a1405; transform: translateY(-3px); }
         .layanan h3 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.01em; }
@@ -198,7 +191,6 @@
         .aturan strong { color: #b97d00; }
         [data-bs-theme="dark"] .aturan strong { color: var(--emas); }
 
-        /* Modal konfirmasi logout */
         .modal-content { color: var(--bs-body-color); background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
         .btn-emas {
             --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
@@ -211,7 +203,6 @@
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* ====== Responsif ====== */
         @media (max-width: 991.98px) {
             .sidebar-inner { min-height: 100vh; }
             .lead { max-width: 36rem; }
@@ -269,7 +260,6 @@
 
     <div class="layout">
 
-        <!-- Sidebar -->
         <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebarMenu" aria-label="Menu admin">
 
             <div class="offcanvas-header justify-content-end pb-0 d-lg-none">
@@ -327,7 +317,6 @@
             </div>
         </aside>
 
-        <!-- Konten utama -->
         <div class="content">
 
             <header class="topbar px-3 px-md-5 pb-3 d-flex align-items-center justify-content-between gap-2">
@@ -359,7 +348,6 @@
             <main class="flex-grow-1 px-3 px-md-5">
                 <div class="isi mx-auto" style="max-width: 1120px;">
 
-                    <!-- Hero + kondisi barang -->
                     <section class="row g-4 g-lg-5 align-items-center py-4 py-md-5">
                         <div class="col-12 col-xl-5">
                             <h1>Selamat datang, {{ $namaUser }}.</h1>
@@ -402,7 +390,6 @@
                         </div>
                     </section>
 
-                    <!-- Menu utama -->
                     <section aria-labelledby="judul-menu">
                         <h2 id="judul-menu" class="mb-3">Menu utama</h2>
 
@@ -469,7 +456,7 @@
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap (pilihan tersimpan di browser)
+        
         (function () {
             const html = document.documentElement;
             const label = document.getElementById('labelTema');
@@ -485,7 +472,6 @@
             });
         })();
 
-        // Konfirmasi sebelum logout
         (function () {
             const modal = new bootstrap.Modal(document.getElementById('modalLogout'));
             let formLogout = null;

@@ -54,7 +54,6 @@
             overflow: hidden;
         }
 
-        /* Judul laporan */
         .stiker .judul {
             width: 100%;
             padding: 1.2mm 0;
@@ -89,7 +88,6 @@
 
         .stiker svg { width: 54mm; height: 18mm; }
 
-        /* Garis aksen emas di bawah */
         .stiker .aksen {
             width: 100%;
             height: 1.5mm;
