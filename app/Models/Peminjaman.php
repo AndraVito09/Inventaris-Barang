@@ -24,7 +24,6 @@ class Peminjaman extends Model
     public function peminjam() { return $this->belongsTo(Peminjam::class, 'id_peminjam', 'id_peminjam'); }
 
     // Kode transaksi dihitung, tidak disimpan di database.
-    // Contoh: TRX-20261019-00042-K7QX2 (tanggal pinjam - nomor peminjaman - tanda pengaman)
     public function getKodeTransaksiAttribute(): string
     {
         $tanggal = $this->tgl_pinjam->format('Ymd');

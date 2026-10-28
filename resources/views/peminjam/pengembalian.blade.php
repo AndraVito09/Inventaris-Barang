@@ -304,7 +304,7 @@
 
                     <label for="inputKode" class="form-label">Kode struk</label>
                     <div class="input-group">
-                        <input id="inputKode" type="text" class="form-control form-control-lg kode-struk" placeholder="TRX-20261021-00002-FB842" autocomplete="off" autofocus>
+                        <input id="inputKode" type="text" class="form-control form-control-lg kode-struk" placeholder="TRX-20261027-00019-900A1EB74DEA" autocomplete="off" autofocus>
                         <button id="tombolCari" class="btn btn-emas px-4">Cari</button>
                     </div>
                     <div class="small text-secondary mt-2">Scanner belum terbaca? Ketik kode di struk lalu tekan Enter.</div>

@@ -280,7 +280,7 @@
         const batas = new Date(sekarang.getTime() + 24 * 60 * 60 * 1000);
         const format = d => d.toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).replace('.', ':');
         const pad = n => String(n).padStart(2, '0');
-        const kode = `TRX-${sekarang.getFullYear()}${pad(sekarang.getMonth() + 1)}${pad(sekarang.getDate())}-00001-A7F3K`;
+        const kode = `TRX-${sekarang.getFullYear()}${pad(sekarang.getMonth() + 1)}${pad(sekarang.getDate())}-00001-940A2EB74DEA`;
         document.getElementById('kodeContoh').textContent = kode;
         document.getElementById('tPinjam').textContent = format(sekarang);
         document.getElementById('tBatas').textContent = format(batas);
