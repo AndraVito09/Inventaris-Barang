@@ -19,8 +19,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
-    <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <style>
         /* Palet biru tua: terang */
@@ -35,6 +35,7 @@
             --ada: #0f9d7a;
             --pinjam: #d99a14;
             --telat: #d6336c;
+            --kembali: #2f6fed;
         }
         /* Palet biru tua: gelap */
         [data-bs-theme="dark"] {
@@ -48,6 +49,7 @@
             --ada: #4fd1ac;
             --pinjam: #f1b53d;
             --telat: #f0708f;
+            --kembali: #6ea8ff;
         }
         :root { --emas: #f1b53d; }
 
@@ -171,7 +173,7 @@
         .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
         .papan-kepala { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .25rem 1rem; }
         .kondisi { list-style: none; margin: 0; padding: 0; }
-        .kondisi li { display: grid; grid-template-columns: 6.5rem 1fr 2.5rem; align-items: center; gap: 14px; padding: .7rem 0; border-bottom: 1px solid var(--bs-border-color); }
+        .kondisi li { display: grid; grid-template-columns: 7.5rem 1fr 2.5rem; align-items: center; gap: 14px; padding: .7rem 0; border-bottom: 1px solid var(--bs-border-color); }
         .kondisi li:last-child { border-bottom: 0; }
         .kondisi .nama { font-weight: 500; }
         .kondisi .jumlah { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -180,6 +182,7 @@
         .k-ada { --c: var(--ada); }
         .k-pinjam { --c: var(--pinjam); }
         .k-telat { --c: var(--telat); }
+        .k-kembali { --c: var(--kembali); }
         .peringatan { color: var(--telat); font-weight: 500; }
 
         /* Menu utama */
@@ -221,7 +224,7 @@
         @media (max-width: 767.98px) {
             .layanan { padding: 1.5rem; }
             .daftar .list-group-item { grid-template-columns: 1fr; gap: 2px; }
-            .kondisi li { grid-template-columns: 5.5rem 1fr 2rem; gap: 10px; }
+            .kondisi li { grid-template-columns: 6.5rem 1fr 2rem; gap: 10px; }
             .aturan { padding: 1rem !important; margin-top: 2rem !important; margin-bottom: 2rem !important; }
             .topbar { padding-left: max(1rem, env(safe-area-inset-left)) !important; padding-right: max(1rem, env(safe-area-inset-right)) !important; }
         }
@@ -229,7 +232,7 @@
         @media (max-width: 399.98px) {
             .logo { width: 44px; height: 44px; }
             .brand-teks { font-size: 1.1rem; }
-            .kondisi li { grid-template-columns: 4.75rem 1fr 1.75rem; gap: 8px; }
+            .kondisi li { grid-template-columns: 5.75rem 1fr 1.75rem; gap: 8px; }
             .papan { border-radius: 12px; }
             .layanan { padding: 1.25rem; }
             footer { font-size: .8rem; }
@@ -255,13 +258,14 @@
         $user     = auth()->user();
         $namaUser = $user->name ?? ($user->username ?? 'Admin');
 
-        // Data ringkasan (sama dengan tampilan peminjam)
-        $total  = (int) ($totalBarang ?? 0);
-        $ada    = (int) ($barangTersedia ?? 0);
-        $telat  = (int) ($terlambat ?? 0);
-        $pinjam = max((int) ($sedangDipinjam ?? 0) - $telat, 0);
-        $dasar  = max($total, 1);
-        $lebar  = fn ($n) => round(min($n / $dasar * 100, 100), 2);
+        // Data ringkasan
+        $total   = (int) ($totalBarang ?? 0);
+        $ada     = (int) ($barangTersedia ?? 0);
+        $telat   = (int) ($terlambat ?? 0);
+        $pinjam  = max((int) ($sedangDipinjam ?? 0) - $telat, 0);
+        $kembali = (int) ($sudahKembali ?? 0); // barang yang sudah dikembalikan
+        $dasar   = max($total, 1);
+        $lebar   = fn ($n) => round(min($n / $dasar * 100, 100), 2);
 
         // Link Daftar Barang: pakai route barang.index jika ada, kalau tidak ke kategori
         $linkBarang = Route::has('barang.index') ? route('barang.index') : route('kategori.index');
@@ -389,6 +393,11 @@
                                         <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($telat) }}%"></span></span>
                                         <span class="jumlah">{{ $telat }}</span>
                                     </li>
+                                    <li class="k-kembali">
+                                        <span class="nama">Dikembalikan</span>
+                                        <span class="jalur" aria-hidden="true"><span style="width: {{ $lebar($kembali) }}%"></span></span>
+                                        <span class="jumlah">{{ $kembali }}</span>
+                                    </li>
                                 </ul>
 
                                 <div class="border-top mt-2 pt-3 small">
@@ -467,7 +476,7 @@
         </div>
     </div>
 
-    <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Ganti tema terang/gelap (pilihan tersimpan di browser)
         (function () {

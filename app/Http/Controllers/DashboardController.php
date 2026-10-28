@@ -11,14 +11,20 @@ class DashboardController extends Controller
     {
         $totalBarang    = Barang::count();
         $barangTersedia = Barang::where('status_barang', 'Tersedia')->count();
-        $sedangDipinjam = Peminjaman::where('status_peminjaman', 'Dipinjam')->count();
+
+        // Dipinjam + Terlambat (Blade akan mengurangi dengan $terlambat)
+        $sedangDipinjam = Peminjaman::whereIn('status_peminjaman', ['Dipinjam', 'Terlambat'])->count();
         $terlambat      = Peminjaman::where('status_peminjaman', 'Terlambat')->count();
+
+        // BARU: sudah dikembalikan (samakan nama status dengan yang kamu simpan saat barang kembali)
+        $sudahKembali   = Peminjaman::whereIn('status_peminjaman', ['Dikembalikan', 'Selesai'])->count();
 
         return view('admin/Dashboard', compact(
             'totalBarang',
             'barangTersedia',
             'sedangDipinjam',
-            'terlambat'
+            'terlambat',
+            'sudahKembali'
         ));
     }
 }
