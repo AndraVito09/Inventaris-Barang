@@ -1082,10 +1082,9 @@
                                 </span>
 
                                 <p class="bio-anggota">
-                                    Bertanggung jawab dalam tampilan website,
-                                    tata letak halaman, dan pengalaman
-                                    pengguna.
-                                </p>
+                                 Mengembangkan frontend dan backend,
+                                 serta mengelola server, database, model,
+                                 migrasi, dan log aktivitas.
                             </article>
                         </div>
 
@@ -1117,9 +1116,8 @@
                                 </span>
 
                                 <p class="bio-anggota">
-                                    Bertanggung jawab dalam logika aplikasi,
-                                    proses peminjaman, dan integrasi
-                                    dengan database.
+                                    Merancang UI/UX, mengembangkan frontend dan backend, 
+                                    serta membangun fitur scanner.
                                 </p>
                             </article>
                         </div>
@@ -1152,9 +1150,8 @@
                                 </span>
 
                                 <p class="bio-anggota">
-                                    Bertanggung jawab dalam pengelolaan data,
-                                    pengujian, dokumentasi, dan dukungan
-                                    pengembangan sistem.
+                                    Mengembangkan frontend dan backend serta 
+                                    membangun fitur-fitur pada sistem inventaris barang.
                                 </p>
                             </article>
                         </div>
