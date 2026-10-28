@@ -1055,11 +1055,11 @@
                     <div class="row g-3">
 
                         {{-- ANGGOTA 1 --}}
-                        {{-- Foto: public/images/anggota1.jpeg --}}
+                        {{-- Foto: public/images/anggota1.jpg --}}
                         <div class="col-12 col-md-4">
                             <article class="kartu-anggota">
                                 <div class="foto-anggota">
-                                    <img src="{{ asset('images/anggota1.jpeg') }}"
+                                    <img src="{{ asset('images/anggota1.jpg') }}"
                                          alt="Foto Nama Anggota 1"
                                          loading="lazy"
                                          onerror="this.remove()">
@@ -1075,7 +1075,7 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="nama-anggota">Andravito Brilian Satriya</h3>
+                                <h3 class="nama-anggota">Andravito Brilian Satrya</h3>
 
                                 <span class="peran-anggota">
                                     Fullstack Developer
