@@ -19,7 +19,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
-    <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
         /* Palet biru tua: terang */
@@ -85,7 +86,24 @@
         .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
+        /* Tombol utama */
+        .btn-emas {
+            --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
+            --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
+            --bs-btn-active-color: #1a1405; --bs-btn-active-bg: #f7c55c; --bs-btn-active-border-color: #f7c55c;
+            font-weight: 700;
+        }
+
         h1 { font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: break-word; }
+
+        /* Filter */
+        .filter-bar .form-control,
+        .filter-bar .form-select,
+        .filter-bar .input-group-text { background-color: var(--input); border-color: var(--bs-border-color); min-height: 44px; }
+        .filter-bar .form-control:focus,
+        .filter-bar .form-select:focus { border-color: var(--aksen); box-shadow: 0 0 0 .2rem rgba(110, 168, 255, .25); }
+        .filter-bar .form-select option { background-color: var(--kartu); color: var(--bs-body-color); }
+        .filter-bar .btn { min-height: 44px; }
 
         /* Tabel */
         .table-card { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
@@ -132,6 +150,9 @@
             .navbar .nav-link:hover, .navbar .nav-link.aktif { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
             .btn-kembali { width: 100%; }
+
+            /* Font input minimal 16px agar iOS tidak otomatis zoom */
+            .filter-bar .form-control, .filter-bar .form-select { font-size: 1rem; }
 
             .table-card { border-radius: 12px; }
             .tabel-riwayat, .tabel-riwayat tbody, .tabel-riwayat tr, .tabel-riwayat td { display: block; width: 100%; }
@@ -188,7 +209,7 @@
             <div class="collapse navbar-collapse" id="menuNavbar">
                 <ul class="navbar-nav ms-auto align-items-md-center gap-md-4 py-3 py-md-0">
                     <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam') }}">Beranda</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/katalog') }}">Daftar Barang</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('/peminjam/daftar-barang') }}">Daftar Barang</a></li>
                     <li class="nav-item"><a class="nav-link aktif" href="{{ url('/peminjam/riwayat') }}" aria-current="page">Riwayat</a></li>
                     <li class="nav-item mt-2 mt-md-0">
                         <button type="button" id="btnTema" class="btn btn-outline-secondary btn-sm btn-tema" aria-label="Ganti mode terang atau gelap">
@@ -214,6 +235,32 @@
         <p class="text-secondary mb-4" style="max-width: 560px;">
             Pantau transaksi yang berjalan dan yang sudah selesai. Nama peminjam disamarkan untuk menjaga privasi.
         </p>
+
+        {{-- Pencarian + filter status --}}
+        <form method="GET" action="{{ url('/peminjam/riwayat') }}" class="filter-bar row g-2 mb-4">
+            <div class="col-12 col-md">
+                <div class="input-group">
+                    <span class="input-group-text text-secondary"><i class="bi bi-search"></i></span>
+                    <input type="search" name="cari" value="{{ request('cari') }}"
+                           class="form-control" placeholder="Cari nama barang..." maxlength="100"
+                           aria-label="Cari nama barang">
+                </div>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <select name="status" class="form-select" aria-label="Filter status" onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <option value="dipinjam"  @selected(request('status') === 'dipinjam')>Dipinjam</option>
+                    <option value="terlambat" @selected(request('status') === 'terlambat')>Terlambat</option>
+                    <option value="selesai"   @selected(request('status') === 'selesai')>Selesai</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-auto d-flex gap-2">
+                <button type="submit" class="btn btn-emas flex-grow-1">Cari</button>
+                @if (request()->filled('cari') || request()->filled('status'))
+                    <a href="{{ url('/peminjam/riwayat') }}" class="btn btn-outline-secondary d-inline-flex align-items-center">Reset</a>
+                @endif
+            </div>
+        </form>
 
         <div class="table-card">
             <div class="table-responsive">
@@ -260,7 +307,11 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="kosong text-center text-secondary py-5">
-                                    Belum ada transaksi peminjaman.
+                                    @if (request()->filled('cari') || request()->filled('status'))
+                                        Tidak ada transaksi yang cocok dengan pencarian.
+                                    @else
+                                        Belum ada transaksi peminjaman.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
@@ -292,7 +343,7 @@
         document.getElementById('btnTema').addEventListener('click', () => {
             const baru = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-bs-theme', baru);
-            try { localStorage.setItem('tema', baru); } catch (e) {}
+            try { localStorage.setItem('tema', baru) } catch (e) {}
             tampilkanLabel();
         });
     </script>

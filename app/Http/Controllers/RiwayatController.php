@@ -106,9 +106,17 @@ class RiwayatController extends Controller
         ]);
     }
 
-    public function peminjam(): View
+    public function peminjam(Request $request): View
     {
-        $riwayat = $this->ambilRiwayat();
+        // Halaman publik: form memakai field "cari" dan "status"
+        $cari = mb_substr(trim($request->string('cari')->toString()), 0, 100);
+
+        $status = $request->string('status')->toString();
+        if (! array_key_exists($status, self::OPSI_STATUS)) {
+            $status = '';
+        }
+
+        $riwayat = $this->ambilRiwayat($cari, $status);
 
         $riwayat->each(function (Peminjaman $row) {
             $nama = $row->peminjam->nama_peminjam ?? '-';
@@ -146,7 +154,7 @@ class RiwayatController extends Controller
 
     private function queryAdmin(string $cari, string $status): Builder
     {
-        return Peminjaman::with(['barang', 'peminjam'])
+        $query = Peminjaman::with(['barang', 'peminjam'])
             ->when($cari !== '', function (Builder $query) use ($cari) {
                 $query->where(function (Builder $w) use ($cari) {
                     $w->whereHas('peminjam', fn(Builder $p) => $p->where('nama_peminjam', 'like', "%{$cari}%"))
@@ -155,21 +163,36 @@ class RiwayatController extends Controller
                                 ->orWhere('kode_barcode', 'like', "%{$cari}%");
                         });
                 });
-            })
-            ->when($status === 'selesai', fn(Builder $q) => $q->whereNotNull('tgl_kembali'))
-            ->when($status === 'terlambat', fn(Builder $q) => $q->whereNull('tgl_kembali')->where('tgl_jatuh_tempo', '<', now()))
-            ->when($status === 'dipinjam', function (Builder $q) {
-                $q->whereNull('tgl_kembali')
-                    ->where(fn(Builder $w) => $w->whereNull('tgl_jatuh_tempo')->orWhere('tgl_jatuh_tempo', '>=', now()));
-            })
+            });
+
+        return $this->filterStatus($query, $status)
             ->orderByDesc('tgl_pinjam');
     }
 
-    private function ambilRiwayat(): Collection
+    private function ambilRiwayat(string $cari = '', string $status = ''): Collection
     {
-        return Peminjaman::with(['barang', 'peminjam'])
+        $query = Peminjaman::with(['barang', 'peminjam'])
+            // Hanya cari nama barang. Nama peminjam sengaja tidak dicari
+            // karena di halaman publik ini namanya disamarkan.
+            ->when($cari !== '', fn(Builder $q) =>
+                $q->whereHas('barang', fn(Builder $b) =>
+                    $b->where('nama_barang', 'like', "%{$cari}%")));
+
+        return $this->filterStatus($query, $status)
             ->orderByDesc('tgl_pinjam')
             ->get();
+    }
+
+    private function filterStatus(Builder $query, string $status): Builder
+    {
+        return $query
+            ->when($status === 'selesai', fn(Builder $q) => $q->whereNotNull('tgl_kembali'))
+            ->when($status === 'terlambat', fn(Builder $q) =>
+                $q->whereNull('tgl_kembali')->where('tgl_jatuh_tempo', '<', now()))
+            ->when($status === 'dipinjam', fn(Builder $q) =>
+                $q->whereNull('tgl_kembali')
+                    ->where(fn(Builder $w) => $w->whereNull('tgl_jatuh_tempo')
+                        ->orWhere('tgl_jatuh_tempo', '>=', now())));
     }
 
     private function samarkanNama(string $nama): string
