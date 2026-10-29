@@ -7,7 +7,6 @@
     <title>Pengembalian - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -430,7 +429,7 @@
             suara.muted = true;
             suara.play().then(() => {
                 suara.dataset.siap = '1';
-                if (sirineAktif) {      // sirene sudah mulai duluan, jangan dihentikan
+                if (sirineAktif) {     
                     suara.muted = false;
                     return;
                 }
@@ -454,9 +453,6 @@
             suara.currentTime = 0;
         }
 
-        /* ---------- Scanner fisik (bekerja seperti keyboard) ---------- */
-        // Scanner mengetik isi QR ke kolom yang sedang fokus lalu menekan Enter.
-        // Karena itu kolom input dijaga selalu fokus.
         const input = $('inputKode');
         const area = $('areaScan');
         const status = $('statusScanner');
@@ -473,23 +469,18 @@
             status.classList.toggle('mati', !siap);
             status.textContent = siap ? 'Scanner siap, silakan scan struk' : 'Klik di sini untuk mengaktifkan scanner';
         }
-
-        /* ---------- Ambil kode dari hasil scan ---------- */
-        // Isi QR bisa berupa kode murni, URL, atau JSON. Fungsi ini mengambil kodenya saja.
+.
         function ekstrakKode(teks) {
             teks = (teks || '').trim();
 
-            // 1) Cari pola kode struk di mana pun posisinya (URL, JSON, teks lain)
             const m = teks.match(/TRX-\d{8}-\d+-[A-Z0-9]+/i);
             if (m) return m[0].toUpperCase();
 
-            // 2) Kalau JSON, coba ambil field kode
             try {
                 const obj = JSON.parse(teks);
                 if (obj && obj.kode) return String(obj.kode).trim();
             } catch (_) { /* bukan JSON */ }
 
-            // 3) Kalau URL, ambil segmen terakhir dari path
             if (/^https?:\/\//i.test(teks)) {
                 try {
                     const u = new URL(teks);
@@ -501,7 +492,6 @@
             return teks;
         }
 
-        /* ---------- Ambil data transaksi ---------- */
         async function cariTransaksi(mentah) {
             if (!mentah || sedangMemproses) return;
             sedangMemproses = true;
@@ -552,13 +542,11 @@
                 console.error('[Pengembalian] Galat:', e);
                 tampilkanGalat(e.message || 'Terjadi kesalahan. Coba lagi.');
             } finally {
-                // jeda singkat agar QR yang sama tidak terbaca berulang
                 setTimeout(() => { sedangMemproses = false; }, 800);
                 fokus();
             }
         }
 
-        /* ---------- Tampilan detail ---------- */
         function hitungTerlambat(batasISO) {
             const selisihMs = Date.now() - new Date(batasISO).getTime();
             if (isNaN(selisihMs) || selisihMs <= 0) return null;
@@ -584,7 +572,6 @@
 
             $('dKode').textContent = d.kode;
             $('dNama').textContent = d.nama;
-            // Baris kelas hanya relevan untuk siswa
             $('barisKelas').classList.toggle('d-none', !siswa);
             $('dKelas').textContent = d.kelas || '-';
             $('dBarang').textContent = Array.isArray(d.barang) ? d.barang.join(', ') : d.barang;
@@ -600,13 +587,11 @@
                 dStatus.style.color = 'var(--sukses)';
             }
 
-            // Alert & suara muncul untuk semua peminjam yang terlambat; sanksi hanya untuk siswa
             if (lama) bukaAlertTerlambat(lama, siswa);
         }
 
         function bukaAlertTerlambat(lama, siswa) {
             $('lamaTerlambat').textContent = 'Terlambat ' + lama;
-            // Kotak sanksi hanya tampil untuk siswa
             $('kotakSanksi').classList.toggle('d-none', !siswa);
             $('tombolBisu').textContent = 'Matikan suara';
             modalTerbuka = true;
@@ -620,7 +605,6 @@
             modalTerlambat.hide();
         }
 
-        /* ---------- Konfirmasi pengembalian ---------- */
         async function konfirmasi() {
             if (!transaksi) return;
             const tombol = $('tombolKonfirmasi');
@@ -698,14 +682,12 @@
         input.addEventListener('focus', perbaruiStatus);
         input.addEventListener('blur', () => {
             perbaruiStatus();
-            // kembalikan fokus otomatis, kecuali pengguna sedang menekan tombol atau modal terbuka
             setTimeout(() => {
                 const aktif = document.activeElement;
                 if (!modalTerbuka && (!aktif || aktif === document.body)) fokus();
             }, 150);
         });
 
-        // Browser baru mengizinkan suara setelah ada interaksi; scan pertama (ketikan scanner) juga dihitung.
         document.addEventListener('keydown', siapkanAudio, { once: true });
         document.addEventListener('pointerdown', siapkanAudio, { once: true });
 

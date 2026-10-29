@@ -6,7 +6,6 @@
     <title>Peminjaman Barang - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -22,7 +21,7 @@
     <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
+        
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -35,7 +34,7 @@
             --aksen: #1d4fa8;
             --emas-teks: #a56d00;
         }
-        /* Palet biru tua: gelap */
+        
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -53,11 +52,10 @@
         html { -webkit-text-size-adjust: 100%; }
         body {
             font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
-            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+            overflow-x: hidden;
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Wadah utama: hormati area aman (notch) di HP */
         .wadah {
             max-width: 1120px;
             padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
@@ -65,7 +63,6 @@
         }
         .halaman-form { max-width: 640px; }
 
-        /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
         .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
         .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -81,7 +78,6 @@
         .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* Tombol utama */
         .btn-emas {
             --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
             --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
@@ -92,7 +88,6 @@
 
         h1 { font-size: clamp(1.7rem, 6vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: break-word; }
 
-        /* Formulir */
         .card { background: var(--kartu); border-color: var(--bs-border-color); border-radius: 16px; }
         .form-control, .form-select { background-color: var(--input); border-color: var(--bs-border-color); min-height: 44px; }
         .form-control:focus, .form-select:focus { border-color: var(--aksen); box-shadow: 0 0 0 .2rem rgba(110, 168, 255, .25); }
@@ -110,28 +105,23 @@
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* ====== Responsif ====== */
 
-        /* Tablet portrait & HP (di bawah 768px) */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
             .navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; border-bottom-width: 0; border-left: 3px solid transparent; padding-left: .75rem; }
             .navbar .nav-link:hover { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
-            .btn-kembali { width: 100%; }     /* tombol kembali selebar layar agar mudah ditekan */
+            .btn-kembali { width: 100%; }
 
-            /* Ukuran font input minimal 16px agar iOS tidak otomatis zoom saat input difokuskan */
             .form-control, .form-select { font-size: 1rem; }
         }
 
-        /* HP (di bawah 576px) */
         @media (max-width: 575.98px) {
             .card { border-radius: 12px; }
             .kode-struk { letter-spacing: .04em; }
             .info-24jam { padding: .85rem !important; }
 
-            /* Modal konfirmasi: tombol menumpuk, tombol utama di atas */
             .modal-dialog { margin: .75rem; }
             .modal-footer { flex-direction: column-reverse; }
             .modal-footer .btn { width: 100%; margin: 0; }
@@ -139,7 +129,6 @@
             #ringkasan dd { margin-bottom: .6rem; font-weight: 500; }
         }
 
-        /* HP kecil (di bawah 400px) */
         @media (max-width: 399.98px) {
             .navbar-brand { font-size: 1.05rem; gap: .5rem !important; }
             .logo { width: 38px; height: 38px; }
@@ -147,7 +136,6 @@
             footer { font-size: .8rem; }
         }
 
-        /* Layar pendek (HP landscape): kurangi jarak vertikal */
         @media (max-height: 480px) and (orientation: landscape) {
             .navbar { padding-top: .35rem; padding-bottom: .35rem; }
             .logo { width: 38px; height: 38px; }
@@ -157,7 +145,6 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- Header / Navbar -->
     <nav class="navbar navbar-expand-md sticky-top" aria-label="Menu utama">
         <div class="container wadah">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/peminjam') }}">
@@ -186,7 +173,6 @@
         </div>
     </nav>
 
-    <!-- Isi halaman -->
     <main class="container wadah flex-grow-1 py-4 py-md-5">
         <div class="mx-auto halaman-form">
             <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/peminjam') }}">
@@ -200,12 +186,10 @@
             <form method="POST" action="{{ url('/peminjam/pinjam') }}" class="card p-3 p-md-4" id="form-pinjam">
                 @csrf
 
-                {{-- Tampilkan error validasi supaya tidak gagal diam-diam --}}
                 @if ($errors->any())
                     <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
                 @endif
 
-                {{-- 1. Tipe peminjam --}}
                 <div class="mb-3">
                     <label for="tipe_peminjam" class="form-label">Saya meminjam sebagai</label>
                     <select id="tipe_peminjam" name="tipe_peminjam" class="form-select @error('tipe_peminjam') is-invalid @enderror" required>
@@ -219,7 +203,6 @@
 
                 <div id="bagian-form" class="d-none">
 
-                    {{-- 2. Scan barcode barang --}}
                     <div class="mb-3">
                         <label for="kode_barcode" class="form-label">Kode barang (scan barcode)</label>
                         <input type="text" id="kode_barcode" name="kode_barcode" value="{{ old('kode_barcode') }}"
@@ -229,7 +212,6 @@
                         <div id="hasil-barang" class="small mt-2" aria-live="polite"></div>
                     </div>
 
-                    {{-- 3. Data peminjam --}}
                     <div class="mb-3">
                         <label for="nama_peminjam" class="form-label">Nama lengkap</label>
                         <input type="text" id="nama_peminjam" name="nama_peminjam" value="{{ old('nama_peminjam') }}"
@@ -237,9 +219,7 @@
                         @error('nama_peminjam') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    {{-- Kolom khusus tiap tipe. Yang tidak dipilih disembunyikan dan di-disable, jadi tidak ikut terkirim. --}}
                     <div data-tipe="Siswa" class="d-none">
-                        {{-- NIS dan kelas: berdampingan di layar sedang ke atas, menumpuk di HP --}}
                         <div class="row g-3 mb-3">
                             <div class="col-12 col-sm-6">
                                 <label for="nis" class="form-label">NIS</label>
@@ -283,7 +263,6 @@
                         </div>
                     </div>
 
-                    {{-- Lama peminjaman tetap 24 jam. Jatuh tempo dihitung di server, bukan dari form. --}}
                     <div class="mb-4">
                         <div class="form-label">Lama peminjaman</div>
                         <div class="info-24jam p-3 rounded-3">
@@ -298,7 +277,6 @@
         </div>
     </main>
 
-    <!-- Pop up konfirmasi sebelum data disimpan -->
     <div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="judulKonfirmasi" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -318,7 +296,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="py-3">
         <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
             <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
@@ -327,7 +304,7 @@
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap
+
         const html = document.documentElement;
         const labelTema = document.getElementById('labelTema');
         const tampilkanLabel = () => {
@@ -352,10 +329,9 @@
         const modalKonfirmasi = new bootstrap.Modal(document.getElementById('modalKonfirmasi'));
 
         let namaBarang = '';
-        let timerCek   = null;  // timer debounce pengecekan barang
-        let idCek      = 0;     // penanda request terbaru, supaya respons lama diabaikan
+        let timerCek   = null;  
+        let idCek      = 0;     
 
-        // Tampilkan kolom sesuai tipe peminjam
         function aturTipe() {
             const tipe = pilihTipe.value;
             bagianForm.classList.toggle('d-none', !tipe);
@@ -369,10 +345,9 @@
             if (tipe) inputKode.focus();
         }
 
-        // Cek barang hasil scan/ketik: harus ada dan berstatus Tersedia
         async function cekBarang() {
             const kode = inputKode.value.trim();
-            const id = ++idCek;              // tandai request ini sebagai yang terbaru
+            const id = ++idCek;             
             tombolSimpan.disabled = true;
             namaBarang = '';
 
@@ -386,7 +361,7 @@
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await respon.json();
-                if (id !== idCek) return;    // sudah ada request lebih baru, abaikan hasil ini
+                if (id !== idCek) return;
 
                 if (data.ok) {
                     namaBarang = data.nama;
@@ -404,8 +379,6 @@
             }
         }
 
-        // Tambah satu baris ke ringkasan (dilewati jika nilainya kosong).
-        // Di HP label dan nilai menumpuk (col-12), di layar lebih besar berdampingan.
         function tambahBaris(label, nilai) {
             if (!nilai) return;
             const dt = document.createElement('dt');
@@ -417,7 +390,6 @@
             ringkasan.append(dt, dd);
         }
 
-        // Saat tombol simpan ditekan: tampilkan pop up konfirmasi dulu, form belum terkirim
         formPinjam.addEventListener('submit', e => {
             e.preventDefault();
             ringkasan.replaceChildren();
@@ -431,7 +403,6 @@
                 tambahBaris(label, input.value.trim());
             });
 
-            // Lama pinjam selalu 24 jam; batas di sini hanya perkiraan, nilai pastinya dihitung server
             const batas = new Date(Date.now() + 24 * 60 * 60 * 1000);
             tambahBaris('Lama pinjam', '24 jam (1 hari)');
             tambahBaris('Batas pengembalian', batas.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }));
@@ -439,28 +410,24 @@
             modalKonfirmasi.show();
         });
 
-        // Setelah dikonfirmasi: kirim form (tombol dikunci agar tidak terkirim dua kali)
         tombolYakin.addEventListener('click', () => {
             tombolYakin.disabled = true;
             tombolYakin.textContent = 'Menyimpan...';
             formPinjam.submit();
         });
 
-        // Cek otomatis 400ms setelah berhenti mengetik (tanpa harus pindah kolom)
         inputKode.addEventListener('input', () => {
             tombolSimpan.disabled = true;
             clearTimeout(timerCek);
             timerCek = setTimeout(cekBarang, 400);
         });
 
-        // Scanner mengirim Enter setelah kode: jangan kirim form, langsung cek barang
         inputKode.addEventListener('keydown', e => {
             if (e.key === 'Enter') { e.preventDefault(); clearTimeout(timerCek); cekBarang(); }
         });
 
         pilihTipe.addEventListener('change', aturTipe);
 
-        // Jika pengguna menekan tombol Back, kembalikan tombol konfirmasi ke keadaan awal
         window.addEventListener('pageshow', () => {
             tombolYakin.disabled = false;
             tombolYakin.textContent = 'Ya, simpan';

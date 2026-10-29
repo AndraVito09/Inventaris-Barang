@@ -6,7 +6,6 @@
     <title>Daftar Barang - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -23,7 +22,7 @@
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
+
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -37,7 +36,7 @@
             --emas-teks: #a56d00;
             --sukses: #0f7a4d;
         }
-        /* Palet biru tua: gelap */
+    
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -66,7 +65,6 @@
             padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
         }
 
-        /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
         .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
         .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -82,7 +80,6 @@
         .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* Tombol utama */
         .btn-emas {
             --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
             --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
@@ -92,7 +89,6 @@
 
         h1 { font-size: clamp(1.75rem, 6vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: break-word; }
 
-        /* Filter */
         .filter-bar .form-control,
         .filter-bar .form-select,
         .filter-bar .input-group-text { background-color: var(--input); border-color: var(--bs-border-color); min-height: 44px; }
@@ -101,7 +97,6 @@
         .filter-bar .form-select option { background-color: var(--kartu); color: var(--bs-body-color); }
         .filter-bar .btn { min-height: 44px; }
 
-        /* Tabel */
         .table-card { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
         .table {
             --bs-table-bg: transparent;
@@ -120,12 +115,10 @@
         }
         .table tbody td { padding: 14px 16px; }
 
-        /* Lencana status */
         .badge-status { font-weight: 700; border: 1px solid; }
         .badge-tersedia { background: rgba(79, 214, 156, .12); border-color: rgba(79, 214, 156, .4); color: var(--sukses); }
         .badge-dipinjam { background: rgba(241, 181, 61, .12); border-color: rgba(241, 181, 61, .45); color: var(--emas-teks); }
 
-        /* Pagination */
         .pagination {
             --bs-pagination-bg: transparent;
             --bs-pagination-color: var(--aksen);
@@ -148,13 +141,11 @@
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* ====== Responsif ====== */
         @media (max-width: 991.98px) {
             .table thead th { padding: 12px; }
             .table tbody td { padding: 12px; }
         }
 
-        /* Tablet portrait & HP: tabel jadi kartu per barang */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
@@ -163,7 +154,6 @@
             .navbar-nav .btn { width: 100%; }
             .btn-kembali { width: 100%; }
 
-            /* Font input minimal 16px agar iOS tidak otomatis zoom */
             .filter-bar .form-control, .filter-bar .form-select { font-size: 1rem; }
 
             .table-card { border-radius: 12px; }
@@ -205,7 +195,6 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- Header / Navbar -->
     <nav class="navbar navbar-expand-md sticky-top" aria-label="Menu utama">
         <div class="container wadah">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/peminjam') }}">
@@ -246,7 +235,6 @@
             Cek barang yang tersedia dan yang sedang dipinjam.
         </p>
 
-        {{-- Pencarian + filter kategori --}}
         <form method="GET" action="{{ route('peminjam.daftar-barang') }}" class="filter-bar row g-2 mb-4">
             <div class="col-12 col-md">
                 <div class="input-group">
@@ -288,7 +276,6 @@
                     <tbody>
                         @forelse ($barang as $item)
                             <tr>
-                                {{-- data-label dipakai CSS untuk menampilkan nama kolom di tampilan HP --}}
                                 <td data-label="No">{{ $barang->firstItem() + $loop->index }}</td>
                                 <td data-label="Nama Barang">{{ $item->nama_barang }}</td>
                                 <td data-label="Kategori">{{ $item->kategori->nama_kategori ?? '-' }}</td>
@@ -331,7 +318,6 @@
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap
         const html = document.documentElement;
         const labelTema = document.getElementById('labelTema');
         const tampilkanLabel = () => {

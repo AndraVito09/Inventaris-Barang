@@ -6,7 +6,6 @@
     <title>Dashboard Peminjam - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -23,7 +22,7 @@
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
+    
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -38,7 +37,7 @@
             --telat: #d6336c;
             --emas-teks: #b97d00;
         }
-        /* Palet biru tua: gelap */
+
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -62,14 +61,12 @@
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Wadah utama */
         .wadah {
             max-width: 1120px;
             padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
             padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
         }
 
-        /* Navbar (tetap di atas) */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
         .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
         .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -78,7 +75,6 @@
         .navbar .nav-link { color: var(--bs-secondary-color); font-weight: 500; border-bottom: 2px solid transparent; padding-left: 0; padding-right: 0; }
         .navbar .nav-link:hover, .navbar .nav-link.active { color: var(--bs-body-color); border-color: var(--emas); }
 
-        /* Tombol */
         .btn-outline-secondary {
             --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
@@ -88,19 +84,16 @@
         .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* Judul */
         h1 { font-size: clamp(1.75rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.08; overflow-wrap: break-word; }
         h2 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.015em; }
         .lead { max-width: 36rem; color: var(--bs-secondary-color); font-size: clamp(1rem, 2.2vw, 1.15rem); }
 
-        /* Kartu gaya admin */
         .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
         .papan-kepala { padding: 20px 24px; border-bottom: 1px solid var(--bs-border-color); }
         .papan-isi { padding: 24px; }
         .ikon-kotak { width: 44px; height: 44px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; background: color-mix(in srgb, var(--biru) 14%, transparent); color: var(--biru); }
         .badge-jumlah { background: var(--hover); color: var(--bs-body-color); border: 1px solid var(--bs-border-color); font-weight: 600; }
 
-        /* Kondisi barang */
         .kondisi { list-style: none; margin: 0; padding: 0; }
         .kondisi li { display: grid; grid-template-columns: 6.5rem 1fr 2.5rem; align-items: center; gap: 14px; padding: .7rem 0; border-bottom: 1px solid var(--bs-border-color); }
         .kondisi li:last-child { border-bottom: 0; }
@@ -113,13 +106,11 @@
         .k-telat { --c: var(--telat); }
         .peringatan { color: var(--telat); font-weight: 500; }
 
-        /* Kartu kondisi barang versi ringkas */
         .papan-kecil .ikon-kecil { width: 36px; height: 36px; font-size: 1.05rem; border-radius: 10px; }
         .papan-kecil .badge-jumlah { font-size: .75rem; padding: .4em .75em; }
         .papan-kecil .kondisi li { padding: .5rem 0; grid-template-columns: 5.5rem 1fr 2rem; }
         .papan-kecil .kondisi { padding-top: .25rem; padding-bottom: .25rem; }
 
-        /* Layanan */
         .layanan { display: block; padding: 1.75rem; border-radius: 16px; background: var(--emas); color: #1a1405; text-decoration: none; transition: transform .2s, background .2s; }
         .layanan:hover { background: #f7c55c; color: #1a1405; transform: translateY(-3px); }
         .layanan h3 { font-size: clamp(1.25rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: -.01em; }
@@ -129,7 +120,6 @@
         .layanan-kembali p { color: var(--bs-secondary-color); }
         .layanan-kembali:hover { background: var(--hover); border-color: var(--bs-secondary-color); color: var(--bs-body-color); }
 
-        /* Pintasan */
         .daftar .list-group-item { background: transparent; color: var(--bs-body-color); display: flex; align-items: center; gap: 14px; padding: 1rem 24px; min-height: 64px; border-color: var(--bs-border-color); }
         .daftar .list-group-item:hover { background: var(--hover); }
         .daftar .teks { min-width: 0; }
@@ -141,7 +131,6 @@
 
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 
-        /* ====== Responsif ====== */
         @media (max-width: 991.98px) {
             .papan-kepala, .papan-isi { padding: 20px; }
             .daftar .list-group-item { padding-left: 20px; padding-right: 20px; }
@@ -232,7 +221,6 @@
             </a>
         </div>
 
-        {{-- Judul + kondisi barang (berdampingan) --}}
         <section class="row g-4 g-lg-5 align-items-center py-4 py-md-5">
             <div class="col-12 col-lg-6">
                 <h1>Selamat datang di layanan peminjaman.</h1>
@@ -263,7 +251,6 @@
             </div>
         </section>
 
-        {{-- Layanan --}}
         <section aria-labelledby="judul-layanan" class="mb-4">
             <h2 id="judul-layanan" class="mb-3">Layanan</h2>
 
@@ -285,7 +272,6 @@
             </div>
         </section>
 
-        {{-- Pintasan --}}
         <section class="papan mb-4" aria-label="Pintasan">
             <div class="list-group list-group-flush daftar">
                 <a href="{{ url('/peminjam/katalog') }}" class="list-group-item list-group-item-action">
@@ -321,7 +307,6 @@
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap (pilihan tersimpan di browser)
         (function () {
             const html = document.documentElement;
             const label = document.getElementById('labelTema');

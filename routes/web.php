@@ -18,7 +18,6 @@ Route::post('/login', [AuthController::class, 'login'])
     ->name('login.process')
     ->middleware('throttle:5,1');
 
-// Halaman peminjam (publik, tanpa login)
 Route::get('/peminjam', [PeminjamanController::class, 'index'])->name('peminjaman.index');
 Route::get('/peminjam/pinjam', [PeminjamanController::class, 'formPinjam']);
 Route::post('/peminjam/pinjam', [PeminjamanController::class, 'simpan'])->middleware('throttle:10,1');
@@ -29,24 +28,19 @@ Route::get('/peminjam/kembali', [PengembalianController::class, 'index']);
 Route::post('/peminjam/kembali/cek', [PengembalianController::class, 'cek'])->middleware('throttle:60,1');
 Route::post('/peminjam/kembali/proses', [PengembalianController::class, 'proses'])->middleware('throttle:10,1');
 
-// Daftar barang: method di controller bernama "katalog"
 Route::get('/peminjam/daftar-barang', [PeminjamanController::class, 'katalog'])
     ->name('peminjam.daftar-barang');
 
-// Link lama /peminjam/katalog diarahkan ke halaman yang benar
 Route::redirect('/peminjam/katalog', '/peminjam/daftar-barang');
 
-// Riwayat peminjaman untuk peminjam (nama peminjam disamarkan)
 Route::get('/peminjam/riwayat', [RiwayatController::class, 'peminjam'])
     ->name('peminjaman.riwayat')
     ->middleware('throttle:60,1');
 
-// Halaman admin (wajib login)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Data Kategori
     Route::resource('kategori', KategoriController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
@@ -59,11 +53,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('barang', BarangController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
-    // Halaman Riwayat Peminjaman
     Route::get('/admin/riwayat', [RiwayatController::class, 'index'])
         ->name('admin.riwayat');
 
-    // Unduh Laporan Riwayat Peminjaman (mingguan / bulanan / tahunan, simpan sebagai PDF)
     Route::get('/admin/riwayat/unduh', [RiwayatController::class, 'unduh'])
         ->name('admin.riwayat.unduh')
         ->middleware('throttle:30,1');

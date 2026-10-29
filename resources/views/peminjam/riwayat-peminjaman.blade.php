@@ -6,7 +6,6 @@
     <title>Riwayat - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -22,7 +21,6 @@
     <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -37,7 +35,7 @@
             --bahaya: #c62a47;
             --sukses: #0f7a4d;
         }
-        /* Palet biru tua: gelap */
+
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -57,18 +55,16 @@
         html { -webkit-text-size-adjust: 100%; }
         body {
             font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
-            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+            overflow-x: hidden;
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Wadah utama: hormati area aman (notch) di HP */
         .wadah {
             max-width: 1120px;
             padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
             padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
         }
 
-        /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
         .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
         .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -87,7 +83,6 @@
 
         h1 { font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: break-word; }
 
-        /* Tabel */
         .table-card { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; overflow: hidden; }
         .table {
             --bs-table-bg: transparent;
@@ -106,7 +101,6 @@
         }
         .table tbody td { padding: 14px 16px; }
 
-        /* Lencana status */
         .badge-status { font-weight: 700; border: 1px solid; }
         .badge-selesai { background: rgba(79, 214, 156, .12); border-color: rgba(79, 214, 156, .4); color: var(--sukses); }
         .badge-pinjam { background: rgba(241, 181, 61, .12); border-color: rgba(241, 181, 61, .45); color: var(--emas-teks); }
@@ -116,15 +110,11 @@
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
 
-        /* ====== Responsif ====== */
-
-        /* Tablet (di bawah 992px): padding sel dirapatkan supaya tabel muat tanpa scroll */
         @media (max-width: 991.98px) {
             .table thead th { padding: 12px; }
             .table tbody td { padding: 12px; font-size: .95rem; }
         }
 
-        /* Tablet portrait & HP (di bawah 768px): tabel berubah jadi kartu per transaksi */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
             .logo { width: 46px; height: 46px; }
@@ -154,7 +144,6 @@
             .tabel-riwayat td.kosong::before { content: none; }
         }
 
-        /* HP kecil (di bawah 400px) */
         @media (max-width: 399.98px) {
             .navbar-brand { font-size: 1.05rem; gap: .5rem !important; }
             .logo { width: 38px; height: 38px; }
@@ -163,7 +152,6 @@
             footer { font-size: .8rem; }
         }
 
-        /* Layar pendek (HP landscape): kurangi jarak vertikal */
         @media (max-height: 480px) and (orientation: landscape) {
             .navbar { padding-top: .35rem; padding-bottom: .35rem; }
             .logo { width: 38px; height: 38px; }
@@ -173,7 +161,6 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- Header / Navbar -->
     <nav class="navbar navbar-expand-md sticky-top" aria-label="Menu utama">
         <div class="container wadah">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/peminjam') }}">
@@ -202,7 +189,6 @@
         </div>
     </nav>
 
-    <!-- Isi halaman -->
     <main class="container wadah flex-grow-1 py-4 py-md-5">
 
         <a class="btn btn-outline-secondary btn-sm btn-kembali mb-4" href="{{ url('/peminjam') }}">
@@ -243,7 +229,6 @@
                                 }
                             @endphp
                             <tr>
-                                {{-- data-label dipakai CSS untuk menampilkan nama kolom di tampilan HP --}}
                                 <td data-label="No">{{ $loop->iteration }}</td>
                                 <td data-label="Nama Barang">{{ $row->barang->nama_barang ?? '-' }}</td>
                                 <td data-label="Peminjam">{{ $row->nama_tampil }}</td>
@@ -273,7 +258,6 @@
 
     </main>
 
-    <!-- Footer -->
     <footer class="py-3">
         <div class="container wadah d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 text-center text-sm-start">
             <span>&copy; copyright 2026 smkn4padalarang | Lab PPLG PK</span>
@@ -282,7 +266,6 @@
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap
         const html = document.documentElement;
         const labelTema = document.getElementById('labelTema');
         const tampilkanLabel = () => {

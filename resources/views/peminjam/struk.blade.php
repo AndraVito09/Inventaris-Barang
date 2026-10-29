@@ -6,7 +6,6 @@
     <title>Struk Peminjaman - Inventaris Barang</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    {{-- Terapkan tema tersimpan sebelum render agar tidak berkedip --}}
     <script>
         (function () {
             var tema = null;
@@ -22,7 +21,6 @@
     <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <style>
-        /* Palet biru tua: terang */
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -33,7 +31,6 @@
             --hover: rgba(11, 36, 71, .06);
             --ada: #0f9d7a;
         }
-        /* Palet biru tua: gelap */
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -49,18 +46,16 @@
         html { -webkit-text-size-adjust: 100%; }
         body {
             font-family: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
-            overflow-x: hidden; /* cegah scroll ke samping di layar kecil */
+            overflow-x: hidden;
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        /* Wadah utama: ikut lebar layar, hormati area aman (notch) di HP */
         .wadah {
             max-width: 1120px;
             padding-left: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-left));
             padding-right: max(var(--bs-gutter-x, .75rem), env(safe-area-inset-right));
         }
 
-        /* Navbar */
         .navbar { background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--bs-border-color); padding-top: .75rem; padding-bottom: .75rem; }
         .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.01em; color: var(--bs-body-color); min-width: 0; }
         .navbar-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -76,27 +71,21 @@
         .btn-tema, .btn-kembali { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
         [data-bs-theme="dark"] .ikon-bulan, [data-bs-theme="light"] .ikon-matahari { display: none; }
 
-        /* Judul */
         h1 { font-size: clamp(1.5rem, 5vw, 2.25rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
 
-        /* Kartu struk */
         .papan { background: var(--kartu); border: 1px solid var(--bs-border-color); border-radius: 16px; }
         .garis { border-top: 1px solid var(--bs-border-color); }
 
         .kode-struk { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; color: var(--ada); font-weight: 700; }
-        /* Kode transaksi panjang: ukuran menyesuaikan layar dan boleh turun baris */
         .kode-besar { font-size: clamp(1rem, 4.6vw, 1.6rem); overflow-wrap: anywhere; }
 
-        /* QR selalu di atas putih agar mudah dipindai, ikut mengecil di layar sempit */
         .kotak-qr { max-width: 100%; background: #fff; border-radius: 12px; }
         #qr { display: flex; justify-content: center; }
         #qr canvas, #qr img { max-width: 100%; height: auto !important; }
 
-        /* Detail: nilai panjang tidak melebar keluar kartu */
         dl dt { color: var(--bs-secondary-color); font-weight: 400; }
         dl dd { overflow-wrap: anywhere; font-weight: 500; }
 
-        /* Tombol */
         .btn-emas {
             --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
             --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
@@ -105,17 +94,14 @@
         }
         .aksi .btn { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
 
-        /* Pengingat sanksi */
         .aturan { border: 1.5px solid rgba(241, 181, 61, .45); background: rgba(241, 181, 61, .1); color: var(--bs-secondary-color); border-radius: 10px; }
         .aturan strong { color: #b97d00; }
         [data-bs-theme="dark"] .aturan strong { color: var(--emas); }
 
-        /* Modal */
         .modal-content { background: var(--kartu); color: var(--bs-body-color); border: 1px solid var(--bs-border-color); border-radius: 16px; }
 
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 
-        /* ====== Responsif ====== */
 
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.2rem; }
@@ -153,7 +139,6 @@
             .wadah { max-width: 1200px; }
         }
 
-        /* Saat dicetak: hanya struk yang tampil, hitam putih */
         @media print {
             .navbar, footer, .tanpa-cetak { display: none !important; }
             body { background: #fff !important; color: #000 !important; }
@@ -161,7 +146,6 @@
             .kode-struk, dl dt, .text-secondary { color: #000 !important; }
             .aturan { border-color: #000 !important; background: #fff !important; color: #000 !important; }
             .aturan strong { color: #000 !important; }
-            /* Pastikan tata letak detail tetap dua kolom saat cetak */
             dl.row dt { width: 41.66667%; margin-bottom: .5rem; }
             dl.row dd { width: 58.33333%; margin-bottom: .5rem; }
         }
@@ -237,7 +221,6 @@
                     <dd class="col-12 col-sm-7 mb-0">{{ $peminjaman->status_peminjaman }}</dd>
                 </dl>
 
-                {{-- Pengingat sanksi, hanya untuk siswa --}}
                 @if ($peminjaman->peminjam->tipe_peminjam === 'Siswa')
                     <div class="aturan px-3 py-3 mt-4 small text-start">
                         <strong>Pengingat:</strong>
@@ -253,7 +236,6 @@
         </div>
     </main>
 
-    {{-- Pop up berhasil (hanya muncul sekali, tepat setelah data disimpan) --}}
     @if (session('berhasil'))
     <div class="modal fade" id="modalBerhasil" tabindex="-1" aria-labelledby="judulBerhasil" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -281,7 +263,6 @@
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('vendor/qrcodejs/qrcode.min.js') }}"></script>
     <script>
-        // Ganti tema terang/gelap
         const html = document.documentElement;
         const label = document.getElementById('labelTema');
         const tampilkanLabel = () => {

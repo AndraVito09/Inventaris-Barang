@@ -1188,9 +1188,6 @@
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <script>
-        // ==========================================
-        // GANTI TEMA TERANG / GELAP
-        // ==========================================
         const html = document.documentElement;
         const label = document.getElementById('labelTema');
 
@@ -1218,9 +1215,6 @@
             tampilkanLabel();
         });
 
-        // ==========================================
-        // TUTUP MENU MOBILE SETELAH TAUTAN DIKLIK
-        // ==========================================
         const menu = document.getElementById('menu');
 
         menu.querySelectorAll('a').forEach(a => {
@@ -1229,9 +1223,6 @@
             });
         });
 
-        // ==========================================
-        // ISI CONTOH STRUK DENGAN TANGGAL
-        // ==========================================
         const sekarang = new Date();
         const batas = new Date(
             sekarang.getTime() + 24 * 60 * 60 * 1000
@@ -1253,10 +1244,6 @@
         document.getElementById('tPinjam').textContent = format(sekarang);
         document.getElementById('tBatas').textContent = format(batas);
 
-        // ==========================================
-        // GAMBAR QR CONTOH
-        // Ini hanya hiasan, bukan QR yang dapat dipindai.
-        // ==========================================
         (function (teks) {
             const N = 25;
             let h = 2166136261;
