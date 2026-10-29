@@ -20,11 +20,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
-    <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
-        
+        /* Palet biru tua: terang */
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -74,6 +74,7 @@
             --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--merah); --bs-btn-active-border-color: var(--merah);
             border-radius: 10px;
         }
+        .btn-outline-info { border-radius: 10px; }
         .btn-emas {
             --bs-btn-color: #1a1405; --bs-btn-bg: var(--emas); --bs-btn-border-color: var(--emas);
             --bs-btn-hover-color: #1a1405; --bs-btn-hover-bg: #f7c55c; --bs-btn-hover-border-color: #f7c55c;
@@ -407,7 +408,7 @@
                                             <th>Nama Barang</th>
                                             <th>Kategori</th>
                                             <th style="width: 130px;">Status</th>
-                                            <th style="width: 200px;" class="text-end">Aksi</th>
+                                            <th style="width: 280px;" class="text-end">Aksi</th>
                                         </tr>
                                     </thead>
 
@@ -426,7 +427,8 @@
                                                 <td class="col-aksi text-end">
                                                     <div class="d-inline-flex flex-wrap justify-content-end gap-2">
 
-                                                        <button type="button" class="btn btn-sm btn-outline-info btn-cetak"
+                                                        <button type="button"
+                                                                class="btn btn-outline-info tombol-aksi btn-cetak"
                                                                 data-url="{{ route('barang.cetak', $item->id_barang) }}">
                                                             <i class="bi bi-upc-scan"></i> Cetak
                                                         </button>
@@ -498,7 +500,7 @@
     {{-- Modal Tambah --}}
     <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="judulModalTambah" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <form method="POST" action="{{ route('barang.store') }}" class="modal-content">
+            <form method="POST" action="{{ route('barang.store') }}" id="formTambah" class="modal-content">
                 @csrf
 
                 <div class="modal-header">
@@ -606,7 +608,7 @@
     </div>
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="	{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script>
 
         (function () {
@@ -670,6 +672,21 @@
         @elseif ($errors->any())
             popup({ icon: 'error', title: 'Data tidak valid', text: @json($errors->first()) });
         @endif
+
+        // Tambah: konfirmasi sebelum kirim
+        const formTambah = document.getElementById('formTambah');
+
+        formTambah.addEventListener('submit', e => {
+            e.preventDefault();
+            popup({
+                icon: 'question',
+                title: 'Yakin ingin menambahkan?',
+                text: document.getElementById('tambahNama').value,
+                showCancelButton: true,
+                confirmButtonText: 'Ya, tambah',
+                cancelButtonText: 'Batal',
+            }).then(r => { if (r.isConfirmed) formTambah.submit(); });
+        });
 
         // Edit: isi modal, lalu konfirmasi sebelum kirim
         const formEdit = document.getElementById('formEdit');

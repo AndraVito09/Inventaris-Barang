@@ -19,11 +19,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
-    <link href="	{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
-       
+
         [data-bs-theme="light"] {
             --bs-body-bg: #eef3fb;
             --bs-body-color: #0b2447;
@@ -34,8 +34,9 @@
             --hover: rgba(11, 36, 71, .06);
             --biru: #1d4fa8;
             --merah: #c2334d;
+            --sukses: #0f7a4d;
         }
-        
+
         [data-bs-theme="dark"] {
             --bs-body-bg: #0a1930;
             --bs-body-color: #e7eefb;
@@ -46,6 +47,7 @@
             --hover: rgba(173, 198, 245, .1);
             --biru: #6ea8ff;
             --merah: #ff7a8e;
+            --sukses: #4fd69c;
         }
         :root { --emas: #f1b53d; }
 
@@ -56,7 +58,7 @@
         }
         a:focus-visible, button:focus-visible { outline: 3px solid #6ea8ff; outline-offset: 3px; }
 
-        
+
         .btn-outline-secondary {
             --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-border-color);
             --bs-btn-hover-color: var(--bs-body-color); --bs-btn-hover-bg: var(--hover); --bs-btn-hover-border-color: var(--bs-secondary-color);
@@ -170,6 +172,20 @@
         .modal-header, .modal-footer { border-color: var(--bs-border-color); }
         [data-bs-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
 
+        /* Popup sukses */
+        .ikon-sukses {
+            width: 72px; height: 72px; margin: 0 auto 16px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-size: 2.25rem;
+            color: var(--sukses);
+            background: color-mix(in srgb, var(--sukses) 14%, transparent);
+            animation: muncul .35s ease-out;
+        }
+        @keyframes muncul {
+            from { transform: scale(.6); opacity: 0; }
+            to   { transform: scale(1);  opacity: 1; }
+        }
+
         .pagination { gap: 5px; margin-bottom: 0; flex-wrap: wrap; }
         .page-link { min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; color: var(--bs-body-color); background: var(--kartu); border-color: var(--bs-border-color); border-radius: 8px !important; }
         .page-item.active .page-link { color: #1a1405; background: var(--emas); border-color: var(--emas); }
@@ -244,6 +260,7 @@
         @media (prefers-reduced-motion: reduce) {
             .btn-emas, .side-link { transition: none; }
             .btn-emas:hover { transform: none; }
+            .ikon-sukses { animation: none; }
         }
     </style>
 </head>
@@ -358,8 +375,8 @@
                         </button>
                     </section>
 
-                    {{-- Notifikasi --}}
-                    @foreach (['success' => 'success', 'error' => 'danger', 'info' => 'info'] as $key => $warna)
+                    {{-- Notifikasi error / info (pesan sukses ditampilkan sebagai popup) --}}
+                    @foreach (['error' => 'danger', 'info' => 'info'] as $key => $warna)
                         @if (session($key))
                             <div class="alert alert-{{ $warna }} alert-dismissible fade show" role="alert">
                                 <i class="bi bi-info-circle-fill me-2"></i>
@@ -622,6 +639,22 @@
         </div>
     </div>
 
+    {{-- Popup sukses (tambah / edit / hapus) --}}
+    @if (session('success'))
+        <div class="modal fade" id="modalSukses" tabindex="-1" aria-labelledby="judulSukses" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content">
+                    <div class="modal-body text-center p-4">
+                        <div class="ikon-sukses"><i class="bi bi-check-lg"></i></div>
+                        <h2 class="h5 fw-bold mb-2" id="judulSukses">Berhasil!</h2>
+                        <p class="text-body-secondary mb-4" role="status">{{ session('success') }}</p>
+                        <button type="button" class="btn btn-emas w-100" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Modal konfirmasi logout --}}
     <div class="modal fade" id="modalLogout" tabindex="-1" aria-labelledby="judulLogout" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -690,6 +723,15 @@
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalHapus')).show();
                 });
             });
+
+            // Popup sukses: tampil otomatis, tutup sendiri setelah 3 detik
+            const elSukses = document.getElementById('modalSukses');
+            if (elSukses) {
+                const popup = bootstrap.Modal.getOrCreateInstance(elSukses);
+                popup.show();
+                const timer = setTimeout(() => popup.hide(), 3000);
+                elSukses.addEventListener('hidden.bs.modal', () => clearTimeout(timer), { once: true });
+            }
         });
     </script>
 </body>
