@@ -469,7 +469,7 @@
             status.classList.toggle('mati', !siap);
             status.textContent = siap ? 'Scanner siap, silakan scan struk' : 'Klik di sini untuk mengaktifkan scanner';
         }
-.
+
         function ekstrakKode(teks) {
             teks = (teks || '').trim();
 
