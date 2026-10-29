@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
 use App\Models\Activity_log;
+use App\Models\Kategori;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
@@ -21,9 +22,18 @@ class RiwayatController extends Controller
     ];
 
     private const NAMA_BULAN = [
-        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        1 => 'Januari', 
+        2 => 'Februari', 
+        3 => 'Maret', 
+        4 => 'April',
+        5 => 'Mei', 
+        6 => 'Juni', 
+        7 => 'Juli', 
+        8 => 'Agustus',
+        9 => 'September', 
+        10 => 'Oktober', 
+        11 => 'November', 
+        12 => 'Desember',
     ];
 
     public function index(Request $request): View
@@ -108,25 +118,34 @@ class RiwayatController extends Controller
 
     public function peminjam(Request $request): View
     {
-        // Halaman publik: form memakai field "cari" dan "status"
-        $cari = mb_substr(trim($request->string('cari')->toString()), 0, 100);
+        $request->validate([
+        'cari'     => ['nullable', 'string', 'max:100'],
+        'kategori' => ['nullable', 'integer'],
+    ]);
 
-        $status = $request->string('status')->toString();
-        if (! array_key_exists($status, self::OPSI_STATUS)) {
-            $status = '';
-        }
+    $riwayat = Peminjaman::with(['barang', 'peminjam'])
+        ->when($request->filled('cari'), function ($q) use ($request) {
+            $q->whereHas('barang', fn ($b) => $b->where('nama_barang', 'like', '%' . $request->cari . '%'));
+        })
+        ->when($request->filled('kategori'), function ($q) use ($request) {
+            $q->whereHas('barang', fn ($b) => $b->where('id_kategori', $request->kategori));
+        })
+        ->orderByDesc('tgl_pinjam')
+        ->orderByDesc('id_peminjaman')
+        ->paginate(self::PER_HALAMAN)
+        ->withQueryString();   // supaya cari/kategori ikut terbawa saat pindah halaman
 
-        $riwayat = $this->ambilRiwayat($cari, $status);
+    $riwayat->getCollection()->each(function (Peminjaman $row) {
+        $row->setAttribute(
+            'nama_tampil',
+            $this->samarkanNama($row->peminjam->nama_peminjam ?? '-')
+        );
+    });
 
-        $riwayat->each(function (Peminjaman $row) {
-            $nama = $row->peminjam->nama_peminjam ?? '-';
-
-            $row->setAttribute('nama_tampil', $this->samarkanNama($nama));
-        });
-
-        return view('peminjam.riwayat-peminjaman', [
-            'riwayat' => $riwayat,
-        ]);
+    return view('peminjam.riwayat-peminjaman', [
+        'riwayat'  => $riwayat,
+        'kategori' => Kategori::orderBy('nama_kategori')->get(),
+    ]);
     }
 
     private function bacaFilter(Request $request): array

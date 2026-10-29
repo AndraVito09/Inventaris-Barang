@@ -124,6 +124,24 @@
         .badge-pinjam { background: rgba(241, 181, 61, .12); border-color: rgba(241, 181, 61, .45); color: var(--emas-teks); }
         .badge-telat { background: rgba(214, 51, 79, .1); border-color: rgba(214, 51, 79, .4); color: var(--bahaya); }
 
+        .pagination {
+            --bs-pagination-bg: transparent;
+            --bs-pagination-color: var(--aksen);
+            --bs-pagination-border-color: var(--bs-border-color);
+            --bs-pagination-hover-bg: var(--hover);
+            --bs-pagination-hover-color: var(--bs-body-color);
+            --bs-pagination-hover-border-color: var(--bs-border-color);
+            --bs-pagination-focus-bg: var(--hover);
+            --bs-pagination-active-bg: var(--emas);
+            --bs-pagination-active-border-color: var(--emas);
+            --bs-pagination-active-color: #1a1405;
+            --bs-pagination-disabled-bg: transparent;
+            --bs-pagination-disabled-color: var(--bs-secondary-color);
+            --bs-pagination-disabled-border-color: var(--bs-border-color);
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+
         footer { border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: .9rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
         footer a { color: var(--bs-secondary-color); display: inline-block; padding: .25rem 0; }
         footer a:hover { color: var(--bs-body-color); }
@@ -140,6 +158,8 @@
             .navbar .nav-link:hover, .navbar .nav-link.aktif { border-left-color: var(--emas); }
             .navbar-nav .btn { width: 100%; }
             .btn-kembali { width: 100%; }
+            .info-bawah { align-items: stretch !important; text-align: center; }
+            .info-bawah .pagination { justify-content: center; }
 
             /* Font input minimal 16px agar iOS tidak otomatis zoom */
             .filter-bar .form-control, .filter-bar .form-select { font-size: 1rem; }
@@ -233,11 +253,13 @@
                 </div>
             </div>
             <div class="col-12 col-md-4 col-lg-3">
-                <select name="status" class="form-select" aria-label="Filter status" onchange="this.form.submit()">
-                    <option value="">Semua Status</option>
-                    <option value="dipinjam"  @selected(request('status') === 'dipinjam')>Dipinjam</option>
-                    <option value="terlambat" @selected(request('status') === 'terlambat')>Terlambat</option>
-                    <option value="selesai"   @selected(request('status') === 'selesai')>Selesai</option>
+                <select name="kategori" class="form-select" aria-label="Filter kategori" onchange="this.form.submit()">
+                    <option value="">Semua Kategori</option>
+                    @foreach ($kategori as $k)
+                        <option value="{{ $k->id_kategori }}" @selected((string) request('kategori') === (string) $k->id_kategori)>
+                            {{ $k->nama_kategori }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-12 col-md-auto d-flex gap-2">
@@ -276,7 +298,7 @@
                                 }
                             @endphp
                             <tr>
-                                <td data-label="No">{{ $loop->iteration }}</td>
+                                <td data-label="No">{{ $riwayat->firstItem() + $loop->index }}</td>
                                 <td data-label="Nama Barang">{{ $row->barang->nama_barang ?? '-' }}</td>
                                 <td data-label="Peminjam">{{ $row->nama_tampil }}</td>
                                 <td data-label="Tanggal Pinjam">{{ $row->tgl_pinjam?->format('d/m/Y H:i') }}</td>
